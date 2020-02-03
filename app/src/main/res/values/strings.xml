@@ -18,4 +18,9 @@
     <string name="name">Name</string>
     <string name="balance">Balance</string>
     <string name="balance_text">£%1$.2f</string>
+    <string name="current_balance">Current balance</string>
+    <string name="appearence">Appearence</string>
+
+    <string name="text_account_desc">Add a virtual account to represent an account you\'d like to track your expenses for.</string>
+    <string name="button_add_account">Add account</string>
 </resources>
