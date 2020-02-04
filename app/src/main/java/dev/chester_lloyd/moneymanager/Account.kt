@@ -1,22 +1,26 @@
 package dev.chester_lloyd.moneymanager
 
 class Account {
-    var accountID:Int?=null
-    var name:String?=null
-    var balance:Double?=null
-    var icon:Int?=R.drawable.ic_account_cash
-    var circle:Int?=R.drawable.ic_circle_green
+    var accountID: Int? = null
+    var name: String? = null
+    var balance: Double? = null
+    var icon: Int = 0
+    var colour: Int = 0
 
-    constructor(accountID:Int, name:String, balance:Double, icon:Int?, circle:Int?) {
+    constructor(accountID: Int, name: String, balance: Double, icon: Int, colour: Int) {
         this.accountID = accountID
         this.name = name
         this.balance = balance
-//      Preset to green circle and cash icon if these are null
-        if (icon != null) {
-            this.icon = icon
-        }
-        if (circle != null) {
-            this.circle = circle
-        }
+        this.icon = icon
+        this.colour = colour
+    }
+
+    constructor() {
+        this.accountID = 4
+    }
+
+//  Return object as a string
+    override fun toString() :String {
+        return String.format("ID: %d, Name: %s, Balance: %.2f, Icon: %d, Colour: %d", accountID, name, balance, icon, colour)
     }
 }

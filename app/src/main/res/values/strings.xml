@@ -26,7 +26,6 @@
     <string name="button_add_account">Add account</string>
     <string name="account_icon">Account icon</string>
     <string-array name="account_names">
-        <item>Airplane</item>
         <item>Bank</item>
         <item>Business</item>
         <item>Cash</item>
@@ -43,7 +42,7 @@
     <string-array name="colour_names">
         <item>Green</item>
         <item>Blue</item>
-        <item>PayPal</item>
+        <item>PayPal</item>i
     </string-array>
 
 </resources>

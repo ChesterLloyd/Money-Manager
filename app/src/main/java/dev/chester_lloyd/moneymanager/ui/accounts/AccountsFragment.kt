@@ -38,9 +38,9 @@ class AccountsFragment : Fragment() {
 
 //      Get accounts as a list
         var listAccounts = ArrayList<Account>()
-        listAccounts.add(Account(1,"Cash",30.23,null,null))
+        listAccounts.add(Account(1,"Cash",30.23,R.drawable.ic_account_cash,R.drawable.ic_circle_green))
         listAccounts.add(Account(2,"PayPal",56.00, R.drawable.ic_account_paypal, R.drawable.ic_circle_paypal))
-        listAccounts.add(Account(2,"Current",166.50, R.drawable.ic_account_credit_card, null))
+        listAccounts.add(Account(2,"Current",166.50, R.drawable.ic_account_credit_card, R.drawable.ic_circle_green))
         val myAccountsAdapter = MyAccountsAdapter(listAccounts)
         root.lvAccounts.adapter = myAccountsAdapter
 
@@ -61,8 +61,8 @@ class AccountsFragment : Fragment() {
             val account = listAccountsAdapter[position]
             rowView.tvName.text = account.name
             rowView.tvBalance.text = getString(R.string.balance_text, account.balance)
-            rowView.ivIcon.setImageResource(account.icon!!)
-            rowView.ivIcon.setBackgroundResource(account.circle!!)
+            rowView.ivIcon.setImageResource(account.icon)
+            rowView.ivIcon.setBackgroundResource(account.colour)
             return rowView
         }
 
