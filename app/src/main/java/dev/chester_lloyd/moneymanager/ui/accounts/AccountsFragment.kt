@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.chester_lloyd.moneymanager.Account
 import dev.chester_lloyd.moneymanager.AddAccount
-import dev.chester_lloyd.moneymanager.MainActivity
 import dev.chester_lloyd.moneymanager.R
 import kotlinx.android.synthetic.main.account.view.*
 import kotlinx.android.synthetic.main.fragment_accounts.view.*
@@ -40,8 +39,8 @@ class AccountsFragment : Fragment() {
 //      Get accounts as a list
         var listAccounts = ArrayList<Account>()
         listAccounts.add(Account(1,"Cash",30.23,null,null))
-        listAccounts.add(Account(2,"PayPal",56.00, R.drawable.ic_paypal_brands, R.drawable.ic_circle_paypal))
-        listAccounts.add(Account(2,"Current",166.50, R.drawable.ic_credit_card_white_24dp, null))
+        listAccounts.add(Account(2,"PayPal",56.00, R.drawable.ic_account_paypal, R.drawable.ic_circle_paypal))
+        listAccounts.add(Account(2,"Current",166.50, R.drawable.ic_account_credit_card, null))
         val myAccountsAdapter = MyAccountsAdapter(listAccounts)
         root.lvAccounts.adapter = myAccountsAdapter
 

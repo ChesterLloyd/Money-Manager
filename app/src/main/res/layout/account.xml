@@ -13,7 +13,7 @@
         android:background="@drawable/ic_circle_green"
         android:contentDescription="Account Icon"
         android:padding="10dp"
-        app:srcCompat="@drawable/ic_credit_card_white_24dp" />
+        app:srcCompat="@drawable/ic_account_credit_card" />
 
     <TextView
         android:id="@+id/tvName"

@@ -19,8 +19,31 @@
     <string name="balance">Balance</string>
     <string name="balance_text">£%1$.2f</string>
     <string name="current_balance">Current balance</string>
-    <string name="appearence">Appearence</string>
+    <string name="details">Details</string>
+    <string name="appearance">Appearance</string>
 
     <string name="text_account_desc">Add a virtual account to represent an account you\'d like to track your expenses for.</string>
     <string name="button_add_account">Add account</string>
+    <string name="account_icon">Account icon</string>
+    <string-array name="account_names">
+        <item>Airplane</item>
+        <item>Bank</item>
+        <item>Business</item>
+        <item>Cash</item>
+        <item>Credit card</item>
+        <item>Dollar</item>
+        <item>Gift card</item>
+        <item>Joint account</item>
+        <item>Membership</item>
+        <item>PayPal</item>
+        <item>Travel card</item>
+        <item>Wallet</item>
+    </string-array>
+    <string name="account_colour">Account colour</string>
+    <string-array name="colour_names">
+        <item>Green</item>
+        <item>Blue</item>
+        <item>PayPal</item>
+    </string-array>
+
 </resources>

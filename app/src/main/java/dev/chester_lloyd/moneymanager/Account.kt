@@ -4,7 +4,7 @@ class Account {
     var accountID:Int?=null
     var name:String?=null
     var balance:Double?=null
-    var icon:Int?=R.drawable.ic_local_atm_white_24dp
+    var icon:Int?=R.drawable.ic_account_cash
     var circle:Int?=R.drawable.ic_circle_green
 
     constructor(accountID:Int, name:String, balance:Double, icon:Int?, circle:Int?) {
