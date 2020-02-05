@@ -1,5 +1,6 @@
 package dev.chester_lloyd.moneymanager
 
+import android.content.ContentValues
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -52,6 +53,19 @@ class AddAccount : AppCompatActivity() {
             }
 
             println(account.toString())
+
+            var dbManager = dbManager(this)
+
+//            var values = ContentValues()
+//            values.put("Name", )
+
+            val ID = dbManager.insertAccount(account)
+            if (ID > 0) {
+//              Account saved to database
+                Toast.makeText(this, "Account saved", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(this, "Could not save this account", Toast.LENGTH_LONG).show()
+            }
         }
 
 //      Add selected icon to account object
