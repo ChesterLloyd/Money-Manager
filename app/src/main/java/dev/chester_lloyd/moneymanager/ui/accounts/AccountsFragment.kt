@@ -12,12 +12,25 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.chester_lloyd.moneymanager.Account
 import dev.chester_lloyd.moneymanager.AddAccount
 import dev.chester_lloyd.moneymanager.R
+import dev.chester_lloyd.moneymanager.dbManager
 import kotlinx.android.synthetic.main.account.view.*
-import kotlinx.android.synthetic.main.fragment_accounts.view.*
+import kotlinx.android.synthetic.main.fragment_accounts.*
 
 class AccountsFragment : Fragment() {
 
     private lateinit var accountsViewModel: AccountsViewModel
+
+//  When the fragment resumes (on first load or after adding an account) do
+    override fun onResume() {
+        super.onResume()
+
+//      Get accounts as an array list from database
+        var listAccounts = loadAccounts("%")
+
+//      Pass this to the list view adaptor and populate
+        val myAccountsAdapter = MyAccountsAdapter(listAccounts)
+        this.lvAccounts.adapter = myAccountsAdapter
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,16 +48,34 @@ class AccountsFragment : Fragment() {
             startActivity(intent)
         }
 
-
-//      Get accounts as a list
-        var listAccounts = ArrayList<Account>()
-        listAccounts.add(Account(1,"Cash",30.23,R.drawable.ic_account_cash,R.drawable.ic_circle_green))
-        listAccounts.add(Account(2,"PayPal",56.00, R.drawable.ic_account_paypal, R.drawable.ic_circle_paypal))
-        listAccounts.add(Account(2,"Current",166.50, R.drawable.ic_account_credit_card, R.drawable.ic_circle_green))
-        val myAccountsAdapter = MyAccountsAdapter(listAccounts)
-        root.lvAccounts.adapter = myAccountsAdapter
-
         return root
+    }
+
+//  Read accounts from the database and return an array of Account objects
+    fun loadAccounts(name:String):ArrayList<Account> {
+        var listAccounts = ArrayList<Account>()
+
+        var dbManager = dbManager(context!!)
+
+        val projection = arrayOf("ID", "Name", "Balance", "Icon", "Colour")
+        val selectionArgs = arrayOf(name)
+
+        // Each ? represents an arg in array
+        val cursor = dbManager.query("Accounts", projection, "Name like ?", selectionArgs, "Name")
+
+        if (cursor.moveToFirst()) {
+            do {
+                val ID = cursor.getInt(cursor.getColumnIndex("ID"))
+                val name = cursor.getString(cursor.getColumnIndex("Name"))
+                val balance = cursor.getDouble(cursor.getColumnIndex("Balance"))
+                val icon = cursor.getInt(cursor.getColumnIndex("Icon"))
+                val colour = cursor.getInt(cursor.getColumnIndex("Colour"))
+
+                listAccounts.add(Account(ID, name, balance, icon, colour))
+            } while (cursor.moveToNext())
+        }
+
+        return listAccounts
     }
 
 

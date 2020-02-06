@@ -2,8 +2,11 @@ package dev.chester_lloyd.moneymanager
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.database.sqlite.SQLiteQueryBuilder
+import android.media.projection.MediaProjection
 import android.widget.Toast
 import java.lang.String.format
 
@@ -52,6 +55,17 @@ class dbManager {
         override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
             db!!.execSQL(format("DROP TABLE IF EXISTS %s", dbName))
         }
+    }
+
+//  projection - Set of columns (if null, then all columns)
+//  selection - Set of rows
+//  sortOrder - Order
+    fun query(table:String, projection: Array<String>, selection:String, selectionArgs:Array<String>, sortOrder:String):Cursor {
+        val QB = SQLiteQueryBuilder()
+        // Which table to run the query on
+        QB.tables = table
+        val cursor = QB.query(sqlDB, projection, selection, selectionArgs, null, null, sortOrder)
+        return cursor
     }
 
     fun insert(dbTable:String, values:ContentValues):Long {

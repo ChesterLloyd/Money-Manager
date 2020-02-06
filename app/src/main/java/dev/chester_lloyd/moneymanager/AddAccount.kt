@@ -1,6 +1,5 @@
 package dev.chester_lloyd.moneymanager
 
-import android.content.ContentValues
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -54,16 +53,17 @@ class AddAccount : AppCompatActivity() {
 
             println(account.toString())
 
+//          Get instance of the database manager class
             var dbManager = dbManager(this)
 
-//            var values = ContentValues()
-//            values.put("Name", )
-
+//          Insert this new account into the accounts table
             val ID = dbManager.insertAccount(account)
             if (ID > 0) {
-//              Account saved to database
+//              Account saved to database, return to previous accounts fragment
                 Toast.makeText(this, "Account saved", Toast.LENGTH_LONG).show()
+                this.finish()
             } else {
+//              Failed to save, show this error
                 Toast.makeText(this, "Could not save this account", Toast.LENGTH_LONG).show()
             }
         }
