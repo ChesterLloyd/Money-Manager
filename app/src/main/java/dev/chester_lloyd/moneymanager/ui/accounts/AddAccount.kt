@@ -1,14 +1,15 @@
-package dev.chester_lloyd.moneymanager
+package dev.chester_lloyd.moneymanager.ui.accounts
 
-import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.*
+import dev.chester_lloyd.moneymanager.Account
+import dev.chester_lloyd.moneymanager.R
+import dev.chester_lloyd.moneymanager.dbManager
+import dev.chester_lloyd.moneymanager.ui.IconSpinner
 import kotlinx.android.synthetic.main.activity_add_account.*
 
 class AddAccount : AppCompatActivity() {
@@ -25,22 +26,40 @@ class AddAccount : AppCompatActivity() {
 //      Set up the account icon spinner
         val spinner = findViewById<Spinner>(R.id.spIcon)
         val imageName = resources.getStringArray(R.array.account_names)
-        val image = intArrayOf(R.drawable.ic_account_bank,
-            R.drawable.ic_account_business, R.drawable.ic_account_cash,
-            R.drawable.ic_account_credit_card, R.drawable.ic_account_dollar,
-            R.drawable.ic_account_gift_card, R.drawable.ic_account_joint,
-            R.drawable.ic_account_membership_card, R.drawable.ic_account_paypal,
-            R.drawable.ic_account_travel_card, R.drawable.ic_account_wallet)
-        val spinnerCustomAdapter = SpinnerCustomAdapter(applicationContext, image, imageName, "icon")
-        spinner.adapter = spinnerCustomAdapter
+        val image = intArrayOf(
+            R.drawable.ic_account_bank,
+            R.drawable.ic_account_business,
+            R.drawable.ic_account_cash,
+            R.drawable.ic_account_credit_card,
+            R.drawable.ic_account_dollar,
+            R.drawable.ic_account_gift_card,
+            R.drawable.ic_account_joint,
+            R.drawable.ic_account_membership_card,
+            R.drawable.ic_account_paypal,
+            R.drawable.ic_account_travel_card,
+            R.drawable.ic_account_wallet
+        )
+        spinner.adapter = IconSpinner(
+            applicationContext,
+            image,
+            imageName,
+            "icon"
+        )
 
 //      Set up the account color spinner
         val colourSpinner = findViewById<Spinner>(R.id.spColour)
         val colourName = resources.getStringArray(R.array.colour_names)
-        val colour = intArrayOf(R.drawable.ic_circle_green,
-            R.drawable.ic_circle_dark_blue, R.drawable.ic_circle_paypal)
-        val spinnerCustomAdapter2 = SpinnerCustomAdapter(applicationContext, colour, colourName, "colour")
-        colourSpinner.adapter = spinnerCustomAdapter2
+        val colour = intArrayOf(
+            R.drawable.ic_circle_green,
+            R.drawable.ic_circle_dark_blue,
+            R.drawable.ic_circle_paypal
+        )
+        colourSpinner.adapter = IconSpinner(
+            applicationContext,
+            colour,
+            colourName,
+            "colour"
+        )
 
         var balance = ""
 
@@ -125,6 +144,29 @@ class AddAccount : AppCompatActivity() {
 
         val account = Account()
 
+//        val a:Account = intent.getStringExtra("selectedAccount")
+
+
+//        account= intent.getStringExtra("selectedAccount").to
+
+
+        println(intent.getIntExtra("accountID", 0))
+        println(intent.getStringExtra("name"))
+        println(intent.getDoubleExtra("balance", 0.0))
+        println(intent.getIntExtra("icon", 0))
+        println(intent.getIntExtra("colour", 0))
+
+
+        etName.setText(intent.getStringExtra("name"))
+        etBalance.setText(intent.getDoubleExtra("balance", 0.0).toString())
+
+        spIcon.setSelection(image.indexOf(intent.getIntExtra("icon", 0)))
+        spColour.setSelection(colour.indexOf(intent.getIntExtra("colour", 0)))
+
+
+
+        image.indexOf(intent.getIntExtra("icon", 0))
+
         fabAddAccount.setOnClickListener {
             account.name = etName.text.toString()
 
@@ -171,45 +213,6 @@ class AddAccount : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 account.colour = colour[position]
             }
-        }
-    }
-
-//  Spinner adapter class to fill them with icons or colours
-    class SpinnerCustomAdapter(internal var context: Context, internal var icons: IntArray, internal var name: Array<String>, internal var spinnerType: String) : BaseAdapter() { internal var inflter: LayoutInflater
-        init {
-            inflter = LayoutInflater.from(context)
-        }
-        override fun getCount(): Int {
-            return icons.size
-        }
-        override fun getItem(i: Int): Any? {
-            return null
-        }
-        override fun getItemId(i: Int): Long {
-            return 0
-        }
-        override fun getView(i: Int, view: View?, viewGroup: ViewGroup): View {
-            var view = view
-
-            if (spinnerType == "icon") {
-//              If we are adding icons to the spinner
-                view = inflter.inflate(R.layout.spinner_icon, null)
-                val icon = view.findViewById(R.id.ivAccountIcon) as ImageView
-                val names = view.findViewById(R.id.tvIconName) as TextView
-                icon.setImageResource(icons[i])
-                names.text = name[i]
-
-            } else {
-//              If we are adding anything else, i.e. colours
-                view = inflter.inflate(R.layout.spinner_colour, null)
-                val colour = view.findViewById(R.id.ivAccountColour) as ImageView
-                val names = view.findViewById(R.id.tvColourName) as TextView
-                //colour.setBackgroundColor(Color.rgb(200,83,81))
-                colour.setBackgroundResource(icons[i])
-
-                names.text = name[i]
-            }
-            return view
         }
     }
 

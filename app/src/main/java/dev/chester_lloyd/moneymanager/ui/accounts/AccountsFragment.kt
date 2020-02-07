@@ -1,16 +1,19 @@
 package dev.chester_lloyd.moneymanager.ui.accounts
 
 import android.content.Intent
+import android.content.IntentSender
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.BaseAdapter
+import android.widget.Toast
+import androidx.core.app.ShareCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.chester_lloyd.moneymanager.Account
-import dev.chester_lloyd.moneymanager.AddAccount
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.dbManager
 import kotlinx.android.synthetic.main.account.view.*
@@ -30,6 +33,52 @@ class AccountsFragment : Fragment() {
 //      Pass this to the list view adaptor and populate
         val myAccountsAdapter = MyAccountsAdapter(listAccounts)
         this.lvAccounts.adapter = myAccountsAdapter
+
+
+
+
+
+
+        this.lvAccounts.onItemClickListener = object : AdapterView.OnItemClickListener {
+
+            override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+
+                // value of item that is clicked
+                val account = lvAccounts.getItemAtPosition(position) as Account
+
+                // Toast the values
+                Toast.makeText(context,"Position :$position\nItem Value : ${account.toString()}", Toast.LENGTH_LONG).show()
+
+//                val intent = Intent(context, AddAccount::class.java)
+////                startActivity(intent)
+//
+//                val bundle = Bundle()
+//                bundle.putInt("accountID", account.accountID)
+//                bundle.putString("name", account.name)
+//                bundle.putDouble("balance", account.balance)
+//                bundle.putInt("icon", account.icon)
+//                bundle.putInt("colour", account.colour)
+//                intent.putExtras(bundle)
+//
+//                startActivity(intent)
+
+
+                val intent = Intent(context, AccountTransactions::class.java)
+
+                val bundle = Bundle()
+                bundle.putInt("accountID", account.accountID)
+                bundle.putString("name", account.name)
+                bundle.putDouble("balance", account.balance)
+                bundle.putInt("icon", account.icon)
+                bundle.putInt("colour", account.colour)
+                intent.putExtras(bundle)
+
+                startActivity(intent)
+            }
+        }
+
+
+
     }
 
     override fun onCreateView(

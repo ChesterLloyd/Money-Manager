@@ -1,9 +1,9 @@
 package dev.chester_lloyd.moneymanager
 
 class Account {
-    var accountID: Int? = null
+    var accountID: Int = 0
     var name: String? = null
-    var balance: Double? = null
+    var balance: Double = 0.0
     var icon: Int = 0
     var colour: Int = 0
 
@@ -16,7 +16,7 @@ class Account {
     }
 
     constructor() {
-        this.accountID = 4
+        this.accountID = 0
     }
 
 //  Return object as a string
