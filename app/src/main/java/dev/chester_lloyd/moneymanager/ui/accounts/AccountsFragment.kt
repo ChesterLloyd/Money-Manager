@@ -91,7 +91,16 @@ class AccountsFragment : Fragment() {
             val rowView = layoutInflater.inflate(R.layout.account, null)
             val account = listAccountsAdapter[position]
             rowView.tvName.text = account.name
-            rowView.tvBalance.text = getString(R.string.balance_text, account.balance)
+
+//          Place - sign before the pound if it is negative
+            if (account.balance.toString().first() == '-') {
+                val splitBalance = account.balance.toString().split("-")
+                rowView.tvBalance.text = "- " + getString(R.string.balance_text, splitBalance[1].toDouble())
+            } else {
+                rowView.tvBalance.text = getString(R.string.balance_text, account.balance)
+
+            }
+
             rowView.ivIcon.setImageResource(account.icon)
             rowView.ivIcon.setBackgroundResource(account.colour)
             return rowView
