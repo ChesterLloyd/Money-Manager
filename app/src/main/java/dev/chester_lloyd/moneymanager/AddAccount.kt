@@ -126,28 +126,32 @@ class AddAccount : AppCompatActivity() {
         val account = Account()
 
         fabAddAccount.setOnClickListener {
-            val name = etName.text.toString()
-            account.name = name
+            account.name = etName.text.toString()
 
-            if (etBalance.text.toString() != "") {
-                val balance:Double = etBalance.text.toString().toDouble()
-                account.balance = balance
-            }
-
-            println(account.toString())
-
-//          Get instance of the database manager class
-            var dbManager = dbManager(this)
-
-//          Insert this new account into the accounts table
-            val ID = dbManager.insertAccount(account)
-            if (ID > 0) {
-//              Account saved to database, return to previous accounts fragment
-                Toast.makeText(this, "Account saved", Toast.LENGTH_LONG).show()
-                this.finish()
+            if (account.name == "") {
+//              Account name is empty, show an error
+                Toast.makeText(this, "Account name cannot be blank", Toast.LENGTH_SHORT).show()
+            } else if (etBalance.text.toString() == "") {
+//              Account balance is empty, show an error
+                Toast.makeText(this, "Account balance cannot be blank", Toast.LENGTH_SHORT).show()
             } else {
-//              Failed to save, show this error
-                Toast.makeText(this, "Could not save this account", Toast.LENGTH_LONG).show()
+//              All data has been filled out, start saving
+                account.balance = etBalance.text.toString().toDouble()
+                println(account.toString())
+
+//              Get instance of the database manager class
+                val dbManager = dbManager(this)
+
+//              Insert this new account into the accounts table
+                val id = dbManager.insertAccount(account)
+                if (id > 0) {
+//                  Account saved to database, return to previous accounts fragment
+                    Toast.makeText(this, "Account saved", Toast.LENGTH_LONG).show()
+                    this.finish()
+                } else {
+//                  Failed to save, show this error
+                    Toast.makeText(this, "Could not save this account", Toast.LENGTH_LONG).show()
+                }
             }
         }
 
