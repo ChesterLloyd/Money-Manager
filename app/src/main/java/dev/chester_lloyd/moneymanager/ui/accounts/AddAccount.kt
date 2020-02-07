@@ -6,9 +6,9 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.*
-import dev.chester_lloyd.moneymanager.Account
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.dbManager
+import dev.chester_lloyd.moneymanager.Account
 import dev.chester_lloyd.moneymanager.ui.IconSpinner
 import kotlinx.android.synthetic.main.activity_add_account.*
 

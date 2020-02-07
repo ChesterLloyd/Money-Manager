@@ -7,9 +7,19 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
-import dev.chester_lloyd.moneymanager.Account
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
 import dev.chester_lloyd.moneymanager.R
+import dev.chester_lloyd.moneymanager.Account
+import dev.chester_lloyd.moneymanager.Transaction
+import dev.chester_lloyd.moneymanager.dbManager
+import kotlinx.android.synthetic.main.account.view.ivIcon
+import kotlinx.android.synthetic.main.account.view.tvName
+import kotlinx.android.synthetic.main.activity_account_transactions.*
+import kotlinx.android.synthetic.main.transaction.view.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 class AccountTransactions : AppCompatActivity() {
 
@@ -20,16 +30,28 @@ class AccountTransactions : AppCompatActivity() {
         setContentView(R.layout.activity_account_transactions)
 
 //      Setup toolbar name and show a back button
-        this.supportActionBar?.title = getString(R.string.account_transactions)
+        this.supportActionBar?.title = getString(R.string.manage_account)
         this.supportActionBar?.setDisplayShowHomeEnabled(true)
         this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
 
         account = Account(intent.getIntExtra("accountID", 0),
             intent.getStringExtra("name"),
             intent.getDoubleExtra("balance", 0.0),
             intent.getIntExtra("icon", 0),
             intent.getIntExtra("colour", 0))
+
+        tvName.text = account.name
+        tvBalance.text = account.getStringBalance(this)
+        ivIcon.setImageResource(account.icon)
+        ivIcon.setBackgroundResource(account.colour)
+
+
+//      Get transactions as an array list from database
+        var listTransactions = loadTransactions("%")
+
+//      Pass this to the list view adaptor and populate
+        val myTransactionsAdapter = myTransactionsAdapter(listTransactions)
+        this.lvTransactions.adapter = myTransactionsAdapter
     }
 
     //setting menu in action bar
@@ -84,10 +106,81 @@ class AccountTransactions : AppCompatActivity() {
         }
     }
 
-
 //  Close activity once toolbar back button is pressed
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
+    }
+
+
+//  Read accounts from the database and return an array of Account objects
+    fun loadTransactions(name:String):ArrayList<Transaction> {
+        var listTransactions = ArrayList<Transaction>()
+
+        var dbManager = dbManager(this!!)
+
+//        val projection = arrayOf("ID", "Name", "Balance", "Icon", "Colour")
+//        val selectionArgs = arrayOf(name)
+//
+//        // Each ? represents an arg in array
+//        val cursor = dbManager.query("Accounts", projection, "Name like ?", selectionArgs, "Name")
+//
+//        if (cursor.moveToFirst()) {
+//            do {
+//                val ID = cursor.getInt(cursor.getColumnIndex("ID"))
+//                val name = cursor.getString(cursor.getColumnIndex("Name"))
+//                val balance = cursor.getDouble(cursor.getColumnIndex("Balance"))
+//                val icon = cursor.getInt(cursor.getColumnIndex("Icon"))
+//                val colour = cursor.getInt(cursor.getColumnIndex("Colour"))
+//
+//                listAccounts.add(Account(ID, name, balance, icon, colour))
+//            } while (cursor.moveToNext())
+//        }
+
+//      TODO READ transactions from DB
+//      USe some generated dates and transactions for now
+        val cal:Calendar = Calendar.getInstance()
+        cal.set(2020,2,1,12,0)
+        val cal2:Calendar = Calendar.getInstance()
+        cal2.set(2020,2,15,6,50)
+
+        listTransactions.add(Transaction(1, 1, "Rent", -500.52,
+            cal, R.drawable.ic_account_cash, R.drawable.ic_circle_green))
+        listTransactions.add(Transaction(2, 2, "Phone", -20.00,
+            cal2, R.drawable.ic_account_cash, R.drawable.ic_circle_paypal))
+
+        return listTransactions
+    }
+
+    inner class myTransactionsAdapter: BaseAdapter {
+        var listTransactionsAdapter = ArrayList<Transaction>()
+        constructor(listTransactionsAdapter:ArrayList<Transaction>):super() {
+            this.listTransactionsAdapter = listTransactionsAdapter
+
+        }
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+//          Adds each transaction to a new row in a list view
+            val rowView = layoutInflater.inflate(R.layout.transaction, null)
+            val transaction = listTransactionsAdapter[position]
+            rowView.tvName.text = transaction.name
+            rowView.tvDate.text = transaction.getDate(applicationContext, "DMY")
+            rowView.tvAmount.text = transaction.getStringAmount(applicationContext)
+            rowView.ivIcon.setImageResource(transaction.icon)
+            rowView.ivIcon.setBackgroundResource(transaction.colour)
+            return rowView
+        }
+
+        override fun getItem(position: Int): Any {
+            return listTransactionsAdapter[position]
+        }
+
+        override fun getItemId(position: Int): Long {
+            return position.toLong()
+        }
+
+        override fun getCount(): Int {
+            return listTransactionsAdapter.size
+        }
     }
 }

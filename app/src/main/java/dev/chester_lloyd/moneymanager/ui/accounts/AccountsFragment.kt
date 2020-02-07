@@ -1,7 +1,6 @@
 package dev.chester_lloyd.moneymanager.ui.accounts
 
 import android.content.Intent
-import android.content.IntentSender
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,13 +8,12 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
 import android.widget.Toast
-import androidx.core.app.ShareCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import dev.chester_lloyd.moneymanager.Account
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.dbManager
+import dev.chester_lloyd.moneymanager.Account
 import kotlinx.android.synthetic.main.account.view.*
 import kotlinx.android.synthetic.main.fragment_accounts.*
 
@@ -140,16 +138,7 @@ class AccountsFragment : Fragment() {
             val rowView = layoutInflater.inflate(R.layout.account, null)
             val account = listAccountsAdapter[position]
             rowView.tvName.text = account.name
-
-//          Place - sign before the pound if it is negative
-            if (account.balance.toString().first() == '-') {
-                val splitBalance = account.balance.toString().split("-")
-                rowView.tvBalance.text = "- " + getString(R.string.balance_text, splitBalance[1].toDouble())
-            } else {
-                rowView.tvBalance.text = getString(R.string.balance_text, account.balance)
-
-            }
-
+            rowView.tvBalance.text = account.getStringBalance(context!!)
             rowView.ivIcon.setImageResource(account.icon)
             rowView.ivIcon.setBackgroundResource(account.colour)
             return rowView

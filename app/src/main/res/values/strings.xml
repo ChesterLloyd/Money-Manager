@@ -16,16 +16,19 @@
     <string name="title_activity_main">Money Manager</string>
 
     <string name="name">Name</string>
+    <string name="date_DMY">%1$s/%2$s/%3$s</string>
     <string name="balance">Balance</string>
     <string name="balance_text">£%1$.2f</string>
     <string name="current_balance">Current balance</string>
     <string name="details">Details</string>
     <string name="appearance">Appearance</string>
+    <string name="transactions">Transactions</string>
+    <string name="recent_transactions">Recent transactions</string>
+    <string name="manage_account">Manage account</string>
 
     <string name="text_account_desc">Add a virtual account to represent an account you\'d like to track your expenses for.</string>
     <string name="button_add_account">Add account</string>
     <string name="edit_account">Edit account</string>
-    <string name="account_transactions">Account transactions</string>
     <string name="account_icon">Account icon</string>
     <string-array name="account_names">
         <item>Bank</item>

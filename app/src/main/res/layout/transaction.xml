@@ -15,19 +15,35 @@
         android:padding="10dp"
         app:srcCompat="@drawable/ic_account_credit_card" />
 
-    <TextView
-        android:id="@+id/tvName"
+    <LinearLayout
         android:layout_width="190dp"
         android:layout_height="match_parent"
-        android:paddingLeft="5dp"
-        android:paddingTop="30dp"
-        android:paddingRight="15dp"
-        android:text="@string/name"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:paddingLeft="5dp"
+            android:paddingTop="15dp"
+            android:paddingRight="15dp"
+            android:text="@string/name"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:paddingLeft="5dp"
+            android:paddingTop="0dp"
+            android:paddingRight="15dp"
+            android:text="@string/name"
+            android:textSize="14sp" />
+    </LinearLayout>
 
     <TextView
-        android:id="@+id/tvBalance"
+        android:id="@+id/tvAmount"
         android:layout_width="134dp"
         android:layout_height="match_parent"
         android:gravity="right"

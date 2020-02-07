@@ -6,7 +6,6 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.database.sqlite.SQLiteQueryBuilder
-import android.media.projection.MediaProjection
 import android.widget.Toast
 import java.lang.String.format
 
@@ -75,7 +74,7 @@ class dbManager {
     }
 
 //  Function that inserts an account object into the database
-    fun insertAccount(account:Account):Long {
+    fun insertAccount(account: Account):Long {
         var values = ContentValues()
         values.put(colAccountName, account.name)
         values.put(colAccountBalance, account.balance)
