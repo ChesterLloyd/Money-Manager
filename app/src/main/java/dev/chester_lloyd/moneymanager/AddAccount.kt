@@ -3,6 +3,8 @@ package dev.chester_lloyd.moneymanager
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,6 +41,87 @@ class AddAccount : AppCompatActivity() {
             R.drawable.ic_circle_dark_blue, R.drawable.ic_circle_paypal)
         val spinnerCustomAdapter2 = SpinnerCustomAdapter(applicationContext, colour, colourName, "colour")
         colourSpinner.adapter = spinnerCustomAdapter2
+
+        var balance = ""
+
+        etBalance.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {
+            }
+
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+//              Update balance before changes have been made (i.e user changed it)
+                balance = s.toString()
+            }
+
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+//              Get old position of decimal point
+                val oldDecimalPos = balance.indexOf('.')
+                var newBalance = ""
+
+//              Where to put the cursor if text is replaced
+                var cursorPos = 0
+                var decimalCount = 0;
+
+                var diff = balance.length - s.length;
+
+//              Check if balance contains multiple - or . or over 2dp
+                for (i in 0..s.length - 1) {
+                    if (s[i] == '-') {
+//                      Check if current character is a - sign
+                        if (i == 0) {
+//                          Check if this was found at the start, if so add to output string
+                            newBalance += s[i]
+                        } else {
+//                          If not, update cursor position to here as this char was removed
+                            cursorPos = i
+                        }
+                    } else if (s[i] == '.') {
+//                      Check if current character is a . sign
+
+                        if (decimalCount == 0) {
+//                          Check if no decimal points have been added to the output yet
+
+                            if (i >= oldDecimalPos) {
+//                              We are adding the decimal at the position of the old one
+//                              (or the last in the input), so add it
+                                decimalCount++
+                                newBalance += s[i]
+                            } else if (i == oldDecimalPos - diff) {
+//                              Some characters have been removed before it, so add this one
+                                decimalCount++
+                                newBalance += s[i]
+                            } else {
+//                              Do not add this decimal point, update cursor position to here
+                                cursorPos = i
+                            }
+                        } else {
+//                          More than 1 decimal point being added, update cursor position to here
+                            cursorPos = i
+                        }
+                    } else {
+                        // This is an allowed digit, keep it
+                        newBalance += s[i]
+                    }
+                }
+
+                if (decimalCount == 1) {
+//                  Check if a decimal point is present first
+                    val splitBalance = newBalance.split(".")
+                    if (splitBalance[1].length > 2) {
+//                      If there are more than 2 numbers after dp, remove any past the 2
+                        newBalance = splitBalance[0] + "." + splitBalance[1].dropLast((splitBalance[1].length - 2))
+                        cursorPos = newBalance.length
+                    }
+                }
+
+//              Update balance and cursor position
+                if (etBalance.text.toString() != newBalance) {
+                    etBalance.setText(newBalance)
+                    etBalance.setSelection(cursorPos)
+                }
+            }
+        })
+
 
         val account = Account()
 
