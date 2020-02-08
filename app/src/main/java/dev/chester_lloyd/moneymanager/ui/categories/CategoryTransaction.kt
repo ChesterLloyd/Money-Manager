@@ -50,12 +50,27 @@ class CategoryTransaction : AppCompatActivity() {
         this.lvTransactions.adapter = myTransactionsAdapter
     }
 
+//  If we have come back (after updating) show potential updated account status
+    override fun onResume() {
+        super.onResume()
+
+        if (intent.getIntExtra("categoryID", 0) > 0) {
+//          Read current account from database
+            val dbManager = dbManager(this!!)
+            category = dbManager.selectCategory(intent.getIntExtra("categoryID", 0))
+        }
+
+//      Update entry fields with account info
+        tvName.text = category.name
+        ivIcon.setImageResource(category.icon)
+        ivIcon.setBackgroundResource(category.colour)
+    }
+
 //  Setting menu in action bar
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.edit,menu)
         return super.onCreateOptionsMenu(menu)
     }
-
 
 // Actions on click menu items
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {

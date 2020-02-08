@@ -53,6 +53,16 @@
     </string-array>
 
 
+    <string name="account_insert_success">Account saved</string>
+    <string name="account_insert_fail">Could not save this account</string>
+    <string name="account_update_success">Account updated</string>
+    <string name="account_update_fail">Could not update this account</string>
+    <string name="category_insert_success">Category saved</string>
+    <string name="category_insert_fail">Could not save this category</string>
+    <string name="category_update_success">Category updated</string>
+    <string name="category_update_fail">Could not update this category</string>
+
+
     <string name="yes">Yes</string>
     <string name="no">No, cancel</string>
     <string name="alert_title_delete_account">Delete account</string>

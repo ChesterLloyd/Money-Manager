@@ -105,49 +105,55 @@ class AddCategory : AppCompatActivity() {
             "colour"
         )
 
-
         val category = Category()
 
-//        val a:Account = intent.getStringExtra("selectedAccount")
+        category.categoryID = intent.getIntExtra("categoryID", 0)
 
-
-//        account= intent.getStringExtra("selectedAccount").to
-
-
-        println(intent.getIntExtra("categoryID", 0))
-        println(intent.getStringExtra("name"))
-        println(intent.getIntExtra("icon", 0))
-        println(intent.getIntExtra("colour", 0))
-
-
-        etName.setText(intent.getStringExtra("name"))
-        spIcon.setSelection(image.indexOf(intent.getIntExtra("icon", 0)))
-        spColour.setSelection(colour.indexOf(intent.getIntExtra("colour", 0)))
-
-
-
-        image.indexOf(intent.getIntExtra("icon", 0))
+//      If the category ID > 0 (not a new one) then auto fill these fields with the saved values
+        if (category.categoryID > 0) {
+            etName.setText(intent.getStringExtra("name"))
+            spIcon.setSelection(image.indexOf(intent.getIntExtra("icon", 0)))
+            spColour.setSelection(colour.indexOf(intent.getIntExtra("colour", 0)))
+        }
 
         fabAddAccount.setOnClickListener {
             category.name = etName.text.toString()
 
             if (category.name == "") {
 //              Category name is empty, show an error
-                Toast.makeText(this, "Category name cannot be blank", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Category name cannot be blank", Toast.LENGTH_SHORT)
+                    .show()
             } else {
 //              All data has been filled out, start saving
 //              Get instance of the database manager class
                 val dbManager = dbManager(this)
 
-//              Insert this new account into the accounts table
-                val id = dbManager.insertCategory(category)
-                if (id > 0) {
-//                  Account saved to database, return to previous accounts fragment
-                    Toast.makeText(this, "Account saved", Toast.LENGTH_LONG).show()
-                    this.finish()
+                if (category.categoryID == 0) {
+//                  Insert this new category into the categories table
+                    val id = dbManager.insertCategory(category)
+                    if (id > 0) {
+//                      Category saved to database, return to previous categories fragment
+                        Toast.makeText(this, R.string.category_insert_success, Toast.LENGTH_LONG)
+                            .show()
+                        this.finish()
+                    } else {
+//                      Failed to save, show this error
+                        Toast.makeText(this, R.string.category_insert_fail, Toast.LENGTH_LONG)
+                            .show()
+                    }
                 } else {
-//                  Failed to save, show this error
-                    Toast.makeText(this, "Could not save this account", Toast.LENGTH_LONG).show()
+//                  Update this category in the database
+                    var selectionArgs = arrayOf(category.categoryID.toString())
+                    val id = dbManager.updateCategory(category, "ID=?", selectionArgs)
+                    if (id > 0) {
+//                      Category updated in the database, return to previous categories fragment
+                        Toast.makeText(this, R.string.category_update_success, Toast.LENGTH_LONG).show()
+                        this.finish()
+                    } else {
+//                      Failed to save, show this error
+                        Toast.makeText(this, R.string.category_update_fail, Toast.LENGTH_LONG)
+                            .show()
+                    }
                 }
             }
         }

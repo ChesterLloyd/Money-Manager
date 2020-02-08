@@ -141,31 +141,18 @@ class AddAccount : AppCompatActivity() {
             }
         })
 
-
         val account = Account()
 
-//        val a:Account = intent.getStringExtra("selectedAccount")
+        account.accountID = intent.getIntExtra("accountID", 0)
 
+//      If the account ID > 0 (not a new one) then auto fill these fields with the saved values
+        if (account.accountID > 0) {
+            etName.setText(intent.getStringExtra("name"))
+            etBalance.setText(intent.getDoubleExtra("balance", 0.0).toString())
 
-//        account= intent.getStringExtra("selectedAccount").to
-
-
-        println(intent.getIntExtra("accountID", 0))
-        println(intent.getStringExtra("name"))
-        println(intent.getDoubleExtra("balance", 0.0))
-        println(intent.getIntExtra("icon", 0))
-        println(intent.getIntExtra("colour", 0))
-
-
-        etName.setText(intent.getStringExtra("name"))
-        etBalance.setText(intent.getDoubleExtra("balance", 0.0).toString())
-
-        spIcon.setSelection(image.indexOf(intent.getIntExtra("icon", 0)))
-        spColour.setSelection(colour.indexOf(intent.getIntExtra("colour", 0)))
-
-
-
-        image.indexOf(intent.getIntExtra("icon", 0))
+            spIcon.setSelection(image.indexOf(intent.getIntExtra("icon", 0)))
+            spColour.setSelection(colour.indexOf(intent.getIntExtra("colour", 0)))
+        }
 
         fabAddAccount.setOnClickListener {
             account.name = etName.text.toString()
@@ -184,15 +171,31 @@ class AddAccount : AppCompatActivity() {
 //              Get instance of the database manager class
                 val dbManager = dbManager(this)
 
-//              Insert this new account into the accounts table
-                val id = dbManager.insertAccount(account)
-                if (id > 0) {
-//                  Account saved to database, return to previous accounts fragment
-                    Toast.makeText(this, "Account saved", Toast.LENGTH_LONG).show()
-                    this.finish()
+                if (account.accountID == 0) {
+//                  Insert this new account into the accounts table
+                    val id = dbManager.insertAccount(account)
+                    if (id > 0) {
+//                      Account saved to database, return to previous accounts fragment
+                        Toast.makeText(this, R.string.account_insert_success, Toast.LENGTH_LONG).show()
+                        this.finish()
+                    } else {
+//                      Failed to save, show this error
+                        Toast.makeText(this, R.string.account_insert_fail, Toast.LENGTH_LONG)
+                            .show()
+                    }
                 } else {
-//                  Failed to save, show this error
-                    Toast.makeText(this, "Could not save this account", Toast.LENGTH_LONG).show()
+//                  Update this account in the database
+                    var selectionArgs = arrayOf(account.accountID.toString())
+                    val id = dbManager.updateAccount(account, "ID=?", selectionArgs)
+                    if (id > 0) {
+//                      Account updated in the database, return to previous accounts fragment
+                        Toast.makeText(this, R.string.account_update_success, Toast.LENGTH_LONG).show()
+                        this.finish()
+                    } else {
+//                      Failed to save, show this error
+                        Toast.makeText(this, R.string.account_update_fail, Toast.LENGTH_LONG)
+                            .show()
+                    }
                 }
             }
         }

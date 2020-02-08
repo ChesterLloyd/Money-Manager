@@ -113,8 +113,36 @@ class dbManager {
         val ID = sqlDB!!.insert(dbAccountTable, "", values)
         return ID
     }
+//  Function that selects a single account from the database as an Account object
+    fun selectAccount(accountID: Int):Account {
+        val QB = SQLiteQueryBuilder()
+        QB.tables = dbAccountTable
+        val projection = arrayOf(colID, colName, colBalance, colIcon, colColour)
+        val selectionArgs = arrayOf(accountID.toString())
+        var account = Account()
+        val cursor = QB.query(sqlDB, projection, "${colID}=?", selectionArgs, null, null, colName)
+        if (cursor.moveToFirst()) {
+            val ID = cursor.getInt(cursor.getColumnIndex(colID))
+            val name = cursor.getString(cursor.getColumnIndex(colName))
+            val balance = cursor.getDouble(cursor.getColumnIndex(colBalance))
+            val icon = cursor.getInt(cursor.getColumnIndex(colIcon))
+            val colour = cursor.getInt(cursor.getColumnIndex(colColour))
+            account = Account(ID, name, balance, icon, colour)
+        }
+        return account
+    }
+//  Function that updates an account object in the database
+    fun updateAccount(account: Account, selection: String, selectionArgs: Array<String>):Int {
+        var values = ContentValues()
+        values.put(colName, account.name)
+        values.put(colBalance, account.balance)
+        values.put(colIcon, account.icon)
+        values.put(colColour, account.colour)
 
-    //  Function that inserts a category object into the database
+        return sqlDB!!.update(dbAccountTable, values, selection, selectionArgs)
+    }
+
+//  Function that inserts a category object into the database
     fun insertCategory(category: Category):Long {
         var values = ContentValues()
         values.put(colName, category.name)
@@ -124,4 +152,34 @@ class dbManager {
         val ID = sqlDB!!.insert(dbCategoryTable, "", values)
         return ID
     }
+//  Function that selects a single account from the database as an Account object
+    fun selectCategory(categoryID: Int):Category {
+        val QB = SQLiteQueryBuilder()
+        QB.tables = dbCategoryTable
+        val projection = arrayOf(colID, colName, colIcon, colColour)
+        val selectionArgs = arrayOf(categoryID.toString())
+        var category = Category()
+        val cursor = QB.query(sqlDB, projection, "${colID}=?", selectionArgs, null, null, colName)
+        if (cursor.moveToFirst()) {
+            val ID = cursor.getInt(cursor.getColumnIndex(colID))
+            val name = cursor.getString(cursor.getColumnIndex(colName))
+            val icon = cursor.getInt(cursor.getColumnIndex(colIcon))
+            val colour = cursor.getInt(cursor.getColumnIndex(colColour))
+            category = Category(ID, name, icon, colour)
+        }
+        return category
+    }
+//  Function that updates a category object in the database
+    fun updateCategory(category: Category, selection: String, selectionArgs: Array<String>):Int {
+        var values = ContentValues()
+        values.put(colName, category.name)
+        values.put(colIcon, category.icon)
+        values.put(colColour, category.colour)
+
+        return sqlDB!!.update(dbCategoryTable, values, selection, selectionArgs)
+    }
+
+//    fun updateAccount(table: String, values: ContentValues, selection: String, selectionArgs: Array<String>):Int {
+
+
 }
