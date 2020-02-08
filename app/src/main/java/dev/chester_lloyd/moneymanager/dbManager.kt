@@ -68,14 +68,17 @@ class dbManager {
                     "$colCategoryID INTEGER, " +
                     "$colName VARCHAR(30), " +
                     "$colDate DATETIME, " +
-                    "$colAmount FLOAT);")
+                    "$colAmount FLOAT, " +
+                    "FOREIGN KEY(${colCategoryID}) REFERENCES ${dbCategoryTable}(${colID}) );")
 
 //          Create Payments table if it does not exist
             db.execSQL("CREATE TABLE IF NOT EXISTS $dbPaymentsTable (" +
                 "$colID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "$colTransactionID INTEGER, " +
                 "$colAccountID INTEGER, " +
-                "$colAmount FLOAT);")
+                "$colAmount FLOAT, " +
+                "FOREIGN KEY(${colTransactionID}) REFERENCES ${dbTransactionTable}(${colID}), " +
+                "FOREIGN KEY(${colAccountID}) REFERENCES ${dbAccountTable}(${colID}) );")
 
             Toast.makeText(this.context, "Database is created", Toast.LENGTH_SHORT).show()
         }
