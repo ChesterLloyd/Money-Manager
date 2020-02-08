@@ -140,15 +140,15 @@ class AddCategory : AppCompatActivity() {
                 val dbManager = dbManager(this)
 
 //              Insert this new account into the accounts table
-//                val id = dbManager.insertAccount(category)
-//                if (id > 0) {
-////                  Account saved to database, return to previous accounts fragment
-//                    Toast.makeText(this, "Account saved", Toast.LENGTH_LONG).show()
-//                    this.finish()
-//                } else {
-////                  Failed to save, show this error
-//                    Toast.makeText(this, "Could not save this account", Toast.LENGTH_LONG).show()
-//                }
+                val id = dbManager.insertCategory(category)
+                if (id > 0) {
+//                  Account saved to database, return to previous accounts fragment
+                    Toast.makeText(this, "Account saved", Toast.LENGTH_LONG).show()
+                    this.finish()
+                } else {
+//                  Failed to save, show this error
+                    Toast.makeText(this, "Could not save this account", Toast.LENGTH_LONG).show()
+                }
             }
         }
 

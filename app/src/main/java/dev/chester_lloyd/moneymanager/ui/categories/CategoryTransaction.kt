@@ -1,4 +1,4 @@
-package dev.chester_lloyd.moneymanager.ui.accounts
+package dev.chester_lloyd.moneymanager.ui.categories
 
 import android.app.AlertDialog
 import android.content.DialogInterface
@@ -10,40 +10,36 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import dev.chester_lloyd.moneymanager.Category
 import dev.chester_lloyd.moneymanager.R
-import dev.chester_lloyd.moneymanager.Account
 import dev.chester_lloyd.moneymanager.Transaction
 import dev.chester_lloyd.moneymanager.dbManager
-import kotlinx.android.synthetic.main.account.view.ivIcon
-import kotlinx.android.synthetic.main.account.view.tvName
-import kotlinx.android.synthetic.main.activity_account_transactions.*
+import kotlinx.android.synthetic.main.activity_category_transaction.*
 import kotlinx.android.synthetic.main.transaction.view.*
 import java.util.*
 import kotlin.collections.ArrayList
 
-class AccountTransactions : AppCompatActivity() {
+class CategoryTransaction : AppCompatActivity() {
 
-    private var account = Account()
+    private var category = Category()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_account_transactions)
+        setContentView(R.layout.activity_category_transaction)
 
 //      Setup toolbar name and show a back button
-        this.supportActionBar?.title = getString(R.string.manage_account)
+        this.supportActionBar?.title = getString(R.string.manage_category)
         this.supportActionBar?.setDisplayShowHomeEnabled(true)
         this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        account = Account(intent.getIntExtra("accountID", 0),
+        category = Category(intent.getIntExtra("categoryID", 0),
             intent.getStringExtra("name"),
-            intent.getDoubleExtra("balance", 0.0),
             intent.getIntExtra("icon", 0),
             intent.getIntExtra("colour", 0))
 
-        tvName.text = account.name
-        tvBalance.text = account.getStringBalance(this)
-        ivIcon.setImageResource(account.icon)
-        ivIcon.setBackgroundResource(account.colour)
+        tvName.text = category.name
+        ivIcon.setImageResource(category.icon)
+        ivIcon.setBackgroundResource(category.colour)
 
 
 //      Get transactions as an array list from database
@@ -54,25 +50,24 @@ class AccountTransactions : AppCompatActivity() {
         this.lvTransactions.adapter = myTransactionsAdapter
     }
 
-    //setting menu in action bar
+//  Setting menu in action bar
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.edit,menu)
         return super.onCreateOptionsMenu(menu)
     }
 
 
-    // actions on click menu items
+// Actions on click menu items
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.menuEdit -> {
-//          Edit icon clicked, go to edit page (pass all account details)
-            val intent = Intent(this, AddAccount::class.java)
+//          Edit icon clicked, go to edit page (pass all category details)
+            val intent = Intent(this, AddCategory::class.java)
 
             val bundle = Bundle()
-            bundle.putInt("accountID", account.accountID)
-            bundle.putString("name", account.name)
-            bundle.putDouble("balance", account.balance)
-            bundle.putInt("icon", account.icon)
-            bundle.putInt("colour", account.colour)
+            bundle.putInt("categoryID", category.categoryID)
+            bundle.putString("name", category.name)
+            bundle.putInt("icon", category.icon)
+            bundle.putInt("colour", category.colour)
             intent.putExtras(bundle)
 
             startActivity(intent)
@@ -83,19 +78,19 @@ class AccountTransactions : AppCompatActivity() {
 //          Build an alert dialog to get user confirmation
             val alertDialog = AlertDialog.Builder(this)
 
-            alertDialog.setMessage(resources.getString(R.string.alert_message_delete_account))
+            alertDialog.setMessage(resources.getString(R.string.alert_message_delete_category))
                 .setCancelable(false)
                 .setPositiveButton(resources.getString(R.string.yes), DialogInterface.OnClickListener {
-                    // TODO Delete account and transactions
-                    dialog, id -> finish()
+                    // TODO Delete category and transactions
+                        dialog, id -> finish()
                 })
                 .setNegativeButton(resources.getString(R.string.no), DialogInterface.OnClickListener {
 //                  Do nothing, close box
-                    dialog, id -> dialog.cancel()
+                        dialog, id -> dialog.cancel()
                 })
 
             val alert = alertDialog.create()
-            alert.setTitle(resources.getString(R.string.alert_title_delete_account))
+            alert.setTitle(resources.getString(R.string.alert_title_delete_category))
             alert.show()
             true
         }
@@ -123,7 +118,7 @@ class AccountTransactions : AppCompatActivity() {
 //        val selectionArgs = arrayOf(name)
 //
 //        // Each ? represents an arg in array
-//        val cursor = dbManager.query("Accounts", projection, "Name like ?", selectionArgs, "Name")
+//        val cursor = dbManager.query("Transactions", projection, "Name like ?", selectionArgs, "Name")
 //
 //        if (cursor.moveToFirst()) {
 //            do {
@@ -133,7 +128,7 @@ class AccountTransactions : AppCompatActivity() {
 //                val icon = cursor.getInt(cursor.getColumnIndex("Icon"))
 //                val colour = cursor.getInt(cursor.getColumnIndex("Colour"))
 //
-//                listAccounts.add(Account(ID, name, balance, icon, colour))
+//                listTransactions.add(Transaction(ID, name, balance, icon, colour))
 //            } while (cursor.moveToNext())
 //        }
 
@@ -145,9 +140,9 @@ class AccountTransactions : AppCompatActivity() {
         cal2.set(2020,2,15,6,50)
 
         listTransactions.add(Transaction(1, 1, "Rent", -500.52,
-            cal, R.drawable.ic_account_cash, R.drawable.ic_circle_green))
+            cal, R.drawable.ic_category_places_hotel, R.drawable.ic_circle_green))
         listTransactions.add(Transaction(2, 2, "Phone", -20.00,
-            cal2, R.drawable.ic_account_cash, R.drawable.ic_circle_paypal))
+            cal2, R.drawable.ic_category_computer_phone, R.drawable.ic_circle_paypal))
 
         return listTransactions
     }

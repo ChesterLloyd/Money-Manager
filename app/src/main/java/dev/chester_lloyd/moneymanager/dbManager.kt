@@ -12,22 +12,16 @@ import java.lang.String.format
 class dbManager {
 
     val dbName = "MoneyManager"
-    private  val dbAccountTable = "Accounts"
-    private val colAccountID = "ID"
-    private val colAccountName = "Name"
-    private val colAccountBalance = "Balance"
-    private val colAccountIcon = "Icon"
-    private val colAccountColour = "Colour"
+    val dbAccountTable = "Accounts"
+    val dbCategoryTable = "Categories"
+    private val colID = "ID"
+    private val colName = "Name"
+    private val colBalance = "Balance"
+    private val colIcon = "Icon"
+    private val colColour = "Colour"
     val dbVersion = 1
 
-//  Create Accounts table if it does not exist
-    val sqlCreateTable = format("CREATE TABLE IF NOT EXISTS %s (%s INTEGER PRIMARY KEY, " +
-            "%s VARCHAR(100), %s DOUBLE, %s INTEGER, %s INTEGER);", dbAccountTable, colAccountID,
-            colAccountName, colAccountBalance, colAccountIcon, colAccountColour)
-
     var sqlDB:SQLiteDatabase? = null
-
-
 
     constructor(context:Context) {
         var db = DatabaseHelper(context)
@@ -37,7 +31,6 @@ class dbManager {
 
 
     inner class DatabaseHelper:SQLiteOpenHelper {
-
         var context:Context? = null
 
         constructor(context:Context):super(context, dbName, null, dbVersion) {
@@ -47,8 +40,15 @@ class dbManager {
 //      If database is not available, super constructor above will create one
 //      Function below handles stuff to do once made: Make my tables
         override fun onCreate(db: SQLiteDatabase?) {
-            db!!.execSQL(sqlCreateTable)
-            Toast.makeText(this.context, " database is created", Toast.LENGTH_SHORT).show()
+//          Create Accounts table if it does not exist
+            db!!.execSQL("CREATE TABLE IF NOT EXISTS $dbAccountTable ($colID INTEGER PRIMARY KEY, " +
+                "$colName VARCHAR(100), $colBalance DOUBLE, $colIcon INTEGER, $colColour INTEGER);")
+
+//          Create Categories table if it does not exist
+            db!!.execSQL("CREATE TABLE IF NOT EXISTS $dbCategoryTable ($colID INTEGER PRIMARY KEY, " +
+                "$colName VARCHAR(100), $colIcon INTEGER, $colColour INTEGER);")
+
+            Toast.makeText(this.context, "Database is created", Toast.LENGTH_SHORT).show()
         }
 
         override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -76,12 +76,23 @@ class dbManager {
 //  Function that inserts an account object into the database
     fun insertAccount(account: Account):Long {
         var values = ContentValues()
-        values.put(colAccountName, account.name)
-        values.put(colAccountBalance, account.balance)
-        values.put(colAccountIcon, account.icon)
-        values.put(colAccountColour, account.colour)
+        values.put(colName, account.name)
+        values.put(colBalance, account.balance)
+        values.put(colIcon, account.icon)
+        values.put(colColour, account.colour)
 
         val ID = sqlDB!!.insert(dbAccountTable, "", values)
+        return ID
+    }
+
+    //  Function that inserts a category object into the database
+    fun insertCategory(category: Category):Long {
+        var values = ContentValues()
+        values.put(colName, category.name)
+        values.put(colIcon, category.icon)
+        values.put(colColour, category.colour)
+
+        val ID = sqlDB!!.insert(dbCategoryTable, "", values)
         return ID
     }
 }

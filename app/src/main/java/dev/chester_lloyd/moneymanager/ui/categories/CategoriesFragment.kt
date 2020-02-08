@@ -38,20 +38,16 @@ class CategoriesFragment : Fragment() {
 
                 // value of item that is clicked
                 val category = lvCategories.getItemAtPosition(position) as Category
+                val intent = Intent(context, CategoryTransaction::class.java)
 
-                // Toast the values
-                Toast.makeText(context,"Position :$position\nItem Value : ${category.toString()}", Toast.LENGTH_LONG).show()
+                val bundle = Bundle()
+                bundle.putInt("categoryID", category.categoryID)
+                bundle.putString("name", category.name)
+                bundle.putInt("icon", category.icon)
+                bundle.putInt("colour", category.colour)
+                intent.putExtras(bundle)
 
-//                val intent = Intent(context, CategoryTransactions::class.java)
-//
-//                val bundle = Bundle()
-//                bundle.putInt("categoryID", category.categoryID)
-//                bundle.putString("name", category.name)
-//                bundle.putInt("icon", category.icon)
-//                bundle.putInt("colour", category.colour)
-//                intent.putExtras(bundle)
-//
-//                startActivity(intent)
+                startActivity(intent)
             }
         }
     }
@@ -79,29 +75,24 @@ class CategoriesFragment : Fragment() {
     fun loadCategories(name:String):ArrayList<Category> {
         var listCategories = ArrayList<Category>()
 
-//        var dbManager = dbManager(context!!)
-//
-//        val projection = arrayOf("ID", "Name", "Balance", "Icon", "Colour")
-//        val selectionArgs = arrayOf(name)
-//
-//        // Each ? represents an arg in array
-//        val cursor = dbManager.query("Categories", projection, "Name like ?", selectionArgs, "Name")
-//
-//        if (cursor.moveToFirst()) {
-//            do {
-//                val ID = cursor.getInt(cursor.getColumnIndex("ID"))
-//                val name = cursor.getString(cursor.getColumnIndex("Name"))
-//                val icon = cursor.getInt(cursor.getColumnIndex("Icon"))
-//                val colour = cursor.getInt(cursor.getColumnIndex("Colour"))
-//
-//                listCategories.add(Category(ID, name, icon, colour))
-//            } while (cursor.moveToNext())
-//        }
+        var dbManager = dbManager(context!!)
 
-        listCategories.add(Category(1, "Bills", R.drawable.ic_category_bills_lightbulb, R.drawable.ic_circle_green))
-        listCategories.add(Category(1, "Cinema", R.drawable.ic_category_places_cinema, R.drawable.ic_circle_green))
-        listCategories.add(Category(1, "Events", R.drawable.ic_category_places_event, R.drawable.ic_circle_green))
-        listCategories.add(Category(1, "Server", R.drawable.ic_category_computer_servers, R.drawable.ic_circle_green))
+        val projection = arrayOf("ID", "Name", "Icon", "Colour")
+        val selectionArgs = arrayOf(name)
+
+        // Each ? represents an arg in array
+        val cursor = dbManager.query(dbManager.dbCategoryTable, projection, "Name like ?", selectionArgs, "Name")
+
+        if (cursor.moveToFirst()) {
+            do {
+                val ID = cursor.getInt(cursor.getColumnIndex("ID"))
+                val name = cursor.getString(cursor.getColumnIndex("Name"))
+                val icon = cursor.getInt(cursor.getColumnIndex("Icon"))
+                val colour = cursor.getInt(cursor.getColumnIndex("Colour"))
+
+                listCategories.add(Category(ID, name, icon, colour))
+            } while (cursor.moveToNext())
+        }
 
         return listCategories
     }
