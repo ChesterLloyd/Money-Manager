@@ -14,11 +14,18 @@ class dbManager {
     val dbName = "MoneyManager"
     val dbAccountTable = "Accounts"
     val dbCategoryTable = "Categories"
+    val dbTransactionTable = "Transactions"
+    val dbPaymentsTable = "Payments"
     private val colID = "ID"
     private val colName = "Name"
     private val colBalance = "Balance"
+    private val colDate = "Date"
+    private val colAmount = "Amount"
     private val colIcon = "Icon"
     private val colColour = "Colour"
+    private val colCategoryID = "CategoryID"
+    private val colTransactionID = "TransactionID"
+    private val colAccountID = "AccountID"
     val dbVersion = 1
 
     var sqlDB:SQLiteDatabase? = null
@@ -41,12 +48,34 @@ class dbManager {
 //      Function below handles stuff to do once made: Make my tables
         override fun onCreate(db: SQLiteDatabase?) {
 //          Create Accounts table if it does not exist
-            db!!.execSQL("CREATE TABLE IF NOT EXISTS $dbAccountTable ($colID INTEGER PRIMARY KEY, " +
-                "$colName VARCHAR(100), $colBalance DOUBLE, $colIcon INTEGER, $colColour INTEGER);")
+            db!!.execSQL("CREATE TABLE IF NOT EXISTS $dbAccountTable (" +
+                    "$colID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "$colName VARCHAR(30), " +
+                    "$colBalance FLOAT, " +
+                    "$colIcon INTEGER, " +
+                    "$colColour INTEGER);")
 
 //          Create Categories table if it does not exist
-            db!!.execSQL("CREATE TABLE IF NOT EXISTS $dbCategoryTable ($colID INTEGER PRIMARY KEY, " +
-                "$colName VARCHAR(100), $colIcon INTEGER, $colColour INTEGER);")
+            db!!.execSQL("CREATE TABLE IF NOT EXISTS $dbCategoryTable (" +
+                    "$colID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "$colName VARCHAR(30), " +
+                    "$colIcon INTEGER, " +
+                    "$colColour INTEGER);")
+
+//          Create Transactions table if it does not exist
+            db!!.execSQL("CREATE TABLE IF NOT EXISTS $dbTransactionTable (" +
+                    "$colID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "$colCategoryID INTEGER, " +
+                    "$colName VARCHAR(30), " +
+                    "$colDate DATETIME, " +
+                    "$colAmount FLOAT);")
+
+//          Create Payments table if it does not exist
+            db!!.execSQL("CREATE TABLE IF NOT EXISTS $dbPaymentsTable (" +
+                "$colID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "$colTransactionID INTEGER, " +
+                "$colAccountID INTEGER, " +
+                "$colAmount FLOAT);")
 
             Toast.makeText(this.context, "Database is created", Toast.LENGTH_SHORT).show()
         }

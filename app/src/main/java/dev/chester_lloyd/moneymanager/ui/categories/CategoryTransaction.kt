@@ -111,8 +111,31 @@ class CategoryTransaction : AppCompatActivity() {
 //  Read transactions from the database and return an array of Transaction objects
     fun loadTransactions(name:String):ArrayList<Transaction> {
         var listTransactions = ArrayList<Transaction>()
-
         var dbManager = dbManager(this!!)
+
+        var listCategories = ArrayList<Category>()
+
+
+        val projection = arrayOf("ID", "Name", "Icon", "Colour")
+        val selectionArgs = arrayOf(name)
+
+        // Each ? represents an arg in array
+        val cursor = dbManager.query(dbManager.dbCategoryTable, projection, "Name like ?", selectionArgs, "Name")
+
+        if (cursor.moveToFirst()) {
+            do {
+                val ID = cursor.getInt(cursor.getColumnIndex("ID"))
+                val name = cursor.getString(cursor.getColumnIndex("Name"))
+                val icon = cursor.getInt(cursor.getColumnIndex("Icon"))
+                val colour = cursor.getInt(cursor.getColumnIndex("Colour"))
+
+                listCategories.add(Category(ID, name, icon, colour))
+            } while (cursor.moveToNext())
+        }
+
+
+
+
 
 //        val projection = arrayOf("ID", "Name", "Balance", "Icon", "Colour")
 //        val selectionArgs = arrayOf(name)
@@ -139,10 +162,8 @@ class CategoryTransaction : AppCompatActivity() {
         val cal2:Calendar = Calendar.getInstance()
         cal2.set(2020,2,15,6,50)
 
-        listTransactions.add(Transaction(1, 1, "Rent", -500.52,
-            cal, R.drawable.ic_category_places_hotel, R.drawable.ic_circle_green))
-        listTransactions.add(Transaction(2, 2, "Phone", -20.00,
-            cal2, R.drawable.ic_category_computer_phone, R.drawable.ic_circle_paypal))
+        listTransactions.add(Transaction(1, Category(1, "Bills", R.drawable.ic_category_places_hotel, R.drawable.ic_circle_green), "Rent", cal, -500.53))
+        listTransactions.add(Transaction(2, Category(2, "Phone", R.drawable.ic_category_computer_phone, R.drawable.ic_circle_dark_blue), "VOXI", cal2, -20.00))
 
         return listTransactions
     }
@@ -161,8 +182,8 @@ class CategoryTransaction : AppCompatActivity() {
             rowView.tvName.text = transaction.name
             rowView.tvDate.text = transaction.getDate(applicationContext, "DMY")
             rowView.tvAmount.text = transaction.getStringAmount(applicationContext)
-            rowView.ivIcon.setImageResource(transaction.icon)
-            rowView.ivIcon.setBackgroundResource(transaction.colour)
+            rowView.ivIcon.setImageResource(transaction.category.icon)
+            rowView.ivIcon.setBackgroundResource(transaction.category.colour)
             return rowView
         }
 

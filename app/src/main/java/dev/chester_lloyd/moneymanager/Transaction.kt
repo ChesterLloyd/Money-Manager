@@ -6,21 +6,17 @@ import java.util.*
 
 class Transaction {
     var transactionID: Int = 0
-    var categoryID: Int = 0
+    var category = Category()
     var name: String? = null
     var amount: Double = 0.00
     var date: Calendar = Calendar.getInstance()
-    var icon: Int = 0
-    var colour: Int = 0
 
-    constructor(transactionID: Int, categoryID: Int, name: String, amount: Double, date: Calendar, icon: Int, colour: Int) {
+    constructor(transactionID: Int, category: Category, name: String, date: Calendar, amount: Double) {
         this.transactionID = transactionID
-        this.categoryID = categoryID
+        this.category = category
         this.name = name
-        this.amount = amount
         this.date = date
-        this.icon = icon
-        this.colour = colour
+        this.amount = amount
     }
 
     constructor() {
@@ -43,8 +39,9 @@ class Transaction {
         var stringDate = "";
         if (format == "DMY") {
             stringDate = context.resources.getString(R.string.date_DMY,
-                date.get(Calendar.DAY_OF_WEEK).toString(),
-                date.get(Calendar.MONTH).toString(), date.get(Calendar.YEAR).toString())
+                date.get(Calendar.DAY_OF_MONTH).toString(),
+                date.get(Calendar.MONTH).toString(),
+                date.get(Calendar.YEAR).toString())
         } else {
             stringDate = date.toString()
         }

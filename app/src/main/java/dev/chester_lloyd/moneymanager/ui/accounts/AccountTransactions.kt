@@ -10,10 +10,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import dev.chester_lloyd.moneymanager.R
-import dev.chester_lloyd.moneymanager.Account
-import dev.chester_lloyd.moneymanager.Transaction
-import dev.chester_lloyd.moneymanager.dbManager
+import dev.chester_lloyd.moneymanager.*
 import kotlinx.android.synthetic.main.account.view.ivIcon
 import kotlinx.android.synthetic.main.account.view.tvName
 import kotlinx.android.synthetic.main.activity_account_transactions.*
@@ -144,10 +141,8 @@ class AccountTransactions : AppCompatActivity() {
         val cal2:Calendar = Calendar.getInstance()
         cal2.set(2020,2,15,6,50)
 
-        listTransactions.add(Transaction(1, 1, "Rent", -500.52,
-            cal, R.drawable.ic_account_cash, R.drawable.ic_circle_green))
-        listTransactions.add(Transaction(2, 2, "Phone", -20.00,
-            cal2, R.drawable.ic_account_cash, R.drawable.ic_circle_paypal))
+        listTransactions.add(Transaction(1, Category(1, "Bills", R.drawable.ic_category_places_hotel, R.drawable.ic_circle_green), "Rent", cal, -500.53))
+        listTransactions.add(Transaction(2, Category(2, "Phone", R.drawable.ic_category_computer_phone, R.drawable.ic_circle_dark_blue), "VOXI", cal2, -20.00))
 
         return listTransactions
     }
@@ -166,8 +161,8 @@ class AccountTransactions : AppCompatActivity() {
             rowView.tvName.text = transaction.name
             rowView.tvDate.text = transaction.getDate(applicationContext, "DMY")
             rowView.tvAmount.text = transaction.getStringAmount(applicationContext)
-            rowView.ivIcon.setImageResource(transaction.icon)
-            rowView.ivIcon.setBackgroundResource(transaction.colour)
+            rowView.ivIcon.setImageResource(transaction.category.icon)
+            rowView.ivIcon.setBackgroundResource(transaction.category.colour)
             return rowView
         }
 
