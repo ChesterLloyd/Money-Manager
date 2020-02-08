@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -32,35 +31,14 @@ class AccountsFragment : Fragment() {
         val myAccountsAdapter = MyAccountsAdapter(listAccounts)
         this.lvAccounts.adapter = myAccountsAdapter
 
-
-
-
-
-
+//      When an account in the list is clicked
         this.lvAccounts.onItemClickListener = object : AdapterView.OnItemClickListener {
-
             override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
 
-                // value of item that is clicked
+//              Get account object of item that is clicked
                 val account = lvAccounts.getItemAtPosition(position) as Account
 
-                // Toast the values
-                Toast.makeText(context,"Position :$position\nItem Value : ${account.toString()}", Toast.LENGTH_LONG).show()
-
-//                val intent = Intent(context, AddAccount::class.java)
-////                startActivity(intent)
-//
-//                val bundle = Bundle()
-//                bundle.putInt("accountID", account.accountID)
-//                bundle.putString("name", account.name)
-//                bundle.putDouble("balance", account.balance)
-//                bundle.putInt("icon", account.icon)
-//                bundle.putInt("colour", account.colour)
-//                intent.putExtras(bundle)
-//
-//                startActivity(intent)
-
-
+//              Setup an intent to send this across to view the account's transactions
                 val intent = Intent(context, AccountTransactions::class.java)
 
                 val bundle = Bundle()
@@ -74,9 +52,6 @@ class AccountsFragment : Fragment() {
                 startActivity(intent)
             }
         }
-
-
-
     }
 
     override fun onCreateView(

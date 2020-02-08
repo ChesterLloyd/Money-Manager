@@ -12,25 +12,31 @@
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
-        android:id="@+id/nav_gallery"
+        android:id="@+id/nav_accounts"
         android:name="dev.chester_lloyd.moneymanager.ui.accounts.AccountsFragment"
         android:label="@string/menu_accounts"
         tools:layout="@layout/fragment_accounts" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
+        android:id="@+id/nav_transactions"
         android:name="dev.chester_lloyd.moneymanager.ui.transactions.TransactionsFragment"
         android:label="@string/menu_transactions"
         tools:layout="@layout/fragment_transactions" />
 
     <fragment
-        android:id="@+id/nav_tools"
+        android:id="@+id/nav_categories"
+        android:name="dev.chester_lloyd.moneymanager.ui.categories.CategoriesFragment"
+        android:label="@string/menu_categories"
+        tools:layout="@layout/fragment_categories" />
+
+    <fragment
+        android:id="@+id/nav_goals"
         android:name="dev.chester_lloyd.moneymanager.ui.goals.GoalsFragment"
         android:label="@string/menu_goals"
         tools:layout="@layout/fragment_goals" />
 
     <fragment
-        android:id="@+id/nav_share"
+        android:id="@+id/nav_settings"
         android:name="dev.chester_lloyd.moneymanager.ui.settings.SettingsFragment"
         android:label="@string/menu_settings"
         tools:layout="@layout/fragment_settings" />

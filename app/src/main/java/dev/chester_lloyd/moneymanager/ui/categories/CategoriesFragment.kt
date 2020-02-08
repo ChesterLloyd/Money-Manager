@@ -1,0 +1,139 @@
+package dev.chester_lloyd.moneymanager.ui.categories
+
+import android.content.Intent
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.BaseAdapter
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import dev.chester_lloyd.moneymanager.R
+import dev.chester_lloyd.moneymanager.dbManager
+import dev.chester_lloyd.moneymanager.Category
+import kotlinx.android.synthetic.main.category.view.*
+import kotlinx.android.synthetic.main.fragment_categories.*
+
+class CategoriesFragment : Fragment() {
+
+    private lateinit var categoriesViewModel: CategoriesViewModel
+
+//  When the fragment resumes (on first load or after adding a category) do
+    override fun onResume() {
+        super.onResume()
+
+//      Get categories as an array list from database
+        var listCategories = loadCategories("%")
+
+//      Pass this to the list view adaptor and populate
+        val myCategoriesAdapter = MyCategoriesAdapter(listCategories)
+        this.lvCategories.adapter = myCategoriesAdapter
+
+//      When a category in the list is clicked
+        this.lvCategories.onItemClickListener = object : AdapterView.OnItemClickListener {
+            override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+
+                // value of item that is clicked
+                val category = lvCategories.getItemAtPosition(position) as Category
+
+                // Toast the values
+                Toast.makeText(context,"Position :$position\nItem Value : ${category.toString()}", Toast.LENGTH_LONG).show()
+
+//                val intent = Intent(context, CategoryTransactions::class.java)
+//
+//                val bundle = Bundle()
+//                bundle.putInt("categoryID", category.categoryID)
+//                bundle.putString("name", category.name)
+//                bundle.putInt("icon", category.icon)
+//                bundle.putInt("colour", category.colour)
+//                intent.putExtras(bundle)
+//
+//                startActivity(intent)
+            }
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        categoriesViewModel =
+            ViewModelProviders.of(this).get(CategoriesViewModel::class.java)
+        val root = inflater.inflate(R.layout.fragment_categories, container, false)
+
+//      Launch new category activity with fab
+        val fab: FloatingActionButton = root.findViewById(R.id.fab1)
+        fab.setOnClickListener {
+            val intent = Intent(context, AddCategory::class.java)
+            startActivity(intent)
+        }
+
+        return root
+    }
+
+//  Read categories from the database and return an array of Category objects
+    fun loadCategories(name:String):ArrayList<Category> {
+        var listCategories = ArrayList<Category>()
+
+//        var dbManager = dbManager(context!!)
+//
+//        val projection = arrayOf("ID", "Name", "Balance", "Icon", "Colour")
+//        val selectionArgs = arrayOf(name)
+//
+//        // Each ? represents an arg in array
+//        val cursor = dbManager.query("Categories", projection, "Name like ?", selectionArgs, "Name")
+//
+//        if (cursor.moveToFirst()) {
+//            do {
+//                val ID = cursor.getInt(cursor.getColumnIndex("ID"))
+//                val name = cursor.getString(cursor.getColumnIndex("Name"))
+//                val icon = cursor.getInt(cursor.getColumnIndex("Icon"))
+//                val colour = cursor.getInt(cursor.getColumnIndex("Colour"))
+//
+//                listCategories.add(Category(ID, name, icon, colour))
+//            } while (cursor.moveToNext())
+//        }
+
+        listCategories.add(Category(1, "Bills", R.drawable.ic_category_bills_lightbulb, R.drawable.ic_circle_green))
+        listCategories.add(Category(1, "Cinema", R.drawable.ic_category_places_cinema, R.drawable.ic_circle_green))
+        listCategories.add(Category(1, "Events", R.drawable.ic_category_places_event, R.drawable.ic_circle_green))
+        listCategories.add(Category(1, "Server", R.drawable.ic_category_computer_servers, R.drawable.ic_circle_green))
+
+        return listCategories
+    }
+
+
+    inner class MyCategoriesAdapter:BaseAdapter {
+        var listCategoriesAdapter = ArrayList<Category>()
+        constructor(listCategoriesAdapter:ArrayList<Category>):super() {
+            this.listCategoriesAdapter = listCategoriesAdapter
+
+        }
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+//          Adds each category to a new row in a list view
+            val rowView = layoutInflater.inflate(R.layout.category, null)
+            val category = listCategoriesAdapter[position]
+            rowView.tvName.text = category.name
+            rowView.ivIcon.setImageResource(category.icon)
+            rowView.ivIcon.setBackgroundResource(category.colour)
+            return rowView
+        }
+
+        override fun getItem(position: Int): Any {
+            return listCategoriesAdapter[position]
+        }
+
+        override fun getItemId(position: Int): Long {
+            return position.toLong()
+        }
+
+        override fun getCount(): Int {
+            return listCategoriesAdapter.size
+        }
+    }
+}

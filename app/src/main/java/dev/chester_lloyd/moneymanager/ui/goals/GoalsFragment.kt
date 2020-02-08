@@ -24,7 +24,7 @@ class GoalsFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_goals, container, false)
         val textView: TextView = root.findViewById(R.id.text_tools)
         goalsViewModel.text.observe(this, Observer {
-            textView.text = it
+            textView.text = "GOALS"
         })
         return root
     }
