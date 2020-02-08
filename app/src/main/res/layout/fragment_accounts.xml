@@ -11,10 +11,8 @@
         android:id="@+id/lvAccounts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="80dp">
+        app:layout_constraintTop_toTopOf="parent">
     </ListView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
