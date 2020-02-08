@@ -56,14 +56,14 @@ class dbManager {
                     "$colColour INTEGER);")
 
 //          Create Categories table if it does not exist
-            db!!.execSQL("CREATE TABLE IF NOT EXISTS $dbCategoryTable (" +
+            db.execSQL("CREATE TABLE IF NOT EXISTS $dbCategoryTable (" +
                     "$colID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "$colName VARCHAR(30), " +
                     "$colIcon INTEGER, " +
                     "$colColour INTEGER);")
 
 //          Create Transactions table if it does not exist
-            db!!.execSQL("CREATE TABLE IF NOT EXISTS $dbTransactionTable (" +
+            db.execSQL("CREATE TABLE IF NOT EXISTS $dbTransactionTable (" +
                     "$colID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "$colCategoryID INTEGER, " +
                     "$colName VARCHAR(30), " +
@@ -71,7 +71,7 @@ class dbManager {
                     "$colAmount FLOAT);")
 
 //          Create Payments table if it does not exist
-            db!!.execSQL("CREATE TABLE IF NOT EXISTS $dbPaymentsTable (" +
+            db.execSQL("CREATE TABLE IF NOT EXISTS $dbPaymentsTable (" +
                 "$colID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "$colTransactionID INTEGER, " +
                 "$colAccountID INTEGER, " +
@@ -102,6 +102,10 @@ class dbManager {
         return ID
     }
 
+
+
+
+//  Functions to handle Category objects within the database
 //  Function that inserts an account object into the database
     fun insertAccount(account: Account):Long {
         var values = ContentValues()
@@ -142,6 +146,10 @@ class dbManager {
         return sqlDB!!.update(dbAccountTable, values, selection, selectionArgs)
     }
 
+
+
+
+//  Functions to handle Category objects within the database
 //  Function that inserts a category object into the database
     fun insertCategory(category: Category):Long {
         var values = ContentValues()
@@ -177,6 +185,13 @@ class dbManager {
         values.put(colColour, category.colour)
 
         return sqlDB!!.update(dbCategoryTable, values, selection, selectionArgs)
+    }
+
+
+
+
+    fun delete(table: String, selection: String, selectionArgs: Array<String>):Int {
+        return sqlDB!!.delete(table, selection, selectionArgs)
     }
 
 //    fun updateAccount(table: String, values: ContentValues, selection: String, selectionArgs: Array<String>):Int {

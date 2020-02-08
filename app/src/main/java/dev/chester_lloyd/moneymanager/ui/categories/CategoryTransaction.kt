@@ -96,8 +96,10 @@ class CategoryTransaction : AppCompatActivity() {
             alertDialog.setMessage(resources.getString(R.string.alert_message_delete_category))
                 .setCancelable(false)
                 .setPositiveButton(resources.getString(R.string.yes), DialogInterface.OnClickListener {
-                    // TODO Delete category and transactions
-                        dialog, id -> finish()
+                    dialog, id -> finish()
+//                  Delete the category
+                    dbManager(this).delete("Categories","ID=?",
+                        arrayOf(category.categoryID.toString()))
                 })
                 .setNegativeButton(resources.getString(R.string.no), DialogInterface.OnClickListener {
 //                  Do nothing, close box

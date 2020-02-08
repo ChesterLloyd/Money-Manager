@@ -56,7 +56,7 @@ class AccountTransactions : AppCompatActivity() {
 
         if (intent.getIntExtra("accountID", 0) > 0) {
 //          Read current account from database
-            val dbManager = dbManager(this!!)
+            val dbManager = dbManager(this)
             account = dbManager.selectAccount(intent.getIntExtra("accountID", 0))
         }
 
@@ -98,8 +98,10 @@ class AccountTransactions : AppCompatActivity() {
             alertDialog.setMessage(resources.getString(R.string.alert_message_delete_account))
                 .setCancelable(false)
                 .setPositiveButton(resources.getString(R.string.yes), DialogInterface.OnClickListener {
-                    // TODO Delete account and transactions
                     dialog, id -> finish()
+//                  Delete the account
+                    dbManager(this).delete("Accounts","ID=?",
+                        arrayOf(account.accountID.toString()))
                 })
                 .setNegativeButton(resources.getString(R.string.no), DialogInterface.OnClickListener {
 //                  Do nothing, close box
