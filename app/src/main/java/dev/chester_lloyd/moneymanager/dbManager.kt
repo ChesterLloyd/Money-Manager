@@ -138,6 +138,28 @@ class dbManager {
         }
         return account
     }
+//  Function that selects every account from the database as a list of Account objects
+    fun selectAccount():ArrayList<Account> {
+        val QB = SQLiteQueryBuilder()
+        QB.tables = dbAccountTable
+        val projection = arrayOf(colID, colName, colBalance, colIcon, colColour)
+        val selectionArgs = arrayOf("%")
+        var listAccounts = ArrayList<Account>()
+        val cursor = QB.query(sqlDB, projection, "${colName} LIKE ?", selectionArgs, null, null, colName)
+        if (cursor.moveToFirst()) {
+            do {
+                val ID = cursor.getInt(cursor.getColumnIndex(colID))
+                val name = cursor.getString(cursor.getColumnIndex(colName))
+                val balance = cursor.getDouble(cursor.getColumnIndex(colBalance))
+                val icon = cursor.getInt(cursor.getColumnIndex(colID))
+                val colour = cursor.getInt(cursor.getColumnIndex(colColour))
+
+                listAccounts.add(Account(ID, name, balance, icon, colour))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return listAccounts
+    }
 //  Function that updates an account object in the database
     fun updateAccount(account: Account, selection: String, selectionArgs: Array<String>):Int {
         var values = ContentValues()
@@ -163,7 +185,7 @@ class dbManager {
         val ID = sqlDB!!.insert(dbCategoryTable, "", values)
         return ID
     }
-//  Function that selects a single account from the database as an Account object
+//  Function that selects a single category from the database as a Category object
     fun selectCategory(categoryID: Int):Category {
         val QB = SQLiteQueryBuilder()
         QB.tables = dbCategoryTable
@@ -180,7 +202,7 @@ class dbManager {
         }
         return category
     }
-//  Function that selects a single account from the database as an Account object
+//  Function that selects every category from the database as a list of Category objects
     fun selectCategory():ArrayList<Category> {
         val QB = SQLiteQueryBuilder()
         QB.tables = dbCategoryTable

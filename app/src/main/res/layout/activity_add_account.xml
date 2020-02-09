@@ -47,30 +47,15 @@
         android:layout_marginTop="12dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
-        android:digits="-0123456789."
+        android:digits="-0123456789.£"
         android:editable="true"
         android:ems="10"
         android:hint="@string/current_balance"
         android:inputType="number|numberDecimal"
-        android:paddingLeft="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.08"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etName" />
-
-
-    <TextView
-        android:id="@+id/tvCurrency"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:paddingLeft="5dp"
-        android:text="£"
-        android:textColor="#222"
-        android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="@+id/etBalance"
-        app:layout_constraintTop_toTopOf="@+id/etBalance" />
-
 
     <TextView
         android:id="@+id/tvAppearence"
