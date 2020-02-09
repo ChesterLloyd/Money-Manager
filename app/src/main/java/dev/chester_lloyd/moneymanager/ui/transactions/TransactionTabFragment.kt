@@ -36,6 +36,15 @@ class TransactionTabFragment(tab: Int) : Fragment() {
         viewModel = ViewModelProviders.of(this).get(TransactionTabFragmentViewModel::class.java)
         // TODO: Use the ViewModel
 
+
+
+
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+
         tvTab.setText("TAB " + tab)
 
         //      Get transactions as an array list from database
@@ -44,9 +53,6 @@ class TransactionTabFragment(tab: Int) : Fragment() {
 //      Pass this to the list view adaptor and populate
         val myTransactionsAdapter = myTransactionsAdapter(listTransactions)
         lvTransactions.adapter = myTransactionsAdapter
-
-
-
     }
 
 

@@ -9,9 +9,17 @@ import android.widget.ImageView
 import android.widget.TextView
 import dev.chester_lloyd.moneymanager.R
 
-class IconSpinner (internal var context: Context, internal var icons: IntArray, internal var name: Array<String>, internal var spinnerType: String) : BaseAdapter() { internal var inflter: LayoutInflater
+@Suppress("NAME_SHADOWING")
+class IconSpinner (
+    internal var context: Context,
+    internal var icons: IntArray,
+    internal var background: IntArray,
+    internal var name: Array<String>,
+    internal var spinnerType: String) : BaseAdapter() {
 
-//  Spinner adapter class to fill them with icons or colours
+    internal var inflter: LayoutInflater
+
+//  Spinner adapter class to fill each item with icons or colours and labels
 
     init {
         inflter = LayoutInflater.from(context)
@@ -38,6 +46,9 @@ class IconSpinner (internal var context: Context, internal var icons: IntArray, 
             val icon = view.findViewById(R.id.ivAccountIcon) as ImageView
             val names = view.findViewById(R.id.tvIconName) as TextView
             icon.setImageResource(icons[i])
+            if (background.isNotEmpty()) {
+                icon.setBackgroundResource(background[i])
+            }
             names.text = name[i]
 
         } else {

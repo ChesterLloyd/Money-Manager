@@ -42,6 +42,7 @@ class AddAccount : AppCompatActivity() {
         spinner.adapter = IconSpinner(
             applicationContext,
             image,
+            IntArray(0),
             imageName,
             "icon"
         )
@@ -57,6 +58,7 @@ class AddAccount : AppCompatActivity() {
         colourSpinner.adapter = IconSpinner(
             applicationContext,
             colour,
+            IntArray(0),
             colourName,
             "colour"
         )

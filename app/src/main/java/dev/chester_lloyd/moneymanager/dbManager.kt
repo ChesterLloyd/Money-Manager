@@ -180,6 +180,27 @@ class dbManager {
         }
         return category
     }
+//  Function that selects a single account from the database as an Account object
+    fun selectCategory():ArrayList<Category> {
+        val QB = SQLiteQueryBuilder()
+        QB.tables = dbCategoryTable
+        val projection = arrayOf(colID, colName, colIcon, colColour)
+        val selectionArgs = arrayOf("%")
+        var listCategories = ArrayList<Category>()
+        val cursor = QB.query(sqlDB, projection, "${colName} LIKE ?", selectionArgs, null, null, colName)
+        if (cursor.moveToFirst()) {
+            do {
+                val ID = cursor.getInt(cursor.getColumnIndex("ID"))
+                val name = cursor.getString(cursor.getColumnIndex("Name"))
+                val icon = cursor.getInt(cursor.getColumnIndex("Icon"))
+                val colour = cursor.getInt(cursor.getColumnIndex("Colour"))
+
+                listCategories.add(Category(ID, name, icon, colour))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return listCategories
+    }
 //  Function that updates a category object in the database
     fun updateCategory(category: Category, selection: String, selectionArgs: Array<String>):Int {
         var values = ContentValues()

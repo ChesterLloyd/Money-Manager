@@ -133,4 +133,15 @@
     </string-array>
     <string name="category_colour">Category colour</string>
 
+
+
+    <string name="text_transaction_desc">Add a new transaction.</string>
+    <string name="button_add_transaction">Add transaction</string>
+    <string name="edit_transaction">Edit transaction</string>
+    <string name="transaction_amount">Amount</string>
+    <string name="transaction_date">Date</string>
+    <string name="transaction_category">Category</string>
+
+    <string name="transaction_payments">Payments</string>
+
 </resources>

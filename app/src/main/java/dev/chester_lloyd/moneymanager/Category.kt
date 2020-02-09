@@ -2,7 +2,7 @@ package dev.chester_lloyd.moneymanager
 
 class Category {
     var categoryID: Int = 0
-    var name: String? = null
+    var name: String = ""
     var icon: Int = 0
     var colour: Int = 0
 

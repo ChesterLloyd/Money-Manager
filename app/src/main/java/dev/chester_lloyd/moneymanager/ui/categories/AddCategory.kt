@@ -86,6 +86,7 @@ class AddCategory : AppCompatActivity() {
         spinner.adapter = IconSpinner(
             applicationContext,
             image,
+            IntArray(0),
             imageName,
             "icon"
         )
@@ -101,6 +102,7 @@ class AddCategory : AppCompatActivity() {
         colourSpinner.adapter = IconSpinner(
             applicationContext,
             colour,
+            IntArray(0),
             colourName,
             "colour"
         )
