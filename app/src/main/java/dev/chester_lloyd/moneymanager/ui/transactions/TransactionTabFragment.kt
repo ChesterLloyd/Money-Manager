@@ -1,17 +1,20 @@
 package dev.chester_lloyd.moneymanager.ui.transactions
 
+import android.content.Intent
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.BaseAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.chester_lloyd.moneymanager.Category
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.Transaction
 import dev.chester_lloyd.moneymanager.dbManager
+import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import kotlinx.android.synthetic.main.fragment_transaction_tab.*
 import kotlinx.android.synthetic.main.fragment_transaction_tab.view.*
 import kotlinx.android.synthetic.main.fragment_transactions.*
@@ -58,6 +61,24 @@ class TransactionTabFragment(tab: Int) : Fragment() {
 //      Pass this to the list view adaptor and populate
         val myTransactionsAdapter = myTransactionsAdapter(listTransactions)
         lvTransactions.adapter = myTransactionsAdapter
+
+        //      When a transaction in the list is clicked
+        lvTransactions.onItemClickListener = object : AdapterView.OnItemClickListener {
+            override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+
+//              Get account object of item that is clicked
+                val transaction = lvTransactions.getItemAtPosition(position) as Transaction
+
+//              Setup an intent to send this across to view the account's transactions
+                val intent = Intent(context, TransactionDetails::class.java)
+
+                val bundle = Bundle()
+                bundle.putInt("transactionID", transaction.transactionID)
+                intent.putExtras(bundle)
+
+                startActivity(intent)
+            }
+        }
     }
 
     inner class myTransactionsAdapter: BaseAdapter {

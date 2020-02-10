@@ -1,0 +1,152 @@
+package dev.chester_lloyd.moneymanager.ui
+
+import android.app.AlertDialog
+import android.content.DialogInterface
+import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
+import dev.chester_lloyd.moneymanager.*
+import dev.chester_lloyd.moneymanager.ui.transactions.AddTransaction
+import kotlinx.android.synthetic.main.account.view.*
+import kotlinx.android.synthetic.main.activity_transation_details.*
+import kotlinx.android.synthetic.main.transaction.view.*
+import kotlinx.android.synthetic.main.transaction.view.ivIcon
+import kotlinx.android.synthetic.main.transaction.view.tvName
+import java.util.*
+import kotlin.collections.ArrayList
+
+class TransactionDetails : AppCompatActivity() {
+
+    private var transaction = Transaction()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_transation_details)
+
+//      Setup toolbar name and show a back button
+        this.supportActionBar?.title = getString(R.string.transaction_details)
+        this.supportActionBar?.setDisplayShowHomeEnabled(true)
+        this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        transaction = dbManager(this).selectTransaction(intent
+            .getIntExtra("transactionID", 0))
+
+        tvName.text = transaction.name
+        tvAmount.text = transaction.getStringAmount(this)
+        ivIcon.setImageResource(transaction.category.icon)
+        ivIcon.setBackgroundResource(transaction.category.colour)
+
+//      Get payments as an array list from database
+        var listPayments = dbManager(this)
+            .selectPayment(transaction.transactionID)
+
+//      Pass this to the list view adaptor and populate
+        val myPaymentsAdapter = myPaymentsAdapter(listPayments)
+        this.lvPayments.adapter = myPaymentsAdapter
+    }
+
+//  If we have come back (after updating) show potential updated account status
+    override fun onResume() {
+        super.onResume()
+
+        if (intent.getIntExtra("accountID", 0) > 0) {
+//          Read current transaction from database
+            transaction = dbManager(this).selectTransaction(intent
+                .getIntExtra("transactionID", 0))
+        }
+
+//      Update entry fields with account info
+        tvName.text = transaction.name
+        tvAmount.text = transaction.getStringAmount(this)
+        ivIcon.setImageResource(transaction.category.icon)
+        ivIcon.setBackgroundResource(transaction.category.colour)
+    }
+
+    //  Settings menu in action bar
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.edit,menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    //  Actions on click menu items
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.menuEdit -> {
+//          Edit icon clicked, go to edit page (pass all account details)
+            val intent = Intent(this, AddTransaction::class.java)
+            val bundle = Bundle()
+            bundle.putInt("transactionID", transaction.transactionID)
+            intent.putExtras(bundle)
+            startActivity(intent)
+            true
+        }
+        R.id.menuDelete ->{
+//          Delete icon clicked
+//          Build an alert dialog to get user confirmation
+            val alertDialog = AlertDialog.Builder(this)
+
+            alertDialog.setMessage(resources.getString(R.string.alert_message_delete_transaction))
+                .setCancelable(false)
+                .setPositiveButton(resources.getString(R.string.yes), DialogInterface.OnClickListener {
+                        dialog, id -> finish()
+//                  Delete the account
+//                    dbManager(this).delete("Accounts","ID=?",
+//                        arrayOf(account.accountID.toString()))
+                })
+                .setNegativeButton(resources.getString(R.string.no), DialogInterface.OnClickListener {
+//                  Do nothing, close box
+                        dialog, id -> dialog.cancel()
+                })
+
+            val alert = alertDialog.create()
+            alert.setTitle(resources.getString(R.string.alert_title_delete_transaction))
+            alert.show()
+            true
+        }
+        else -> {
+            // If we got here, the user's action was not recognized.
+            // Invoke the superclass to handle it.
+            super.onOptionsItemSelected(item)
+        }
+    }
+
+    //  Close activity once toolbar back button is pressed
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
+
+    inner class myPaymentsAdapter: BaseAdapter {
+        var listPaymentsAdapter = ArrayList<Payment>()
+        constructor(listPaymentsAdapter:ArrayList<Payment>):super() {
+            this.listPaymentsAdapter = listPaymentsAdapter
+        }
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+//          Adds each payment to a new row in a list view
+            val rowView = layoutInflater.inflate(R.layout.account, null)
+            val payment = listPaymentsAdapter[position]
+            rowView.ivIcon.setImageResource(payment.account.icon)
+            rowView.ivIcon.setBackgroundResource(payment.account.colour)
+            rowView.tvName.text = payment.account.name
+            rowView.tvBalance.text = payment.getStringAmount(applicationContext)
+            return rowView
+        }
+
+        override fun getItem(position: Int): Any {
+            return listPaymentsAdapter[position]
+        }
+
+        override fun getItemId(position: Int): Long {
+            return position.toLong()
+        }
+
+        override fun getCount(): Int {
+            return listPaymentsAdapter.size
+        }
+    }
+}

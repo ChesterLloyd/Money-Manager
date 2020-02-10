@@ -146,6 +146,25 @@ class AddTransaction : AppCompatActivity() {
             llAccounts.addView(etAccount)
         }
 
+//      Get transaction from database, if ID given (to edit)
+        val transactionID = intent.getIntExtra("transactionID", 0)
+
+        if (transactionID > 0) {
+            transaction = dbManager(this).selectTransaction(transactionID)
+            etName.setText(transaction.name)
+            etAmount.setText(transaction.getStringAmount(this))
+            updateDateInView()
+            spCategory.setSelection(icon.indexOf(transaction.category.icon))
+
+            val payments = dbManager(this).selectPayment(transactionID)
+            for (payment in 0..payments.size - 1) {
+                if (payments[payment].amount > 0.0) {
+                    findViewById<EditText>(payments[payment].account.accountID)
+                        .setText(payments[payment].getEditTextAmount(this))
+                }
+            }
+        }
+
         fabAddTransaction.setOnClickListener {
             println("\n\n\n" + transaction.date + "\n\n\n")
             transaction.name = etName.text.toString()

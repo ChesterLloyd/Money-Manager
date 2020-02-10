@@ -252,10 +252,33 @@ class dbManager {
         val ID = sqlDB!!.insert(dbTransactionTable, "", values)
         return ID
     }
-//  Function that selects transactions based on Category/Account ID as a list of Transaction objects
-    fun selectTransaction(id: Int, type: String):ArrayList<Transaction> {
+//  Function that selects a single transaction from the database as a Transaction object
+    fun selectTransaction(transactionID: Int):Transaction {
         val QB = SQLiteQueryBuilder()
         QB.tables = dbTransactionTable
+        val projection = arrayOf(colID, colCategoryID, colName, colDate, colAmount)
+        val selectionArgs = arrayOf(transactionID.toString())
+        var transaction = Transaction()
+        val cursor = QB.query(sqlDB, projection, "${colID}=?", selectionArgs, null, null, colName)
+        if (cursor.moveToFirst()) {
+            val ID = cursor.getInt(cursor.getColumnIndex(colID))
+            val categoryID = cursor.getInt(cursor.getColumnIndex(colCategoryID))
+            val name = cursor.getString(cursor.getColumnIndex(colName))
+            val date = cursor.getString(cursor.getColumnIndex(colDate))
+            val amount = cursor.getDouble(cursor.getColumnIndex(colAmount))
+
+            val cal = Calendar.getInstance()
+            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
+            cal.time = sdf.parse(date)
+
+            transaction = Transaction(ID, selectCategory(categoryID), name, cal, amount)
+        }
+        return transaction
+    }
+//  Function that selects transactions based on Category/Account ID as a list of Transaction objects
+    fun selectTransaction(id: Int, type: String):ArrayList<Transaction> {
+//        val QB = SQLiteQueryBuilder()
+//        QB.tables = dbTransactionTable
         var selectionArgs= arrayOf(id.toString())
         var listTransactions = ArrayList<Transaction>()
 
@@ -322,6 +345,32 @@ class dbManager {
 
         val ID = sqlDB!!.insert(dbPaymentsTable, "", values)
         return ID
+    }
+//  Function that selects payments based on a transaction ID as a list of Payment objects
+    fun selectPayment(transactionID: Int):ArrayList<Payment> {
+        var selectionArgs= arrayOf(transactionID.toString())
+        var listPayments = ArrayList<Payment>()
+
+        var query = "SELECT P.${colID}, P.${colTransactionID}, " +
+                "P.${colAccountID}, P.${colAmount} FROM ${dbPaymentsTable} P " +
+                "JOIN ${dbTransactionTable} T ON T.${colID} = P.${colTransactionID} " +
+                "JOIN ${dbAccountTable} A ON A.${colID} = P.${colAccountID} " +
+                "WHERE T.${colID} = ? " +
+                "ORDER BY A.${colName} ASC"
+        val cursor = sqlDB!!.rawQuery(query, selectionArgs)
+
+        if (cursor.moveToFirst()) {
+            do {
+                val ID = cursor.getInt(cursor.getColumnIndex(colID))
+                val transactionID = cursor.getInt(cursor.getColumnIndex(colTransactionID))
+                val accounID = cursor.getInt(cursor.getColumnIndex(colAccountID))
+                val amount = cursor.getDouble(cursor.getColumnIndex(colAmount))
+
+                listPayments.add(Payment(ID, selectTransaction(transactionID), selectAccount(accounID), amount))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return listPayments
     }
 
 
