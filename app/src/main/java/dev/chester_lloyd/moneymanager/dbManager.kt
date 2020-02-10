@@ -270,11 +270,12 @@ class dbManager {
             } else {
                 selectionArgs = emptyArray()
             }
-        } else {
-            query = "SELECT ${colID}, ${colCategoryID}, " +
-                    "${colName}, ${colDate}, ${colAmount} FROM ${dbTransactionTable} T " +
-                    "JOIN ${dbCategoryTable} C ON C.${colID} = T.${colCategoryID} " +
-                    "WHERE C.${colID} = ? "
+        } else if (type == "Accounts") {
+            println("ACC")
+            query = "SELECT T.${colID}, T.${colCategoryID}, " +
+                    "T.${colName}, T.${colDate}, T.${colAmount} FROM ${dbTransactionTable} T " +
+                    "JOIN ${dbPaymentsTable} P ON P.${colTransactionID} = T.${colID} " +
+                    "WHERE P.${colAccountID} = ?"
         }
         query += " ORDER BY T.${colDate} DESC"
         val cursor = sqlDB!!.rawQuery(query, selectionArgs)
@@ -306,6 +307,21 @@ class dbManager {
         values.put(colAmount, transaction.amount)
 
         return sqlDB!!.update(dbAccountTable, values, selection, selectionArgs)
+    }
+
+
+
+
+//  Functions to handle Payment objects within the database
+//  Function that inserts a payment object into the database
+    fun insertPayment(payment: Payment):Long {
+        var values = ContentValues()
+        values.put(colTransactionID, payment.transaction.transactionID)
+        values.put(colAccountID, payment.account.accountID)
+        values.put(colAmount, payment.amount)
+
+        val ID = sqlDB!!.insert(dbPaymentsTable, "", values)
+        return ID
     }
 
 

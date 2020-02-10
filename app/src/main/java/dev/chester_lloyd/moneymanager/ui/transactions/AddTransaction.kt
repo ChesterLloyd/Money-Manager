@@ -173,8 +173,7 @@ class AddTransaction : AppCompatActivity() {
                 var totalPayments: Double = 0.0
                 for (account in 0..accounts.size - 1) {
                     val accountValue = CurrencyValidator(
-                        this.findViewById<EditText>(accounts[account].accountID)
-                    )
+                        this.findViewById<EditText>(accounts[account].accountID))
                         .getBalance()
                     println(accountValue)
 
@@ -200,6 +199,15 @@ class AddTransaction : AppCompatActivity() {
 //                      Insert this new transaction into the transactions table
                         val id = dbManager.insertTransaction(transaction)
                         if (id > 0) {
+                            transaction.transactionID = id.toInt()
+                            for (payment in 0..payments.size - 1) {
+//                              For each payment method (Account)
+                                if (payments[payment].amount > 0.0) {
+//                                  Add a payment for this amount
+                                    payments[payment].transaction = transaction
+                                    val id = dbManager.insertPayment(payments[payment])
+                                }
+                            }
 //                          Transaction saved to database, return to previous fragment
                             Toast.makeText(
                                 this, R.string.transaction_insert_success,

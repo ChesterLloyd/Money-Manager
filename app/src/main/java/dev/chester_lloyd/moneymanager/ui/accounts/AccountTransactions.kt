@@ -43,7 +43,8 @@ class AccountTransactions : AppCompatActivity() {
         ivIcon.setBackgroundResource(account.colour)
 
 //      Get transactions as an array list from database
-        var listTransactions = loadTransactions("%")
+        var listTransactions = dbManager(this)
+            .selectTransaction(account.accountID, "Accounts")
 
 //      Pass this to the list view adaptor and populate
         val myTransactionsAdapter = myTransactionsAdapter(listTransactions)
@@ -73,7 +74,7 @@ class AccountTransactions : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
-// Actions on click menu items
+//  Actions on click menu items
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.menuEdit -> {
 //          Edit icon clicked, go to edit page (pass all account details)
