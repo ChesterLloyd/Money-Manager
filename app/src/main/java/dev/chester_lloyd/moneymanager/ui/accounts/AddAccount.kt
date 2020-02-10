@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.Account
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.dbManager
-import dev.chester_lloyd.moneymanager.ui.CurrencyValidatior
+import dev.chester_lloyd.moneymanager.ui.CurrencyValidator
 import dev.chester_lloyd.moneymanager.ui.IconSpinner
 import kotlinx.android.synthetic.main.activity_add_account.*
 
@@ -69,7 +69,7 @@ class AddAccount : AppCompatActivity() {
         )
 
 //      Validate the balance field
-        val balanceValidator = CurrencyValidatior(etBalance)
+        val balanceValidator = CurrencyValidator(etBalance)
 
         val etBalanceInput = findViewById(R.id.etBalance) as EditText
         etBalanceInput.onFocusChangeListener = OnFocusChangeListener { v, gainFocus ->
@@ -108,10 +108,10 @@ class AddAccount : AppCompatActivity() {
 
             if (account.name == "") {
 //              Account name is empty, show an error
-                Toast.makeText(this, "Account name cannot be blank", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.account_validation_name, Toast.LENGTH_SHORT).show()
             } else if (etBalance.text.toString() == "") {
 //              Account balance is empty, show an error
-                Toast.makeText(this, "Account balance cannot be blank", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.account_validation_balance, Toast.LENGTH_SHORT).show()
             } else {
 //              All data has been filled out, start saving
                 account.balance = balanceValidator.getBalance()

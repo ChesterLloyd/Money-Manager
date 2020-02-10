@@ -3,7 +3,7 @@ package dev.chester_lloyd.moneymanager.ui
 import android.content.Context
 import android.widget.EditText
 
-class CurrencyValidatior {
+class CurrencyValidator {
 
     val editText: EditText
     var balance: String = ""
@@ -135,12 +135,12 @@ class CurrencyValidatior {
         if (editText.text.firstOrNull() == '£') {
             if (editText.text.length > 1) {
                 val splitBalance = editText.text.split("£")
-
-                println(splitBalance[1].toDouble())
                 return splitBalance[1].toDouble()
             } else {
                 return 0.0
             }
+        } else if (editText.text.isEmpty()) {
+            return 0.0
         }
         return editText.text.toString().toDouble()
     }

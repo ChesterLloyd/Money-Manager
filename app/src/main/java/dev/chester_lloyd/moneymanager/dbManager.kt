@@ -7,7 +7,9 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.database.sqlite.SQLiteQueryBuilder
 import android.widget.Toast
+import dev.chester_lloyd.moneymanager.ui.transactions.TransactionTabFragment
 import java.lang.String.format
+import java.sql.Timestamp
 
 class dbManager {
 
@@ -231,6 +233,31 @@ class dbManager {
         values.put(colColour, category.colour)
 
         return sqlDB!!.update(dbCategoryTable, values, selection, selectionArgs)
+    }
+
+
+
+
+//  Functions to handle Transaction objects within the database
+//  Function that inserts a transaction object into the database
+    fun insertTransaction(transaction: Transaction):Long {
+        var values = ContentValues()
+        values.put(colCategoryID, transaction.category.categoryID)
+        values.put(colName, transaction.name)
+        values.put(colDate, Timestamp(transaction.date.getTimeInMillis()).toString())
+        values.put(colAmount, transaction.amount)
+
+        val ID = sqlDB!!.insert(dbTransactionTable, "", values)
+        return ID
+    }
+//  Function that updates a Transaction object in the database
+    fun updateTransaction(transaction: Transaction, selection: String, selectionArgs: Array<String>):Int {
+        var values = ContentValues()
+        values.put(colCategoryID, transaction.category.categoryID)
+        values.put(colName, transaction.name)
+        values.put(colDate, Timestamp(transaction.date.getTimeInMillis()).toString())
+
+        return sqlDB!!.update(dbAccountTable, values, selection, selectionArgs)
     }
 
 

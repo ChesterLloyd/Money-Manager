@@ -123,7 +123,7 @@ class AddCategory : AppCompatActivity() {
 
             if (category.name == "") {
 //              Category name is empty, show an error
-                Toast.makeText(this, "Category name cannot be blank", Toast.LENGTH_SHORT)
+                Toast.makeText(this, R.string.category_validation_name, Toast.LENGTH_SHORT)
                     .show()
             } else {
 //              All data has been filled out, start saving
