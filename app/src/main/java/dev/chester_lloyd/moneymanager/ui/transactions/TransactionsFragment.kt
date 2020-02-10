@@ -77,7 +77,7 @@ class TransactionsFragment : Fragment() {
         override fun getItem(position: Int): Fragment {
             var fragment: Fragment? = null
             when (position) {
-                position -> fragment = TransactionTabFragment(position)
+                position -> fragment = TransactionTabFragment(categories.get(position).categoryID)
             }
             return fragment!!
         }

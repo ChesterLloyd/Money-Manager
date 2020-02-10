@@ -20,6 +20,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class TransactionTabFragment(tab: Int) : Fragment() {
+
     val tab = tab
 
     private lateinit var viewModel: TransactionTabFragmentViewModel
@@ -36,8 +37,14 @@ class TransactionTabFragment(tab: Int) : Fragment() {
         viewModel = ViewModelProviders.of(this).get(TransactionTabFragmentViewModel::class.java)
         // TODO: Use the ViewModel
 
-
-
+//        tvTab.setText("TAB " + tab)
+//
+////      Get transactions as an array list from database
+//        var listTransactions = loadTransactions("%")
+//
+////      Pass this to the list view adaptor and populate
+//        val myTransactionsAdapter = myTransactionsAdapter(listTransactions)
+//        lvTransactions.adapter = myTransactionsAdapter
 
 
     }
@@ -45,59 +52,18 @@ class TransactionTabFragment(tab: Int) : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        tvTab.setText("TAB " + tab)
-
-        //      Get transactions as an array list from database
-        var listTransactions = loadTransactions("%")
+//      Get transactions as an array list from database
+        var listTransactions = dbManager(context!!).selectTransaction(tab, "Categories")
 
 //      Pass this to the list view adaptor and populate
         val myTransactionsAdapter = myTransactionsAdapter(listTransactions)
         lvTransactions.adapter = myTransactionsAdapter
     }
 
-
-//  Read transactions from the database and return an array of Transaction objects
-    fun loadTransactions(name:String):ArrayList<Transaction> {
-        var listTransactions = ArrayList<Transaction>()
-
-        var dbManager = dbManager(context!!)
-
-//        val projection = arrayOf("ID", "Name", "Balance", "Icon", "Colour")
-//        val selectionArgs = arrayOf(name)
-//
-//        // Each ? represents an arg in array
-//        val cursor = dbManager.query("Accounts", projection, "Name like ?", selectionArgs, "Name")
-//
-//        if (cursor.moveToFirst()) {
-//            do {
-//                val ID = cursor.getInt(cursor.getColumnIndex("ID"))
-//                val name = cursor.getString(cursor.getColumnIndex("Name"))
-//                val balance = cursor.getDouble(cursor.getColumnIndex("Balance"))
-//                val icon = cursor.getInt(cursor.getColumnIndex("Icon"))
-//                val colour = cursor.getInt(cursor.getColumnIndex("Colour"))
-//
-//                listAccounts.add(Account(ID, name, balance, icon, colour))
-//            } while (cursor.moveToNext())
-//        }
-
-//      TODO READ transactions from DB
-//      USe some generated dates and transactions for now
-        val cal: Calendar = Calendar.getInstance()
-        cal.set(2020,2,1,12,0)
-        val cal2: Calendar = Calendar.getInstance()
-        cal2.set(2020,2,15,6,50)
-
-        listTransactions.add(Transaction(1, Category(1, "Bills", R.drawable.ic_category_places_hotel, R.drawable.ic_circle_green), "Rent", cal, -500.53))
-        listTransactions.add(Transaction(2, Category(2, "Phone", R.drawable.ic_category_computer_phone, R.drawable.ic_circle_dark_blue), "VOXI", cal2, -20.00))
-
-        return listTransactions
-    }
-
     inner class myTransactionsAdapter: BaseAdapter {
         var listTransactionsAdapter = ArrayList<Transaction>()
         constructor(listTransactionsAdapter:ArrayList<Transaction>):super() {
             this.listTransactionsAdapter = listTransactionsAdapter
-
         }
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {

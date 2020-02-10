@@ -7,9 +7,11 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.database.sqlite.SQLiteQueryBuilder
 import android.widget.Toast
-import dev.chester_lloyd.moneymanager.ui.transactions.TransactionTabFragment
 import java.lang.String.format
 import java.sql.Timestamp
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class dbManager {
 
@@ -250,12 +252,58 @@ class dbManager {
         val ID = sqlDB!!.insert(dbTransactionTable, "", values)
         return ID
     }
+//  Function that selects transactions based on Category/Account ID as a list of Transaction objects
+    fun selectTransaction(id: Int, type: String):ArrayList<Transaction> {
+        val QB = SQLiteQueryBuilder()
+        QB.tables = dbTransactionTable
+        var selectionArgs= arrayOf(id.toString())
+        var listTransactions = ArrayList<Transaction>()
+
+        var query: String = ""
+        if (type == "Categories") {
+            query = "SELECT T.${colID}, T.${colCategoryID}, " +
+                    "T.${colName}, T.${colDate}, T.${colAmount} FROM ${dbTransactionTable} T " +
+                    "JOIN ${dbCategoryTable} C ON C.${colID} = T.${colCategoryID}"
+
+            if (id > 0) {
+                query += " WHERE C.${colID} = ? "
+            } else {
+                selectionArgs = emptyArray()
+            }
+        } else {
+            query = "SELECT ${colID}, ${colCategoryID}, " +
+                    "${colName}, ${colDate}, ${colAmount} FROM ${dbTransactionTable} T " +
+                    "JOIN ${dbCategoryTable} C ON C.${colID} = T.${colCategoryID} " +
+                    "WHERE C.${colID} = ? "
+        }
+        query += " ORDER BY T.${colDate} DESC"
+        val cursor = sqlDB!!.rawQuery(query, selectionArgs)
+
+        if (cursor.moveToFirst()) {
+            do {
+                val ID = cursor.getInt(cursor.getColumnIndex(colID))
+                val categoryID = cursor.getInt(cursor.getColumnIndex(colCategoryID))
+                val name = cursor.getString(cursor.getColumnIndex(colName))
+                val date = cursor.getString(cursor.getColumnIndex(colDate))
+                val amount = cursor.getDouble(cursor.getColumnIndex(colAmount))
+
+                val cal = Calendar.getInstance()
+                val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
+                cal.time = sdf.parse(date)
+
+                listTransactions.add(Transaction(ID, selectCategory(categoryID), name, cal, amount))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return listTransactions
+    }
 //  Function that updates a Transaction object in the database
     fun updateTransaction(transaction: Transaction, selection: String, selectionArgs: Array<String>):Int {
         var values = ContentValues()
         values.put(colCategoryID, transaction.category.categoryID)
         values.put(colName, transaction.name)
         values.put(colDate, Timestamp(transaction.date.getTimeInMillis()).toString())
+        values.put(colAmount, transaction.amount)
 
         return sqlDB!!.update(dbAccountTable, values, selection, selectionArgs)
     }

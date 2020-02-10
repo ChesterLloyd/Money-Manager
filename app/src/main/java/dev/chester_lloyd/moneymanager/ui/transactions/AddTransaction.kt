@@ -21,7 +21,6 @@ import kotlin.collections.ArrayList
 class AddTransaction : AppCompatActivity() {
 
     var transaction = Transaction()
-    var date = Calendar.getInstance()!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,9 +60,9 @@ class AddTransaction : AppCompatActivity() {
 //      Create a date picker, set values for class date value
         val dateSetListener = object : DatePickerDialog.OnDateSetListener {
             override fun onDateSet(view: DatePicker, year: Int, monthOfYear: Int, dayOfMonth: Int) {
-                date.set(Calendar.YEAR, year)
-                date.set(Calendar.MONTH, monthOfYear)
-                date.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                transaction.date.set(Calendar.YEAR, year)
+                transaction.date.set(Calendar.MONTH, monthOfYear)
+                transaction.date.set(Calendar.DAY_OF_MONTH, dayOfMonth)
                 updateDateInView()
             }
         }
@@ -74,9 +73,9 @@ class AddTransaction : AppCompatActivity() {
                     DatePickerDialog(this@AddTransaction,
                         dateSetListener,
                         // set to point to today's date when it loads up
-                        date.get(Calendar.YEAR),
-                        date.get(Calendar.MONTH),
-                        date.get(Calendar.DAY_OF_MONTH)).show()
+                        transaction.date.get(Calendar.YEAR),
+                        transaction.date.get(Calendar.MONTH),
+                        transaction.date.get(Calendar.DAY_OF_MONTH)).show()
                     etDate.clearFocus()
             }
         }
@@ -148,8 +147,8 @@ class AddTransaction : AppCompatActivity() {
         }
 
         fabAddTransaction.setOnClickListener {
+            println("\n\n\n" + transaction.date + "\n\n\n")
             transaction.name = etName.text.toString()
-
             if (transaction.name == "") {
 //              Transaction name is empty, show an error
                 Toast.makeText(this, R.string.transaction_validation_name,
@@ -169,57 +168,69 @@ class AddTransaction : AppCompatActivity() {
 //              Get instance of the database manager class
                 val dbManager = dbManager(this)
 
-//              Get category as an object
-                println(transaction.category.name)
-
 //              Get all payments as Payment objects
                 var payments = ArrayList<Payment>()
                 var totalPayments: Double = 0.0
                 for (account in 0..accounts.size - 1) {
                     val accountValue = CurrencyValidator(
-                        this.findViewById<EditText>(accounts[account].accountID))
+                        this.findViewById<EditText>(accounts[account].accountID)
+                    )
                         .getBalance()
                     println(accountValue)
 
 //                  Round to 2dp (since double would probably do: 20.0000004 or something)
-                    val accountValue2DP:Double = String.format("%.2f", accountValue).toDouble()
+                    val accountValue2DP: Double = String.format("%.2f", accountValue).toDouble()
                     totalPayments += accountValue2DP
-                    payments.add(Payment(0, Transaction(), accounts[account],
-                        accountValue))
+                    payments.add(
+                        Payment(
+                            0, Transaction(), accounts[account],
+                            accountValue
+                        )
+                    )
                 }
 
                 if (String.format("%.2f", totalPayments).toDouble() != transaction.amount) {
 //                  Account payments do not make up the transaction amount, show an error
-                    Toast.makeText(this, R.string.transaction_validation_payments,
-                        Toast.LENGTH_SHORT).show()
-                }
-
-                if (transaction.transactionID == 0) {
-//                  Insert this new transaction into the transactions table
-                    val id = dbManager.insertTransaction(transaction)
-                    if (id > 0) {
-//                      Transaction saved to database, return to previous fragment
-                        Toast.makeText(this, R.string.transaction_insert_success,
-                            Toast.LENGTH_LONG).show()
-                        this.finish()
-                    } else {
-//                      Failed to save, show this error
-                        Toast.makeText(this, R.string.transaction_insert_fail,
-                            Toast.LENGTH_LONG).show()
-                    }
+                    Toast.makeText(
+                        this, R.string.transaction_validation_payments,
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else {
-//                  Update this transaction in the database
-                    var selectionArgs = arrayOf(transaction.transactionID.toString())
-                    val id = dbManager.updateTransaction(transaction, "ID=?", selectionArgs)
-                    if (id > 0) {
-//                      Transaction updated in the database, return to previous fragment
-                        Toast.makeText(this, R.string.transaction_update_success,
-                        Toast.LENGTH_LONG).show()
-                        this.finish()
+                    if (transaction.transactionID == 0) {
+//                      Insert this new transaction into the transactions table
+                        val id = dbManager.insertTransaction(transaction)
+                        if (id > 0) {
+//                          Transaction saved to database, return to previous fragment
+                            Toast.makeText(
+                                this, R.string.transaction_insert_success,
+                                Toast.LENGTH_LONG
+                            ).show()
+                            this.finish()
+                        } else {
+//                          Failed to save, show this error
+                            Toast.makeText(
+                                this, R.string.transaction_insert_fail,
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                     } else {
-//                      Failed to save, show this error
-                        Toast.makeText(this, R.string.transaction_update_fail,
-                        Toast.LENGTH_LONG).show()
+//                      Update this transaction in the database
+                        var selectionArgs = arrayOf(transaction.transactionID.toString())
+                        val id = dbManager.updateTransaction(transaction, "ID=?", selectionArgs)
+                        if (id > 0) {
+//                          Transaction updated in the database, return to previous fragment
+                            Toast.makeText(
+                                this, R.string.transaction_update_success,
+                                Toast.LENGTH_LONG
+                            ).show()
+                            this.finish()
+                        } else {
+//                          Failed to save, show this error
+                            Toast.makeText(
+                                this, R.string.transaction_update_fail,
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                     }
                 }
             }
@@ -229,8 +240,8 @@ class AddTransaction : AppCompatActivity() {
 //  Update date value with the class date variable
     private fun updateDateInView() {
         val myFormat = "dd/MM/yyyy"
-        val sdf = SimpleDateFormat(myFormat, Locale.US)
-        etDate!!.setText(sdf.format(date.getTime()))
+        val sdf = SimpleDateFormat(myFormat, Locale.ENGLISH)
+        etDate!!.setText(sdf.format(transaction.date.getTime()))
     }
 
 //  Close activity once toolbar back button is pressed

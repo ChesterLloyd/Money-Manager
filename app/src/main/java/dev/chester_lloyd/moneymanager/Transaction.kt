@@ -40,7 +40,7 @@ class Transaction {
         if (format == "DMY") {
             stringDate = context.resources.getString(R.string.date_DMY,
                 date.get(Calendar.DAY_OF_MONTH).toString(),
-                date.get(Calendar.MONTH).toString(),
+                (date.get(Calendar.MONTH) + 1).toString(),
                 date.get(Calendar.YEAR).toString())
         } else {
             stringDate = date.toString()
