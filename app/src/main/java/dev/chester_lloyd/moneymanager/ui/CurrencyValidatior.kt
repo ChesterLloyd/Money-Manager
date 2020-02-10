@@ -133,10 +133,14 @@ class CurrencyValidatior {
 
     fun getBalance(): Double {
         if (editText.text.firstOrNull() == '£') {
-            val splitBalance = editText.text.split("£")
+            if (editText.text.length > 1) {
+                val splitBalance = editText.text.split("£")
 
-            println(splitBalance[1].toDouble())
-            return splitBalance[1].toDouble()
+                println(splitBalance[1].toDouble())
+                return splitBalance[1].toDouble()
+            } else {
+                return 0.0
+            }
         }
         return editText.text.toString().toDouble()
     }
