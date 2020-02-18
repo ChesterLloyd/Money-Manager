@@ -9,17 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import dev.chester_lloyd.moneymanager.Category
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.Transaction
 import dev.chester_lloyd.moneymanager.dbManager
+import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import kotlinx.android.synthetic.main.fragment_transaction_tab.*
-import kotlinx.android.synthetic.main.fragment_transaction_tab.view.*
-import kotlinx.android.synthetic.main.fragment_transactions.*
 import kotlinx.android.synthetic.main.transaction.view.*
-import java.util.*
 import kotlin.collections.ArrayList
 
 class TransactionTabFragment(tab: Int) : Fragment() {
@@ -94,8 +90,13 @@ class TransactionTabFragment(tab: Int) : Fragment() {
             rowView.tvName.text = transaction.name
             rowView.tvDate.text = transaction.getDate(context!!, "DMY")
             rowView.tvAmount.text = transaction.getStringAmount(context!!)
-            rowView.ivIcon.setImageResource(transaction.category.icon)
-            rowView.ivIcon.setBackgroundResource(transaction.category.colour)
+
+            val iconManager = IconManager(context!!)
+            rowView.ivIcon.setImageResource(iconManager.getIconByID(
+                iconManager.categoryIcons, transaction.category.icon).drawable)
+            rowView.ivIcon.setBackgroundResource(iconManager.getIconByID(
+                iconManager.colourIcons, transaction.category.colour).drawable)
+
             return rowView
         }
 

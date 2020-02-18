@@ -329,7 +329,7 @@ class dbManager {
         values.put(colDate, Timestamp(transaction.date.getTimeInMillis()).toString())
         values.put(colAmount, transaction.amount)
 
-        return sqlDB!!.update(dbAccountTable, values, selection, selectionArgs)
+        return sqlDB!!.update(dbTransactionTable, values, selection, selectionArgs)
     }
 
 

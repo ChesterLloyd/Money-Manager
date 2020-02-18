@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import dev.chester_lloyd.moneymanager.*
+import dev.chester_lloyd.moneymanager.ui.IconManager
 import kotlinx.android.synthetic.main.account.view.ivIcon
 import kotlinx.android.synthetic.main.account.view.tvName
 import kotlinx.android.synthetic.main.activity_account_transactions.*
@@ -39,8 +40,12 @@ class AccountTransactions : AppCompatActivity() {
 
         tvName.text = account.name
         tvBalance.text = account.getStringBalance(this)
-        ivIcon.setImageResource(account.icon)
-        ivIcon.setBackgroundResource(account.colour)
+
+        val iconManager = IconManager(this)
+        ivIcon.setImageResource(iconManager.getIconByID(
+            iconManager.accountIcons, account.icon).drawable)
+        ivIcon.setBackgroundResource(iconManager.getIconByID(
+            iconManager.colourIcons, account.colour).drawable)
 
 //      Get transactions as an array list from database
         var listTransactions = dbManager(this)
@@ -64,8 +69,11 @@ class AccountTransactions : AppCompatActivity() {
 //      Update entry fields with account info
         tvName.text = account.name
         tvBalance.text = account.getStringBalance(this)
-        ivIcon.setImageResource(account.icon)
-        ivIcon.setBackgroundResource(account.colour)
+        val iconManager = IconManager(this)
+        ivIcon.setImageResource(iconManager.getIconByID(
+            iconManager.accountIcons, account.icon).drawable)
+        ivIcon.setBackgroundResource(iconManager.getIconByID(
+            iconManager.colourIcons, account.colour).drawable)
     }
 
 //  Settings menu in action bar

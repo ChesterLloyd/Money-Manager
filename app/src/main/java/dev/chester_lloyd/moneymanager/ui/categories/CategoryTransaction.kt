@@ -14,6 +14,7 @@ import dev.chester_lloyd.moneymanager.Category
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.Transaction
 import dev.chester_lloyd.moneymanager.dbManager
+import dev.chester_lloyd.moneymanager.ui.IconManager
 import kotlinx.android.synthetic.main.activity_category_transaction.*
 import kotlinx.android.synthetic.main.transaction.view.*
 import java.util.*
@@ -22,6 +23,7 @@ import kotlin.collections.ArrayList
 class CategoryTransaction : AppCompatActivity() {
 
     private var category = Category()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,9 +40,12 @@ class CategoryTransaction : AppCompatActivity() {
             intent.getIntExtra("colour", 0))
 
         tvName.text = category.name
-        ivIcon.setImageResource(category.icon)
-        ivIcon.setBackgroundResource(category.colour)
 
+        val iconManager = IconManager(this)
+        ivIcon.setImageResource(iconManager.getIconByID(
+            iconManager.categoryIcons, category.icon).drawable)
+        ivIcon.setBackgroundResource(iconManager.getIconByID(
+            iconManager.colourIcons, category.colour).drawable)
 
 //      Get transactions as an array list from database
         var listTransactions = dbManager(this)
@@ -57,14 +62,17 @@ class CategoryTransaction : AppCompatActivity() {
 
         if (intent.getIntExtra("categoryID", 0) > 0) {
 //          Read current account from database
-            val dbManager = dbManager(this!!)
+            val dbManager = dbManager(this)
             category = dbManager.selectCategory(intent.getIntExtra("categoryID", 0))
         }
 
 //      Update entry fields with account info
         tvName.text = category.name
-        ivIcon.setImageResource(category.icon)
-        ivIcon.setBackgroundResource(category.colour)
+        val iconManager = IconManager(this)
+        ivIcon.setImageResource(iconManager.getIconByID(
+            iconManager.categoryIcons, category.icon).drawable)
+        ivIcon.setBackgroundResource(iconManager.getIconByID(
+            iconManager.colourIcons, category.colour).drawable)
     }
 
 //  Setting menu in action bar

@@ -7,13 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.dbManager
 import dev.chester_lloyd.moneymanager.Category
+import dev.chester_lloyd.moneymanager.ui.IconManager
 import kotlinx.android.synthetic.main.category.view.*
 import kotlinx.android.synthetic.main.fragment_categories.*
 
@@ -110,8 +110,13 @@ class CategoriesFragment : Fragment() {
             val rowView = layoutInflater.inflate(R.layout.category, null)
             val category = listCategoriesAdapter[position]
             rowView.tvName.text = category.name
-            rowView.ivIcon.setImageResource(category.icon)
-            rowView.ivIcon.setBackgroundResource(category.colour)
+
+            val iconManager = IconManager(context!!)
+            rowView.ivIcon.setImageResource(
+                iconManager.getIconByID(iconManager.categoryIcons, category.icon).drawable)
+            rowView.ivIcon.setBackgroundResource(
+                iconManager.getIconByID(iconManager.colourIcons, category.colour).drawable)
+
             return rowView
         }
 

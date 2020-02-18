@@ -1,6 +1,5 @@
 package dev.chester_lloyd.moneymanager.ui
 
-import android.content.Context
 import android.widget.EditText
 
 class CurrencyValidator {

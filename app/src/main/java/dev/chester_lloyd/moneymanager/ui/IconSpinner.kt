@@ -11,22 +11,20 @@ import dev.chester_lloyd.moneymanager.R
 
 @Suppress("NAME_SHADOWING")
 class IconSpinner (
-    internal var context: Context,
-    internal var icons: IntArray,
-    internal var background: IntArray,
-    internal var name: Array<String>,
-    internal var spinnerType: String) : BaseAdapter() {
+    context: Context,
+    private var icons: Array<Icon>?,
+    private var backgrounds: Array<Icon>?,
+    private var spinnerType: String) : BaseAdapter() {
 
-    internal var inflter: LayoutInflater
+    private var inflter: LayoutInflater = LayoutInflater.from(context)
 
 //  Spinner adapter class to fill each item with icons or colours and labels
 
-    init {
-        inflter = LayoutInflater.from(context)
-    }
-
     override fun getCount(): Int {
-        return icons.size
+        if (icons != null) {
+            return icons!!.size
+        }
+        return backgrounds!!.size
     }
 
     override fun getItem(i: Int): Any? {
@@ -38,28 +36,31 @@ class IconSpinner (
     }
 
     override fun getView(i: Int, view: View?, viewGroup: ViewGroup): View {
-        var view = view
+        var view: View?
+//        val iconManager = IconManager(context)
 
         if (spinnerType == "icon") {
 //          If we are adding icons to the spinner
             view = inflter.inflate(R.layout.spinner_icon, null)
             val icon = view.findViewById(R.id.ivAccountIcon) as ImageView
             val names = view.findViewById(R.id.tvIconName) as TextView
-            icon.setImageResource(icons[i])
-            if (background.isNotEmpty()) {
-                icon.setBackgroundResource(background[i])
-            }
-            names.text = name[i]
 
+            icon.setImageResource(icons!![i].drawable)
+            println(icons!![i].id)
+            println(icons!![i].drawable)
+            if (backgrounds != null) {
+                icon.setBackgroundResource(backgrounds!![i].drawable)
+            }
+            names.text = icons!![i].text
         } else {
 //          If we are adding anything else, i.e. colours
             view = inflter.inflate(R.layout.spinner_colour, null)
             val colour = view.findViewById(R.id.ivAccountColour) as ImageView
             val names = view.findViewById(R.id.tvColourName) as TextView
             //colour.setBackgroundColor(Color.rgb(200,83,81))
-            colour.setBackgroundResource(icons[i])
+            colour.setBackgroundResource(backgrounds!![i].drawable)
 
-            names.text = name[i]
+            names.text = backgrounds!![i].text
         }
         return view
     }

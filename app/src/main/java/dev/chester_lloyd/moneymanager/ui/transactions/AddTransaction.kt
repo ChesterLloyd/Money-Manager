@@ -10,6 +10,8 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.*
 import dev.chester_lloyd.moneymanager.ui.CurrencyValidator
+import dev.chester_lloyd.moneymanager.ui.Icon
+import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.IconSpinner
 import kotlinx.android.synthetic.main.activity_add_transaction.*
 import java.math.RoundingMode
@@ -82,24 +84,23 @@ class AddTransaction : AppCompatActivity() {
 
 //      Setup the category icon spinner
         val categories: ArrayList<Category> = dbManager(this).selectCategory()
-        val spinner = findViewById<Spinner>(R.id.spCategory)
 
-        val categoryName: MutableList<String> = ArrayList()
-        val icon = IntArray(categories.size)
-        val colour = IntArray(categories.size)
+        val iconManager = IconManager(this)
+        val icons = arrayOfNulls<Icon>(categories.size)
+        val backgrounds = arrayOfNulls<Icon>(categories.size)
+
         for (category in 0..categories.size - 1) {
-            categoryName.add(category, categories[category].name)
-            icon[category] = categories[category].icon
-            colour[category] = categories[category].colour
-        }
-        categoryName.toTypedArray()
+            icons[category] = Icon(category, iconManager.getIconByID(iconManager.categoryIcons,
+                categories[category].icon).drawable, categories[category].name)
 
-        spinner.adapter = IconSpinner(
+            backgrounds[category] = Icon(category, iconManager.getIconByID(iconManager.colourIcons,
+                categories[category].colour).drawable, "")
+        }
+
+        val categorySpinner = findViewById<Spinner>(R.id.spCategory)
+        categorySpinner.adapter = IconSpinner(
             applicationContext,
-            icon,
-            colour,
-            categoryName.toTypedArray(),
-            "icon"
+            icons.requireNoNulls(), backgrounds.requireNoNulls(), "icon"
         )
 
 //      Add selected category to transaction object
@@ -154,7 +155,16 @@ class AddTransaction : AppCompatActivity() {
             etName.setText(transaction.name)
             etAmount.setText(transaction.getStringAmount(this))
             updateDateInView()
-            spCategory.setSelection(icon.indexOf(transaction.category.icon))
+
+
+            for (category in 0..categories.size - 1) {
+                if (categories[category].icon == transaction.category.icon) {
+                    spCategory.setSelection(category)
+                    break
+                }
+            }
+
+
 
             val payments = dbManager(this).selectPayment(transactionID)
             for (payment in 0..payments.size - 1) {

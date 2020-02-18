@@ -14,10 +14,8 @@ import dev.chester_lloyd.moneymanager.*
 import dev.chester_lloyd.moneymanager.ui.transactions.AddTransaction
 import kotlinx.android.synthetic.main.account.view.*
 import kotlinx.android.synthetic.main.activity_transation_details.*
-import kotlinx.android.synthetic.main.transaction.view.*
 import kotlinx.android.synthetic.main.transaction.view.ivIcon
 import kotlinx.android.synthetic.main.transaction.view.tvName
-import java.util.*
 import kotlin.collections.ArrayList
 
 class TransactionDetails : AppCompatActivity() {
@@ -38,8 +36,12 @@ class TransactionDetails : AppCompatActivity() {
 
         tvName.text = transaction.name
         tvAmount.text = transaction.getStringAmount(this)
-        ivIcon.setImageResource(transaction.category.icon)
-        ivIcon.setBackgroundResource(transaction.category.colour)
+
+        val iconManager = IconManager(this)
+        ivIcon.setImageResource(iconManager.getIconByID(
+            iconManager.categoryIcons, transaction.category.icon).drawable)
+        ivIcon.setBackgroundResource(iconManager.getIconByID(
+            iconManager.colourIcons, transaction.category.colour).drawable)
 
 //      Get payments as an array list from database
         var listPayments = dbManager(this)
@@ -63,8 +65,11 @@ class TransactionDetails : AppCompatActivity() {
 //      Update entry fields with account info
         tvName.text = transaction.name
         tvAmount.text = transaction.getStringAmount(this)
-        ivIcon.setImageResource(transaction.category.icon)
-        ivIcon.setBackgroundResource(transaction.category.colour)
+        val iconManager = IconManager(this)
+        ivIcon.setImageResource(iconManager.getIconByID(
+            iconManager.categoryIcons, transaction.category.icon).drawable)
+        ivIcon.setBackgroundResource(iconManager.getIconByID(
+            iconManager.colourIcons, transaction.category.colour).drawable)
     }
 
     //  Settings menu in action bar
@@ -114,7 +119,7 @@ class TransactionDetails : AppCompatActivity() {
         }
     }
 
-    //  Close activity once toolbar back button is pressed
+//  Close activity once toolbar back button is pressed
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
@@ -130,8 +135,13 @@ class TransactionDetails : AppCompatActivity() {
 //          Adds each payment to a new row in a list view
             val rowView = layoutInflater.inflate(R.layout.account, null)
             val payment = listPaymentsAdapter[position]
-            rowView.ivIcon.setImageResource(payment.account.icon)
-            rowView.ivIcon.setBackgroundResource(payment.account.colour)
+
+            val iconManager = IconManager(applicationContext)
+            rowView.ivIcon.setImageResource(iconManager.getIconByID(
+                iconManager.accountIcons, payment.account.icon).drawable)
+            rowView.ivIcon.setBackgroundResource(iconManager.getIconByID(
+                iconManager.colourIcons, payment.account.colour).drawable)
+
             rowView.tvName.text = payment.account.name
             rowView.tvBalance.text = payment.getStringAmount(applicationContext)
             return rowView

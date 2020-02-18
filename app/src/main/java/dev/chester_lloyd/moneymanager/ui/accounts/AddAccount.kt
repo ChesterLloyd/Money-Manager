@@ -14,6 +14,7 @@ import dev.chester_lloyd.moneymanager.Account
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.dbManager
 import dev.chester_lloyd.moneymanager.ui.CurrencyValidator
+import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.IconSpinner
 import kotlinx.android.synthetic.main.activity_add_account.*
 
@@ -23,49 +24,25 @@ class AddAccount : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_account)
 
+        val iconManager = IconManager(this)
+
 //      Setup toolbar name and show a back button
         this.supportActionBar?.title = getString(R.string.button_add_account)
         this.supportActionBar?.setDisplayShowHomeEnabled(true)
         this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 //      Set up the account icon spinner
-        val spinner = findViewById<Spinner>(R.id.spIcon)
-        val imageName = resources.getStringArray(R.array.account_names)
-        val image = intArrayOf(
-            R.drawable.ic_account_bank,
-            R.drawable.ic_account_business,
-            R.drawable.ic_account_cash,
-            R.drawable.ic_account_credit_card,
-            R.drawable.ic_account_dollar,
-            R.drawable.ic_account_gift_card,
-            R.drawable.ic_account_joint,
-            R.drawable.ic_account_membership_card,
-            R.drawable.ic_account_paypal,
-            R.drawable.ic_account_travel_card,
-            R.drawable.ic_account_wallet
-        )
-        spinner.adapter = IconSpinner(
+        val iconSpinner = findViewById<Spinner>(R.id.spIcon)
+        iconSpinner.adapter = IconSpinner(
             applicationContext,
-            image,
-            IntArray(0),
-            imageName,
-            "icon"
+            iconManager.accountIcons, null,"icon"
         )
 
 //      Set up the account color spinner
         val colourSpinner = findViewById<Spinner>(R.id.spColour)
-        val colourName = resources.getStringArray(R.array.colour_names)
-        val colour = intArrayOf(
-            R.drawable.ic_circle_green,
-            R.drawable.ic_circle_dark_blue,
-            R.drawable.ic_circle_paypal
-        )
         colourSpinner.adapter = IconSpinner(
             applicationContext,
-            colour,
-            IntArray(0),
-            colourName,
-            "colour"
+            null, iconManager.colourIcons,"colour"
         )
 
 //      Validate the balance field
@@ -99,8 +76,13 @@ class AddAccount : AppCompatActivity() {
             etName.setText(intent.getStringExtra("name"))
             etBalance.setText(intent.getDoubleExtra("balance", 0.0).toString())
 
-            spIcon.setSelection(image.indexOf(intent.getIntExtra("icon", 0)))
-            spColour.setSelection(colour.indexOf(intent.getIntExtra("colour", 0)))
+            spIcon.setSelection(iconManager.getIconPositionID(
+                iconManager.accountIcons,
+                intent.getIntExtra("icon", 0)))
+
+            spColour.setSelection(iconManager.getIconPositionID(
+                iconManager.colourIcons,
+                intent.getIntExtra("colour", 0)))
         }
 
         fabAddAccount.setOnClickListener {
@@ -153,7 +135,7 @@ class AddAccount : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                account.icon = image[position]
+                account.icon = iconManager.accountIcons[position].id
             }
         }
 
@@ -162,7 +144,7 @@ class AddAccount : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                account.colour = colour[position]
+                account.colour = iconManager.colourIcons[position].id
             }
         }
     }

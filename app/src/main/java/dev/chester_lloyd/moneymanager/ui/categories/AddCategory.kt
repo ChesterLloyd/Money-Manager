@@ -2,14 +2,12 @@ package dev.chester_lloyd.moneymanager.ui.categories
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.widget.*
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.dbManager
-import dev.chester_lloyd.moneymanager.Account
 import dev.chester_lloyd.moneymanager.Category
+import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.IconSpinner
 import kotlinx.android.synthetic.main.activity_add_account.*
 
@@ -24,98 +22,36 @@ class AddCategory : AppCompatActivity() {
         this.supportActionBar?.setDisplayShowHomeEnabled(true)
         this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-//      Set up the account icon spinner
-        val spinner = findViewById<Spinner>(R.id.spIcon)
-        val imageName = resources.getStringArray(R.array.category_names)
-        val image = intArrayOf(
-            R.drawable.ic_category_bar,
-            R.drawable.ic_category_bills_lightbulb,
-            R.drawable.ic_category_bills_lightbulb_2,
-            R.drawable.ic_category_bills_power,
-            R.drawable.ic_category_business,
-            R.drawable.ic_category_cake,
-            R.drawable.ic_category_camera,
-            R.drawable.ic_category_computer_cloud,
-            R.drawable.ic_category_computer_laptop,
-            R.drawable.ic_category_computer_phone,
-            R.drawable.ic_category_computer_servers,
-            R.drawable.ic_category_computer_storage,
-            R.drawable.ic_category_fridge,
-            R.drawable.ic_category_people_child,
-            R.drawable.ic_category_people_people,
-            R.drawable.ic_category_people_person,
-            R.drawable.ic_category_places_cafe,
-            R.drawable.ic_category_places_cinema,
-            R.drawable.ic_category_places_dining,
-            R.drawable.ic_category_places_event,
-            R.drawable.ic_category_places_florist,
-            R.drawable.ic_category_places_hotel,
-            R.drawable.ic_category_places_mail,
-            R.drawable.ic_category_places_pharmacy,
-            R.drawable.ic_category_places_pizza,
-            R.drawable.ic_category_places_receipt,
-            R.drawable.ic_category_places_restaurant,
-            R.drawable.ic_category_places_school,
-            R.drawable.ic_category_shopping_basket,
-            R.drawable.ic_category_shopping_cart,
-            R.drawable.ic_category_shopping_estore,
-            R.drawable.ic_category_shopping_store,
-            R.drawable.ic_category_sports_golf,
-            R.drawable.ic_category_sports_swim,
-            R.drawable.ic_category_stationary,
-            R.drawable.ic_category_stationary_printer,
-            R.drawable.ic_category_subscription_dvr,
-            R.drawable.ic_category_subscription_movie,
-            R.drawable.ic_category_subscription_music,
-            R.drawable.ic_category_subscription_ondemand,
-            R.drawable.ic_category_subscription_radio,
-            R.drawable.ic_category_subscription_subscriptions,
-            R.drawable.ic_category_subscriptions_book,
-            R.drawable.ic_category_ticket,
-            R.drawable.ic_category_transport_bus,
-            R.drawable.ic_category_transport_car,
-            R.drawable.ic_category_transport_flight,
-            R.drawable.ic_category_transport_motorbike,
-            R.drawable.ic_category_transport_station_ev,
-            R.drawable.ic_category_transport_station_gas,
-            R.drawable.ic_category_transport_subway,
-            R.drawable.ic_category_transport_taxi,
-            R.drawable.ic_category_transport_train,
-            R.drawable.ic_category_work
-        )
-        spinner.adapter = IconSpinner(
+        val iconManager = IconManager(this)
+
+//      Set up the category icon spinner
+        val iconSpinner = findViewById<Spinner>(R.id.spIcon)
+        iconSpinner.adapter = IconSpinner(
             applicationContext,
-            image,
-            IntArray(0),
-            imageName,
-            "icon"
+            iconManager.categoryIcons, null, "icon"
         )
 
-//      Set up the account color spinner
+//      Set up the category color spinner
         val colourSpinner = findViewById<Spinner>(R.id.spColour)
-        val colourName = resources.getStringArray(R.array.colour_names)
-        val colour = intArrayOf(
-            R.drawable.ic_circle_green,
-            R.drawable.ic_circle_dark_blue,
-            R.drawable.ic_circle_paypal
-        )
         colourSpinner.adapter = IconSpinner(
             applicationContext,
-            colour,
-            IntArray(0),
-            colourName,
-            "colour"
+            null, iconManager.colourIcons, "colour"
         )
 
         val category = Category()
-
         category.categoryID = intent.getIntExtra("categoryID", 0)
 
 //      If the category ID > 0 (not a new one) then auto fill these fields with the saved values
         if (category.categoryID > 0) {
             etName.setText(intent.getStringExtra("name"))
-            spIcon.setSelection(image.indexOf(intent.getIntExtra("icon", 0)))
-            spColour.setSelection(colour.indexOf(intent.getIntExtra("colour", 0)))
+
+            spIcon.setSelection(iconManager.getIconPositionID(
+                iconManager.categoryIcons,
+                intent.getIntExtra("icon", 0)))
+
+            spColour.setSelection(iconManager.getIconPositionID(
+                iconManager.colourIcons,
+                intent.getIntExtra("colour", 0)))
         }
 
         fabAddAccount.setOnClickListener {
@@ -165,7 +101,7 @@ class AddCategory : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                category.icon = image[position]
+                category.icon = iconManager.categoryIcons[position].id
             }
         }
 
@@ -174,7 +110,7 @@ class AddCategory : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                category.colour = colour[position]
+                category.colour = iconManager.colourIcons[position].id
             }
         }
     }
