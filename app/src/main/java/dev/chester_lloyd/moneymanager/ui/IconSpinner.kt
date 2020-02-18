@@ -46,8 +46,6 @@ class IconSpinner (
             val names = view.findViewById(R.id.tvIconName) as TextView
 
             icon.setImageResource(icons!![i].drawable)
-            println(icons!![i].id)
-            println(icons!![i].drawable)
             if (backgrounds != null) {
                 icon.setBackgroundResource(backgrounds!![i].drawable)
             }

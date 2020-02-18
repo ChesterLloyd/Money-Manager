@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
+import android.widget.TextView
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.Transaction
 import dev.chester_lloyd.moneymanager.dbManager
@@ -18,9 +19,7 @@ import kotlinx.android.synthetic.main.fragment_transaction_tab.*
 import kotlinx.android.synthetic.main.transaction.view.*
 import kotlin.collections.ArrayList
 
-class TransactionTabFragment(tab: Int) : Fragment() {
-
-    val tab = tab
+class TransactionTabFragment(private val tab: Int) : Fragment() {
 
     private lateinit var viewModel: TransactionTabFragmentViewModel
 
@@ -34,18 +33,6 @@ class TransactionTabFragment(tab: Int) : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(TransactionTabFragmentViewModel::class.java)
-        // TODO: Use the ViewModel
-
-//        tvTab.setText("TAB " + tab)
-//
-////      Get transactions as an array list from database
-//        var listTransactions = loadTransactions("%")
-//
-////      Pass this to the list view adaptor and populate
-//        val myTransactionsAdapter = myTransactionsAdapter(listTransactions)
-//        lvTransactions.adapter = myTransactionsAdapter
-
-
     }
 
     override fun onResume() {
@@ -54,25 +41,36 @@ class TransactionTabFragment(tab: Int) : Fragment() {
 //      Get transactions as an array list from database
         var listTransactions = dbManager(context!!).selectTransaction(tab, "Categories")
 
-//      Pass this to the list view adaptor and populate
-        val myTransactionsAdapter = myTransactionsAdapter(listTransactions)
-        lvTransactions.adapter = myTransactionsAdapter
+//      If there are no transactions under this category, show a message
+        if (listTransactions.isEmpty()) {
+            tvMessage.visibility = View.VISIBLE
+        } else {
+//          There are transactions to show, hide message and show transactions
+            tvMessage.visibility = View.GONE
+//          Pass this to the list view adaptor and populate
+            val myTransactionsAdapter = myTransactionsAdapter(listTransactions)
+            lvTransactions.adapter = myTransactionsAdapter
 
-        //      When a transaction in the list is clicked
-        lvTransactions.onItemClickListener = object : AdapterView.OnItemClickListener {
-            override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+//          When a transaction in the list is clicked
+            lvTransactions.onItemClickListener = object : AdapterView.OnItemClickListener {
+                override fun onItemClick(
+                    parent: AdapterView<*>,
+                    view: View,
+                    position: Int,
+                    id: Long
+                ) {
+//                  Get account object of item that is clicked
+                    val transaction = lvTransactions.getItemAtPosition(position) as Transaction
 
-//              Get account object of item that is clicked
-                val transaction = lvTransactions.getItemAtPosition(position) as Transaction
+//                  Setup an intent to send this across to view the account's transactions
+                    val intent = Intent(context, TransactionDetails::class.java)
 
-//              Setup an intent to send this across to view the account's transactions
-                val intent = Intent(context, TransactionDetails::class.java)
+                    val bundle = Bundle()
+                    bundle.putInt("transactionID", transaction.transactionID)
+                    intent.putExtras(bundle)
 
-                val bundle = Bundle()
-                bundle.putInt("transactionID", transaction.transactionID)
-                intent.putExtras(bundle)
-
-                startActivity(intent)
+                    startActivity(intent)
+                }
             }
         }
     }

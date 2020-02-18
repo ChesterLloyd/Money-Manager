@@ -56,7 +56,7 @@ class TransactionDetails : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        if (intent.getIntExtra("accountID", 0) > 0) {
+        if (intent.getIntExtra("transactionID", 0) > 0) {
 //          Read current transaction from database
             transaction = dbManager(this).selectTransaction(intent
                 .getIntExtra("transactionID", 0))

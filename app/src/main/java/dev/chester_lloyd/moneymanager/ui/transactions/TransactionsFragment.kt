@@ -60,7 +60,6 @@ class TransactionsFragment : Fragment() {
         tabLayout!!.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
 //                Toast.makeText(context, "Tab selcted", Toast.LENGTH_SHORT).show()
-                println("TAB SELECTED")
                 selectedTab = tab.position + 1
             }
 

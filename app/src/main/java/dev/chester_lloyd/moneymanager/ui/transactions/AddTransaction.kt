@@ -176,7 +176,6 @@ class AddTransaction : AppCompatActivity() {
         }
 
         fabAddTransaction.setOnClickListener {
-            println("\n\n\n" + transaction.date + "\n\n\n")
             transaction.name = etName.text.toString()
             if (transaction.name == "") {
 //              Transaction name is empty, show an error
@@ -204,7 +203,6 @@ class AddTransaction : AppCompatActivity() {
                     val accountValue = CurrencyValidator(
                         this.findViewById<EditText>(accounts[account].accountID))
                         .getBalance()
-                    println(accountValue)
 
 //                  Round to 2dp (since double would probably do: 20.0000004 or something)
                     val accountValue2DP: Double = String.format("%.2f", accountValue).toDouble()

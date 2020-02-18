@@ -102,7 +102,6 @@ class IconManager {
             if (iconArray[icon].id == id) {
                 return iconArray[icon]
             }
-            println("ICON COUNT - > " + icon)
         }
         return colourIcons[0]
     }
