@@ -30,6 +30,7 @@ class dbManager {
     private val colCategoryID = "CategoryID"
     private val colTransactionID = "TransactionID"
     private val colAccountID = "AccountID"
+    private val colActive = "Active"
     val dbVersion = 1
 
     var sqlDB:SQLiteDatabase? = null
@@ -57,7 +58,8 @@ class dbManager {
                     "$colName VARCHAR(30), " +
                     "$colBalance FLOAT, " +
                     "$colIcon INTEGER, " +
-                    "$colColour INTEGER);")
+                    "$colColour INTEGER, " +
+                    "$colActive INTEGER);")
 
 //          Create Categories table if it does not exist
             db.execSQL("CREATE TABLE IF NOT EXISTS $dbCategoryTable (" +
@@ -77,18 +79,44 @@ class dbManager {
 
 //          Create Payments table if it does not exist
             db.execSQL("CREATE TABLE IF NOT EXISTS $dbPaymentsTable (" +
-                "$colID INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "$colTransactionID INTEGER, " +
-                "$colAccountID INTEGER, " +
-                "$colAmount FLOAT, " +
-                "FOREIGN KEY(${colTransactionID}) REFERENCES ${dbTransactionTable}(${colID}), " +
-                "FOREIGN KEY(${colAccountID}) REFERENCES ${dbAccountTable}(${colID}) );")
+                    "$colID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "$colTransactionID INTEGER, " +
+                    "$colAccountID INTEGER, " +
+                    "$colAmount FLOAT, " +
+                    "FOREIGN KEY(${colTransactionID}) REFERENCES ${dbTransactionTable}(${colID}) ON DELETE CASCADE, " +
+                    "FOREIGN KEY(${colAccountID}) REFERENCES ${dbAccountTable}(${colID}) ON DELETE CASCADE );")
 
             Toast.makeText(this.context, "Database is created", Toast.LENGTH_SHORT).show()
+
+//          Create default accounts
+            db.execSQL("INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive) " +
+                    "VALUES ('Cash', 0.0, 2, 0, 1)");
+            db.execSQL("INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive) " +
+                    "VALUES ('Current', 50.25, 3, 0, 1)");
+            db.execSQL("INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive) " +
+                    "VALUES ('Savings', 1000.0, 0, 0, 1)");
+
+//          Create default categories
+            db.execSQL("INSERT INTO $dbCategoryTable ($colName, $colIcon, $colColour) " +
+                    "VALUES ('Bills', 3, 0)");
+            db.execSQL("INSERT INTO $dbCategoryTable ($colName, $colIcon, $colColour) " +
+                    "VALUES ('Phone', 9, 0)");
+            db.execSQL("INSERT INTO $dbCategoryTable ($colName, $colIcon, $colColour) " +
+                    "VALUES ('Rent', 21, 0)");
         }
 
         override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
             db!!.execSQL(format("DROP TABLE IF EXISTS %s", dbName))
+        }
+
+        override fun onConfigure(db: SQLiteDatabase?) {
+            super.onConfigure(db)
+            db!!.execSQL("PRAGMA foreign_keys = ON")
+        }
+
+        override fun onOpen(db: SQLiteDatabase?) {
+            super.onOpen(db)
+            db!!.execSQL("PRAGMA foreign_keys = ON")
         }
     }
 
@@ -120,6 +148,7 @@ class dbManager {
         values.put(colBalance, account.balance)
         values.put(colIcon, account.icon)
         values.put(colColour, account.colour)
+        values.put(colActive, 1)
 
         val ID = sqlDB!!.insert(dbAccountTable, "", values)
         return ID
@@ -173,6 +202,13 @@ class dbManager {
         values.put(colColour, account.colour)
 
         return sqlDB!!.update(dbAccountTable, values, selection, selectionArgs)
+    }
+//  Function that hides an account in the database
+    private fun hideAccount(accountID: Array<String>):Int {
+        var values = ContentValues()
+        values.put(colActive, 0)
+        return sqlDB!!.update(dbAccountTable, values, "ID = ?",
+            accountID)
     }
 
 
@@ -377,7 +413,69 @@ class dbManager {
 
 
     fun delete(table: String, selection: String, selectionArgs: Array<String>):Int {
-        return sqlDB!!.delete(table, selection, selectionArgs)
+
+        if (table == dbAccountTable) {
+//          Get all transactions for this account that are safe to delete
+//          This is any transaction that has only been paid for by only this account
+            var query = "SELECT T.* FROM $dbTransactionTable T " +
+                    "JOIN $dbPaymentsTable P ON P.${colTransactionID} = T.${colID} " +
+                    "WHERE P.${colAccountID} = ? AND T.${colID} NOT IN (" +
+                    "    SELECT TID FROM ( " +
+                    "        SELECT T.${colID} AS TID FROM $dbTransactionTable T " +
+                    "        JOIN $dbPaymentsTable P ON P.${colTransactionID} = T.${colID} " +
+                    "        GROUP BY P.${colTransactionID} " +
+                    "        HAVING COUNT(*) > 1 ) AS TID )"
+            var cursor = sqlDB!!.rawQuery(query, selectionArgs)
+            if (cursor.moveToFirst()) {
+                do {
+                    val id = cursor.getInt(cursor.getColumnIndex(colID))
+                    sqlDB!!.delete(dbTransactionTable, "$colID = ?",
+                        arrayOf(id.toString()))
+                    sqlDB!!.delete(dbPaymentsTable, "$colTransactionID = ? AND $colAccountID = ?",
+                        arrayOf(id.toString(), selectionArgs.toString()))
+                } while (cursor.moveToNext())
+            }
+            cursor.close()
+//          Hide the account, cannot delete as there may be shared transactions
+            hideAccount(selectionArgs)
+//          Remove any orphaned transactions
+//          These are any that were aid by multiple accounts and this is the last of those accounts
+//          to be deleted, so delete all payments and transactions under these accounts
+            query = "SELECT T.$colID FROM $dbTransactionTable T " +
+                    "JOIN $dbPaymentsTable P ON P.$colTransactionID = T.$colID " +
+                    "JOIN $dbAccountTable A ON A.$colID = P.$colAccountID " +
+                    "WHERE (A.$colActive = 0 OR A.$colID = ?) AND T.$colID IN ( " +
+                    "    SELECT TID FROM ( " +
+                    "        SELECT T1.$colID AS TID FROM $dbTransactionTable T1 " +
+                    "        JOIN $dbPaymentsTable P ON P.$colTransactionID = T1.$colID " +
+                    "        JOIN $dbAccountTable A ON A.$colID = P.$colAccountID " +
+                    "        GROUP BY P.$colTransactionID " +
+                    "        HAVING COUNT(*) = ( " +
+                    "            SELECT COUNT(*) AS currentInactive FROM $dbTransactionTable T " +
+                    "            JOIN $dbPaymentsTable P ON P.$colTransactionID = T.ID " +
+                    "            JOIN $dbAccountTable A ON A.$colID = P.$colAccountID " +
+                    "            WHERE A.$colActive = 0 AND T.$colID = T1.$colID " +
+                    "            GROUP BY P.$colTransactionID " +
+                    "            HAVING COUNT(*) > 1  ) ) AS TID ) " +
+                    "GROUP BY T.$colID"
+            cursor = sqlDB!!.rawQuery(query, selectionArgs)
+            if (cursor.moveToFirst()) {
+                do {
+                    val id = cursor.getInt(cursor.getColumnIndex(colID))
+                    sqlDB!!.delete(dbTransactionTable, "$colID = ?",
+                        arrayOf(id.toString()))
+                    sqlDB!!.delete(dbPaymentsTable, "$colTransactionID = ?",
+                        arrayOf(id.toString()))
+                } while (cursor.moveToNext())
+            }
+        } else if (table == dbCategoryTable) {
+//          If we are deleting a category, remove all of its transactions first
+            sqlDB!!.delete(dbTransactionTable, "$colCategoryID = ?", selectionArgs)
+        }
+
+//      Handle original delete request
+//        return sqlDB!!.delete(table, selection, selectionArgs)
+        return 0
     }
 
 //    fun updateAccount(table: String, values: ContentValues, selection: String, selectionArgs: Array<String>):Int {
