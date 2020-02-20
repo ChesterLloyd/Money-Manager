@@ -172,13 +172,20 @@ class dbManager {
         return account
     }
 //  Function that selects every account from the database as a list of Account objects
-    fun selectAccount():ArrayList<Account> {
+    fun selectAccount(type: String):ArrayList<Account> {
         val QB = SQLiteQueryBuilder()
         QB.tables = dbAccountTable
         val projection = arrayOf(colID, colName, colBalance, colIcon, colColour)
-        val selectionArgs = arrayOf("%")
         var listAccounts = ArrayList<Account>()
-        val cursor = QB.query(sqlDB, projection, "${colName} LIKE ?", selectionArgs, null, null, colName)
+
+        var selection = "$colName LIKE ?"
+        var selectionArgs = arrayOf("%")
+        if (type == "active") {
+            selection = "$colActive = ?"
+            selectionArgs = arrayOf("1")
+        }
+
+        val cursor = QB.query(sqlDB, projection, selection, selectionArgs, null, null, colName)
         if (cursor.moveToFirst()) {
             do {
                 val ID = cursor.getInt(cursor.getColumnIndex(colID))

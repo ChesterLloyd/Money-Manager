@@ -107,7 +107,7 @@ class CategoryTransaction : AppCompatActivity() {
                 .setPositiveButton(resources.getString(R.string.yes), DialogInterface.OnClickListener {
                     dialog, id -> finish()
 //                  Delete the category
-                    dbManager(this).delete("Categories","ID=?",
+                    dbManager(this).delete(dbManager(this).dbCategoryTable,"ID=?",
                         arrayOf(category.categoryID.toString()))
                 })
                 .setNegativeButton(resources.getString(R.string.no), DialogInterface.OnClickListener {
@@ -147,8 +147,13 @@ class CategoryTransaction : AppCompatActivity() {
             rowView.tvName.text = transaction.name
             rowView.tvDate.text = transaction.getDate(applicationContext, "DMY")
             rowView.tvAmount.text = transaction.getStringAmount(applicationContext)
-            rowView.ivIcon.setImageResource(transaction.category.icon)
-            rowView.ivIcon.setBackgroundResource(transaction.category.colour)
+
+            val iconManager = IconManager(applicationContext)
+            rowView.ivIcon.setImageResource(iconManager.getIconByID(
+                iconManager.categoryIcons, transaction.category.icon).drawable)
+            rowView.ivIcon.setBackgroundResource(iconManager.getIconByID(
+                iconManager.colourIcons, transaction.category.colour).drawable)
+
             return rowView
         }
 

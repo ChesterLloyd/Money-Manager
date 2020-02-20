@@ -113,7 +113,7 @@ class AddTransaction : AppCompatActivity() {
         }
 
 //      Setup the account entry texts
-        val accounts: ArrayList<Account> = dbManager(this).selectAccount()
+        val accounts: ArrayList<Account> = dbManager(this).selectAccount("active")
 
         for (account in 0..accounts.size - 1) {
             val etAccount = EditText(this)
@@ -156,15 +156,12 @@ class AddTransaction : AppCompatActivity() {
             etAmount.setText(transaction.getStringAmount(this))
             updateDateInView()
 
-
             for (category in 0..categories.size - 1) {
                 if (categories[category].icon == transaction.category.icon) {
                     spCategory.setSelection(category)
                     break
                 }
             }
-
-
 
             val payments = dbManager(this).selectPayment(transactionID)
             for (payment in 0..payments.size - 1) {
@@ -181,10 +178,18 @@ class AddTransaction : AppCompatActivity() {
 //              Transaction name is empty, show an error
                 Toast.makeText(this, R.string.transaction_validation_name,
                     Toast.LENGTH_SHORT).show()
-            } else if (etAmount.text.toString() == "") {
+            } else if (etAmount.text.toString() == "" || etAmount.text.length == 1) {
 //              Transaction amount is empty, show an error
-                Toast.makeText(this, R.string.transaction_validation_amount,
-                    Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this, R.string.transaction_validation_amount,
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else if (amountValidator.isZero()) {
+//              Transaction amount is zero (or the currency equivalent), show an error
+                Toast.makeText(
+                    this, R.string.transaction_validation_amount_zero,
+                    Toast.LENGTH_SHORT
+                ).show()
             } else if (etDate.text.toString() == "") {
 //              Transaction date is empty, show an error
                 Toast.makeText(this, R.string.transaction_validation_date,

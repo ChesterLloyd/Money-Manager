@@ -143,4 +143,11 @@ class CurrencyValidator {
         }
         return editText.text.toString().toDouble()
     }
+
+    fun isZero(): Boolean {
+        if (getBalance() == 0.0) {
+            return true
+        }
+        return false
+    }
 }

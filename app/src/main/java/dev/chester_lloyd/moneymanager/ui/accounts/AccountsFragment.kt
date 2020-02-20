@@ -26,7 +26,7 @@ class AccountsFragment : Fragment() {
         super.onResume()
 
 //      Get accounts as an array list from database
-        var listAccounts = loadAccounts("%")
+        var listAccounts = dbManager(context!!).selectAccount("active")
 
 //      Pass this to the list view adaptor and populate
         val myAccountsAdapter = MyAccountsAdapter(listAccounts)
@@ -72,33 +72,6 @@ class AccountsFragment : Fragment() {
         }
 
         return root
-    }
-
-//  Read accounts from the database and return an array of Account objects
-    fun loadAccounts(name:String):ArrayList<Account> {
-        var listAccounts = ArrayList<Account>()
-
-        var dbManager = dbManager(context!!)
-
-        val projection = arrayOf("ID", "Name", "Balance", "Icon", "Colour")
-        val selectionArgs = arrayOf(name)
-
-        // Each ? represents an arg in array
-        val cursor = dbManager.query("Accounts", projection, "Name like ?", selectionArgs, "Name")
-
-        if (cursor.moveToFirst()) {
-            do {
-                val ID = cursor.getInt(cursor.getColumnIndex("ID"))
-                val name = cursor.getString(cursor.getColumnIndex("Name"))
-                val balance = cursor.getDouble(cursor.getColumnIndex("Balance"))
-                val icon = cursor.getInt(cursor.getColumnIndex("Icon"))
-                val colour = cursor.getInt(cursor.getColumnIndex("Colour"))
-
-                listAccounts.add(Account(ID, name, balance, icon, colour))
-            } while (cursor.moveToNext())
-        }
-
-        return listAccounts
     }
 
 

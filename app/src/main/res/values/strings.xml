@@ -60,6 +60,7 @@
 
     <string name="transaction_validation_name">Transaction name cannot be blank</string>
     <string name="transaction_validation_amount">Transaction amount cannot be blank</string>
+    <string name="transaction_validation_amount_zero">Transaction amount cannot be 0</string>
     <string name="transaction_validation_date">Transaction date cannot be blank</string>
     <string name="transaction_validation_payments">Account payments do not make up the transaction amount</string>
 
@@ -80,9 +81,11 @@
     <string name="yes">Yes</string>
     <string name="no">No, cancel</string>
     <string name="alert_title_delete_account">Delete account</string>
-    <string name="alert_message_delete_account">Are you sure that you want to delete this account?</string>
+    <string name="alert_message_delete_account">Are you sure that you want to delete this account
+        and all associated transactions?</string>
     <string name="alert_title_delete_category">Delete category</string>
-    <string name="alert_message_delete_category">Are you sure that you want to delete this category?</string>
+    <string name="alert_message_delete_category">Are you sure that you want to delete this category
+        and all associated transactions?</string>
     <string name="alert_title_delete_transaction">Delete transaction</string>
     <string name="alert_message_delete_transaction">Are you sure that you want to delete this transaction?</string>
 

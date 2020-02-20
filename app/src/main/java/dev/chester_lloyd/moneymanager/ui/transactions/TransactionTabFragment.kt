@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
-import android.widget.TextView
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.Transaction
 import dev.chester_lloyd.moneymanager.dbManager

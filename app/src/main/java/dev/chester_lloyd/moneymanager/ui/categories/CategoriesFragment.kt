@@ -26,7 +26,7 @@ class CategoriesFragment : Fragment() {
         super.onResume()
 
 //      Get categories as an array list from database
-        var listCategories = loadCategories("%")
+        var listCategories = dbManager(context!!).selectCategory()
 
 //      Pass this to the list view adaptor and populate
         val myCategoriesAdapter = MyCategoriesAdapter(listCategories)
@@ -69,32 +69,6 @@ class CategoriesFragment : Fragment() {
         }
 
         return root
-    }
-
-//  Read categories from the database and return an array of Category objects
-    fun loadCategories(name:String):ArrayList<Category> {
-        var listCategories = ArrayList<Category>()
-
-        var dbManager = dbManager(context!!)
-
-        val projection = arrayOf("ID", "Name", "Icon", "Colour")
-        val selectionArgs = arrayOf(name)
-
-        // Each ? represents an arg in array
-        val cursor = dbManager.query(dbManager.dbCategoryTable, projection, "Name like ?", selectionArgs, "Name")
-
-        if (cursor.moveToFirst()) {
-            do {
-                val ID = cursor.getInt(cursor.getColumnIndex("ID"))
-                val name = cursor.getString(cursor.getColumnIndex("Name"))
-                val icon = cursor.getInt(cursor.getColumnIndex("Icon"))
-                val colour = cursor.getInt(cursor.getColumnIndex("Colour"))
-
-                listCategories.add(Category(ID, name, icon, colour))
-            } while (cursor.moveToNext())
-        }
-
-        return listCategories
     }
 
 
