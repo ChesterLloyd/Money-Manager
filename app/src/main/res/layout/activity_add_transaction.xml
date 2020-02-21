@@ -78,7 +78,7 @@
                 android:digits="-0123456789."
                 android:ems="10"
                 android:hint="@string/transaction_amount"
-                android:inputType="number|numberDecimal"
+                android:inputType="number|numberDecimal|numberSigned"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.08"
                 app:layout_constraintStart_toStartOf="parent"

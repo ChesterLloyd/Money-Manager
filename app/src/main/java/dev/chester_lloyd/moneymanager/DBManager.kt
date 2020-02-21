@@ -285,7 +285,7 @@ class DBManager(context: Context) {
         values.put(colDate, Timestamp(transaction.date.timeInMillis).toString())
         values.put(colAmount, transaction.amount)
 
-    return sqlDB!!.insert(dbTransactionTable, "", values)
+        return sqlDB!!.insert(dbTransactionTable, "", values)
     }
 //  Function that selects a single transaction from the database as a Transaction object
     fun selectTransaction(transactionID: Int):Transaction {
@@ -378,7 +378,13 @@ class DBManager(context: Context) {
         values.put(colAccountID, payment.account.accountID)
         values.put(colAmount, payment.amount)
 
-    return sqlDB!!.insert(dbPaymentsTable, "", values)
+        val insert = sqlDB!!.insert(dbPaymentsTable, "", values)
+        if (insert > 0) {
+            val account = payment.account
+            account.balance = account.balance + payment.amount
+            updateAccount(account, "$colID = ?", arrayOf(account.accountID.toString()))
+        }
+        return insert
     }
 //  Function that selects payments based on a transaction ID as a list of Payment objects
     fun selectPayment(transactionID: Int):ArrayList<Payment> {

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.text.method.DigitsKeyListener
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -116,8 +117,8 @@ class AddTransaction : AppCompatActivity() {
             val etAccount = EditText(this)
             etAccount.id = accounts[account].accountID
             etAccount.hint = accounts[account].name
-            etAccount.inputType = InputType.TYPE_CLASS_NUMBER + InputType.TYPE_NUMBER_FLAG_DECIMAL +
-                    InputType.TYPE_NUMBER_FLAG_SIGNED
+            etAccount.inputType = InputType.TYPE_NUMBER_FLAG_SIGNED + InputType.TYPE_CLASS_NUMBER
+            etAccount.keyListener = DigitsKeyListener.getInstance("-0123456789.")
 
 //          Validate the currency field
             val balanceValidator = CurrencyValidator(etAccount)
@@ -161,7 +162,7 @@ class AddTransaction : AppCompatActivity() {
 
             val payments = DBManager(this).selectPayment(transactionID)
             for (payment in 0 until payments.size) {
-                if (payments[payment].amount > 0.0) {
+                if (payments[payment].amount != 0.0) {
                     findViewById<EditText>(payments[payment].account.accountID)
                         .setText(payments[payment].getEditTextAmount(this))
                 }
@@ -229,7 +230,7 @@ class AddTransaction : AppCompatActivity() {
                             transaction.transactionID = id.toInt()
                             for (payment in 0 until payments.size) {
 //                              For each payment method (Account)
-                                if (payments[payment].amount > 0.0) {
+                                if (payments[payment].amount != 0.0) {
 //                                  Add a payment for this amount
                                     payments[payment].transaction = transaction
                                     val id = dbManager.insertPayment(payments[payment])
