@@ -36,11 +36,12 @@
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintHorizontal_bias="0.0"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/tvDetails" />
+    app:layout_constraintTop_toBottomOf="@+id/tvDetails"
+    android:importantForAutofill="no" />
 
 
     <TextView
-        android:id="@+id/tvAppearence"
+        android:id="@+id/tvAppearance"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -87,7 +88,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvAppearence" />
+        app:layout_constraintTop_toBottomOf="@+id/tvAppearance" />
 
     <TextView
         android:id="@+id/tvColour"
@@ -146,7 +147,8 @@
     app:backgroundTint="#4CAF50"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
-    app:srcCompat="@drawable/ic_check" />
+    app:srcCompat="@drawable/ic_check"
+    android:focusable="true" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

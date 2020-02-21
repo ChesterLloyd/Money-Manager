@@ -1,5 +1,6 @@
 package dev.chester_lloyd.moneymanager.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -35,8 +36,9 @@ class IconSpinner (
         return 0
     }
 
+    @SuppressLint("InflateParams")
     override fun getView(i: Int, view: View?, viewGroup: ViewGroup): View {
-        var view: View?
+        val view: View?
 //        val iconManager = IconManager(context)
 
         if (spinnerType == "icon") {

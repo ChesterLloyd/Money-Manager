@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import dev.chester_lloyd.moneymanager.R
 
 class GoalsFragment : Fragment() {
@@ -19,11 +19,10 @@ class GoalsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        goalsViewModel =
-            ViewModelProviders.of(this).get(GoalsViewModel::class.java)
+        goalsViewModel = ViewModelProvider(this)[GoalsViewModel::class.java]
         val root = inflater.inflate(R.layout.fragment_goals, container, false)
         val textView: TextView = root.findViewById(R.id.text_tools)
-        goalsViewModel.text.observe(this, Observer {
+        goalsViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = "GOALS"
         })
         return root

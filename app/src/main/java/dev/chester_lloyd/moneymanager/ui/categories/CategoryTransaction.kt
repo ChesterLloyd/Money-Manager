@@ -1,24 +1,22 @@
 package dev.chester_lloyd.moneymanager.ui.categories
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.Category
+import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.Transaction
-import dev.chester_lloyd.moneymanager.dbManager
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import kotlinx.android.synthetic.main.activity_category_transaction.*
 import kotlinx.android.synthetic.main.transaction.view.*
-import java.util.*
-import kotlin.collections.ArrayList
 
 class CategoryTransaction : AppCompatActivity() {
 
@@ -48,11 +46,11 @@ class CategoryTransaction : AppCompatActivity() {
             iconManager.colourIcons, category.colour).drawable)
 
 //      Get transactions as an array list from database
-        var listTransactions = dbManager(this)
+        val listTransactions = DBManager(this)
             .selectTransaction(category.categoryID, "Categories")
 
 //      Pass this to the list view adaptor and populate
-        val myTransactionsAdapter = myTransactionsAdapter(listTransactions)
+        val myTransactionsAdapter = TransactionsAdapter(listTransactions)
         this.lvTransactions.adapter = myTransactionsAdapter
     }
 
@@ -62,7 +60,7 @@ class CategoryTransaction : AppCompatActivity() {
 
         if (intent.getIntExtra("categoryID", 0) > 0) {
 //          Read current account from database
-            val dbManager = dbManager(this)
+            val dbManager = DBManager(this)
             category = dbManager.selectCategory(intent.getIntExtra("categoryID", 0))
         }
 
@@ -104,16 +102,15 @@ class CategoryTransaction : AppCompatActivity() {
 
             alertDialog.setMessage(resources.getString(R.string.alert_message_delete_category))
                 .setCancelable(false)
-                .setPositiveButton(resources.getString(R.string.yes), DialogInterface.OnClickListener {
-                    dialog, id -> finish()
+                .setPositiveButton(resources.getString(R.string.yes)) { dialog, id -> finish()
 //                  Delete the category
-                    dbManager(this).delete(dbManager(this).dbCategoryTable,"ID=?",
+                    DBManager(this).delete(DBManager(this).dbCategoryTable,"ID=?",
                         arrayOf(category.categoryID.toString()))
-                })
-                .setNegativeButton(resources.getString(R.string.no), DialogInterface.OnClickListener {
+                }
+                .setNegativeButton(resources.getString(R.string.no)) {
 //                  Do nothing, close box
-                        dialog, id -> dialog.cancel()
-                })
+                    dialog, id -> dialog.cancel()
+                }
 
             val alert = alertDialog.create()
             alert.setTitle(resources.getString(R.string.alert_title_delete_category))
@@ -133,13 +130,10 @@ class CategoryTransaction : AppCompatActivity() {
         return true
     }
 
-    inner class myTransactionsAdapter: BaseAdapter {
-        var listTransactionsAdapter = ArrayList<Transaction>()
-        constructor(listTransactionsAdapter:ArrayList<Transaction>):super() {
-            this.listTransactionsAdapter = listTransactionsAdapter
+    inner class TransactionsAdapter(private var listTransactionsAdapter: ArrayList<Transaction>) :
+        BaseAdapter() {
 
-        }
-
+        @SuppressLint("InflateParams", "ViewHolder")
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
 //          Adds each transaction to a new row in a list view
             val rowView = layoutInflater.inflate(R.layout.transaction, null)

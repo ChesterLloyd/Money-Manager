@@ -18,7 +18,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_category_bills_lightbulb" />
+        app:srcCompat="@drawable/ic_category_bills_power" />
 
     <LinearLayout
         android:layout_width="wrap_content"

@@ -24,11 +24,11 @@ class Account {
 
     fun getStringBalance(context: Context) :String {
 //      Place - sign before the pound if it is negative
-        if (balance.toString().first() == '-') {
+        return if (balance.toString().first() == '-') {
             val splitBalance = balance.toString().split("-")
-            return "- " + context.resources.getString(R.string.balance_text, splitBalance[1].toDouble())
+            "- " + context.resources.getString(R.string.balance_text, splitBalance[1].toDouble())
         } else {
-            return context.resources.getString(R.string.balance_text, balance)
+            context.resources.getString(R.string.balance_text, balance)
         }
     }
 

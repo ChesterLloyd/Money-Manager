@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
@@ -28,20 +28,18 @@ class TransactionsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        transactionsViewModel =
-            ViewModelProviders.of(this).get(TransactionsViewModel::class.java)
+        transactionsViewModel = ViewModelProvider(this)[TransactionsViewModel::class.java]
         val root = inflater.inflate(R.layout.fragment_transactions, container, false)
-
 
 //      Get all categories from the database (Add an all one too)
         categories.add(Category(0, "All", 0, 0))
-        categories.addAll(dbManager(context!!).selectCategory())
+        categories.addAll(DBManager(context!!).selectCategory())
 
 //      Set up tabs
         tabLayout = root.findViewById(R.id.tabs) as TabLayout
         viewPager = root.findViewById(R.id.viewpager) as ViewPager
-        viewPager!!.setAdapter(MyTabsAdapter(getChildFragmentManager()))
-        tabLayout!!.post(Runnable { tabLayout!!.setupWithViewPager(viewPager) })
+        viewPager!!.adapter = MyTabsAdapter(childFragmentManager)
+        tabLayout!!.post { tabLayout!!.setupWithViewPager(viewPager) }
         onChangeListener()
 
 //      Launch new transaction activity with fab
@@ -59,7 +57,7 @@ class TransactionsFragment : Fragment() {
     private fun onChangeListener() {
         tabLayout!!.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
-//                Toast.makeText(context, "Tab selcted", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(context, "Tab selected", Toast.LENGTH_SHORT).show()
                 selectedTab = tab.position + 1
             }
 
@@ -70,13 +68,13 @@ class TransactionsFragment : Fragment() {
 
 //  Adaptor to manage the tabs and fragments that are loaded
     private inner class MyTabsAdapter(fm: FragmentManager?) :
-        FragmentPagerAdapter(fm!!, FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+        FragmentPagerAdapter(fm!!, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
         private val tabs = categories.size
 
         override fun getItem(position: Int): Fragment {
             var fragment: Fragment? = null
             when (position) {
-                position -> fragment = TransactionTabFragment(categories.get(position).categoryID)
+                position -> fragment = TransactionTabFragment(categories[position].categoryID)
             }
             return fragment!!
         }
@@ -87,7 +85,7 @@ class TransactionsFragment : Fragment() {
 
         override fun getPageTitle(position: Int): CharSequence? {
             when (position) {
-                position -> return categories.get(position).name
+                position -> return categories[position].name
             }
             return null
         }

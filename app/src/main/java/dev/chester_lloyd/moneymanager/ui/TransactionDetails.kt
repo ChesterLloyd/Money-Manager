@@ -1,22 +1,24 @@
 package dev.chester_lloyd.moneymanager.ui
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import dev.chester_lloyd.moneymanager.*
+import androidx.appcompat.app.AppCompatActivity
+import dev.chester_lloyd.moneymanager.DBManager
+import dev.chester_lloyd.moneymanager.Payment
+import dev.chester_lloyd.moneymanager.R
+import dev.chester_lloyd.moneymanager.Transaction
 import dev.chester_lloyd.moneymanager.ui.transactions.AddTransaction
 import kotlinx.android.synthetic.main.account.view.*
 import kotlinx.android.synthetic.main.activity_transation_details.*
 import kotlinx.android.synthetic.main.transaction.view.ivIcon
 import kotlinx.android.synthetic.main.transaction.view.tvName
-import kotlin.collections.ArrayList
 
 class TransactionDetails : AppCompatActivity() {
 
@@ -31,7 +33,7 @@ class TransactionDetails : AppCompatActivity() {
         this.supportActionBar?.setDisplayShowHomeEnabled(true)
         this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        transaction = dbManager(this).selectTransaction(intent
+        transaction = DBManager(this).selectTransaction(intent
             .getIntExtra("transactionID", 0))
 
         tvName.text = transaction.name
@@ -44,11 +46,11 @@ class TransactionDetails : AppCompatActivity() {
             iconManager.colourIcons, transaction.category.colour).drawable)
 
 //      Get payments as an array list from database
-        var listPayments = dbManager(this)
+        val listPayments = DBManager(this)
             .selectPayment(transaction.transactionID)
 
 //      Pass this to the list view adaptor and populate
-        val myPaymentsAdapter = myPaymentsAdapter(listPayments)
+        val myPaymentsAdapter = PaymentsAdapter(listPayments)
         this.lvPayments.adapter = myPaymentsAdapter
     }
 
@@ -58,7 +60,7 @@ class TransactionDetails : AppCompatActivity() {
 
         if (intent.getIntExtra("transactionID", 0) > 0) {
 //          Read current transaction from database
-            transaction = dbManager(this).selectTransaction(intent
+            transaction = DBManager(this).selectTransaction(intent
                 .getIntExtra("transactionID", 0))
         }
 
@@ -96,16 +98,15 @@ class TransactionDetails : AppCompatActivity() {
 
             alertDialog.setMessage(resources.getString(R.string.alert_message_delete_transaction))
                 .setCancelable(false)
-                .setPositiveButton(resources.getString(R.string.yes), DialogInterface.OnClickListener {
-                        dialog, id -> finish()
+                .setPositiveButton(resources.getString(R.string.yes)) { dialog, id -> finish()
 //                  Delete the account
 //                    dbManager(this).delete("Accounts","ID=?",
 //                        arrayOf(account.accountID.toString()))
-                })
-                .setNegativeButton(resources.getString(R.string.no), DialogInterface.OnClickListener {
+                }
+                .setNegativeButton(resources.getString(R.string.no)) {
 //                  Do nothing, close box
                         dialog, id -> dialog.cancel()
-                })
+                }
 
             val alert = alertDialog.create()
             alert.setTitle(resources.getString(R.string.alert_title_delete_transaction))
@@ -125,12 +126,10 @@ class TransactionDetails : AppCompatActivity() {
         return true
     }
 
-    inner class myPaymentsAdapter: BaseAdapter {
-        var listPaymentsAdapter = ArrayList<Payment>()
-        constructor(listPaymentsAdapter:ArrayList<Payment>):super() {
-            this.listPaymentsAdapter = listPaymentsAdapter
-        }
+    inner class PaymentsAdapter(private var listPaymentsAdapter: ArrayList<Payment>) :
+        BaseAdapter() {
 
+        @SuppressLint("InflateParams", "ViewHolder")
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
 //          Adds each payment to a new row in a list view
             val rowView = layoutInflater.inflate(R.layout.account, null)

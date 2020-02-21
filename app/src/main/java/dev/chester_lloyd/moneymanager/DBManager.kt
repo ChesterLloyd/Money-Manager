@@ -13,7 +13,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class dbManager {
+class DBManager(context: Context) {
+//  Opens database to write to it
 
     val dbName = "MoneyManager"
     val dbAccountTable = "Accounts"
@@ -33,21 +34,17 @@ class dbManager {
     private val colActive = "Active"
     val dbVersion = 1
 
-    var sqlDB:SQLiteDatabase? = null
+    private var sqlDB:SQLiteDatabase? = null
 
-    constructor(context:Context) {
-        var db = DatabaseHelper(context)
-//      Opens database to write to it
+    init {
+        val db = DatabaseHelper(context)
         sqlDB = db.writableDatabase
     }
 
 
-    inner class DatabaseHelper:SQLiteOpenHelper {
-        var context:Context? = null
-
-        constructor(context:Context):super(context, dbName, null, dbVersion) {
-            this.context = context
-        }
+    inner class DatabaseHelper(context: Context) :
+        SQLiteOpenHelper(context, dbName, null, dbVersion) {
+        var context:Context? = context
 
 //      If database is not available, super constructor above will create one
 //      Function below handles stuff to do once made: Make my tables
@@ -90,19 +87,19 @@ class dbManager {
 
 //          Create default accounts
             db.execSQL("INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive) " +
-                    "VALUES ('Cash', 0.0, 2, 0, 1)");
+                    "VALUES ('Cash', 0.0, 2, 0, 1)")
             db.execSQL("INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive) " +
-                    "VALUES ('Current', 50.25, 3, 0, 1)");
+                    "VALUES ('Current', 50.25, 3, 0, 1)")
             db.execSQL("INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive) " +
-                    "VALUES ('Savings', 1000.0, 0, 0, 1)");
+                    "VALUES ('Savings', 1000.0, 0, 0, 1)")
 
 //          Create default categories
             db.execSQL("INSERT INTO $dbCategoryTable ($colName, $colIcon, $colColour) " +
-                    "VALUES ('Bills', 3, 0)");
+                    "VALUES ('Bills', 3, 0)")
             db.execSQL("INSERT INTO $dbCategoryTable ($colName, $colIcon, $colColour) " +
-                    "VALUES ('Phone', 9, 0)");
+                    "VALUES ('Phone', 9, 0)")
             db.execSQL("INSERT INTO $dbCategoryTable ($colName, $colIcon, $colColour) " +
-                    "VALUES ('Rent', 21, 0)");
+                    "VALUES ('Rent', 21, 0)")
         }
 
         override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -124,17 +121,15 @@ class dbManager {
 //  selection - Set of rows
 //  sortOrder - Order
     fun query(table:String, projection: Array<String>, selection:String, selectionArgs:Array<String>, sortOrder:String):Cursor {
-        val QB = SQLiteQueryBuilder()
+        val qb = SQLiteQueryBuilder()
         // Which table to run the query on
-        QB.tables = table
-        val cursor = QB.query(sqlDB, projection, selection, selectionArgs, null, null, sortOrder)
-        return cursor
+        qb.tables = table
+    return qb.query(sqlDB, projection, selection, selectionArgs, null, null, sortOrder)
     }
 
     fun insert(dbTable:String, values:ContentValues):Long {
 //      Insert into table, these values
-        val ID = sqlDB!!.insert(dbTable, "", values)
-        return ID
+        return sqlDB!!.insert(dbTable, "", values)
     }
 
 
@@ -143,40 +138,39 @@ class dbManager {
 //  Functions to handle Category objects within the database
 //  Function that inserts an account object into the database
     fun insertAccount(account: Account):Long {
-        var values = ContentValues()
+        val values = ContentValues()
         values.put(colName, account.name)
         values.put(colBalance, account.balance)
         values.put(colIcon, account.icon)
         values.put(colColour, account.colour)
         values.put(colActive, 1)
 
-        val ID = sqlDB!!.insert(dbAccountTable, "", values)
-        return ID
+    return sqlDB!!.insert(dbAccountTable, "", values)
     }
 //  Function that selects a single account from the database as an Account object
     fun selectAccount(accountID: Int):Account {
-        val QB = SQLiteQueryBuilder()
-        QB.tables = dbAccountTable
+        val qb = SQLiteQueryBuilder()
+        qb.tables = dbAccountTable
         val projection = arrayOf(colID, colName, colBalance, colIcon, colColour)
         val selectionArgs = arrayOf(accountID.toString())
         var account = Account()
-        val cursor = QB.query(sqlDB, projection, "${colID}=?", selectionArgs, null, null, colName)
+        val cursor = qb.query(sqlDB, projection, "${colID}=?", selectionArgs, null, null, colName)
         if (cursor.moveToFirst()) {
-            val ID = cursor.getInt(cursor.getColumnIndex(colID))
+            val id = cursor.getInt(cursor.getColumnIndex(colID))
             val name = cursor.getString(cursor.getColumnIndex(colName))
             val balance = cursor.getDouble(cursor.getColumnIndex(colBalance))
             val icon = cursor.getInt(cursor.getColumnIndex(colIcon))
             val colour = cursor.getInt(cursor.getColumnIndex(colColour))
-            account = Account(ID, name, balance, icon, colour)
+            account = Account(id, name, balance, icon, colour)
         }
         return account
     }
 //  Function that selects every account from the database as a list of Account objects
     fun selectAccount(type: String):ArrayList<Account> {
-        val QB = SQLiteQueryBuilder()
-        QB.tables = dbAccountTable
+        val qb = SQLiteQueryBuilder()
+        qb.tables = dbAccountTable
         val projection = arrayOf(colID, colName, colBalance, colIcon, colColour)
-        var listAccounts = ArrayList<Account>()
+        val listAccounts = ArrayList<Account>()
 
         var selection = "$colName LIKE ?"
         var selectionArgs = arrayOf("%")
@@ -185,16 +179,16 @@ class dbManager {
             selectionArgs = arrayOf("1")
         }
 
-        val cursor = QB.query(sqlDB, projection, selection, selectionArgs, null, null, colName)
+        val cursor = qb.query(sqlDB, projection, selection, selectionArgs, null, null, colName)
         if (cursor.moveToFirst()) {
             do {
-                val ID = cursor.getInt(cursor.getColumnIndex(colID))
+                val id = cursor.getInt(cursor.getColumnIndex(colID))
                 val name = cursor.getString(cursor.getColumnIndex(colName))
                 val balance = cursor.getDouble(cursor.getColumnIndex(colBalance))
-                val icon = cursor.getInt(cursor.getColumnIndex(colID))
+                val icon = cursor.getInt(cursor.getColumnIndex(colIcon))
                 val colour = cursor.getInt(cursor.getColumnIndex(colColour))
 
-                listAccounts.add(Account(ID, name, balance, icon, colour))
+                listAccounts.add(Account(id, name, balance, icon, colour))
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -202,7 +196,7 @@ class dbManager {
     }
 //  Function that updates an account object in the database
     fun updateAccount(account: Account, selection: String, selectionArgs: Array<String>):Int {
-        var values = ContentValues()
+        val values = ContentValues()
         values.put(colName, account.name)
         values.put(colBalance, account.balance)
         values.put(colIcon, account.icon)
@@ -212,9 +206,9 @@ class dbManager {
     }
 //  Function that hides an account in the database
     private fun hideAccount(accountID: Array<String>):Int {
-        var values = ContentValues()
+        val values = ContentValues()
         values.put(colActive, 0)
-        return sqlDB!!.update(dbAccountTable, values, "ID = ?",
+        return sqlDB!!.update(dbAccountTable, values, "$colID = ?",
             accountID)
     }
 
@@ -224,47 +218,46 @@ class dbManager {
 //  Functions to handle Category objects within the database
 //  Function that inserts a category object into the database
     fun insertCategory(category: Category):Long {
-        var values = ContentValues()
+        val values = ContentValues()
         values.put(colName, category.name)
         values.put(colIcon, category.icon)
         values.put(colColour, category.colour)
 
-        val ID = sqlDB!!.insert(dbCategoryTable, "", values)
-        return ID
+    return sqlDB!!.insert(dbCategoryTable, "", values)
     }
 //  Function that selects a single category from the database as a Category object
     fun selectCategory(categoryID: Int):Category {
-        val QB = SQLiteQueryBuilder()
-        QB.tables = dbCategoryTable
+        val qb = SQLiteQueryBuilder()
+        qb.tables = dbCategoryTable
         val projection = arrayOf(colID, colName, colIcon, colColour)
         val selectionArgs = arrayOf(categoryID.toString())
         var category = Category()
-        val cursor = QB.query(sqlDB, projection, "${colID}=?", selectionArgs, null, null, colName)
+        val cursor = qb.query(sqlDB, projection, "${colID}=?", selectionArgs, null, null, colName)
         if (cursor.moveToFirst()) {
-            val ID = cursor.getInt(cursor.getColumnIndex(colID))
+            val id = cursor.getInt(cursor.getColumnIndex(colID))
             val name = cursor.getString(cursor.getColumnIndex(colName))
             val icon = cursor.getInt(cursor.getColumnIndex(colIcon))
             val colour = cursor.getInt(cursor.getColumnIndex(colColour))
-            category = Category(ID, name, icon, colour)
+            category = Category(id, name, icon, colour)
         }
         return category
     }
 //  Function that selects every category from the database as a list of Category objects
     fun selectCategory():ArrayList<Category> {
-        val QB = SQLiteQueryBuilder()
-        QB.tables = dbCategoryTable
+        val qb = SQLiteQueryBuilder()
+        qb.tables = dbCategoryTable
         val projection = arrayOf(colID, colName, colIcon, colColour)
         val selectionArgs = arrayOf("%")
-        var listCategories = ArrayList<Category>()
-        val cursor = QB.query(sqlDB, projection, "${colName} LIKE ?", selectionArgs, null, null, colName)
+        val listCategories = ArrayList<Category>()
+        val cursor = qb.query(sqlDB, projection, "$colName LIKE ?", selectionArgs, null, null, colName)
         if (cursor.moveToFirst()) {
             do {
-                val ID = cursor.getInt(cursor.getColumnIndex("ID"))
-                val name = cursor.getString(cursor.getColumnIndex("Name"))
-                val icon = cursor.getInt(cursor.getColumnIndex("Icon"))
-                val colour = cursor.getInt(cursor.getColumnIndex("Colour"))
+                val id = cursor.getInt(cursor.getColumnIndex(colID))
+                val name = cursor.getString(cursor.getColumnIndex(colName))
+                val icon = cursor.getInt(cursor.getColumnIndex(colIcon))
+                val colour = cursor.getInt(cursor.getColumnIndex(colColour))
 
-                listCategories.add(Category(ID, name, icon, colour))
+                listCategories.add(Category(id, name, icon, colour))
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -272,7 +265,7 @@ class dbManager {
     }
 //  Function that updates a category object in the database
     fun updateCategory(category: Category, selection: String, selectionArgs: Array<String>):Int {
-        var values = ContentValues()
+        val values = ContentValues()
         values.put(colName, category.name)
         values.put(colIcon, category.icon)
         values.put(colColour, category.colour)
@@ -286,25 +279,24 @@ class dbManager {
 //  Functions to handle Transaction objects within the database
 //  Function that inserts a transaction object into the database
     fun insertTransaction(transaction: Transaction):Long {
-        var values = ContentValues()
+        val values = ContentValues()
         values.put(colCategoryID, transaction.category.categoryID)
         values.put(colName, transaction.name)
-        values.put(colDate, Timestamp(transaction.date.getTimeInMillis()).toString())
+        values.put(colDate, Timestamp(transaction.date.timeInMillis).toString())
         values.put(colAmount, transaction.amount)
 
-        val ID = sqlDB!!.insert(dbTransactionTable, "", values)
-        return ID
+    return sqlDB!!.insert(dbTransactionTable, "", values)
     }
 //  Function that selects a single transaction from the database as a Transaction object
     fun selectTransaction(transactionID: Int):Transaction {
-        val QB = SQLiteQueryBuilder()
-        QB.tables = dbTransactionTable
+        val qb = SQLiteQueryBuilder()
+        qb.tables = dbTransactionTable
         val projection = arrayOf(colID, colCategoryID, colName, colDate, colAmount)
         val selectionArgs = arrayOf(transactionID.toString())
         var transaction = Transaction()
-        val cursor = QB.query(sqlDB, projection, "${colID}=?", selectionArgs, null, null, colName)
+        val cursor = qb.query(sqlDB, projection, "${colID}=?", selectionArgs, null, null, colName)
         if (cursor.moveToFirst()) {
-            val ID = cursor.getInt(cursor.getColumnIndex(colID))
+            val id = cursor.getInt(cursor.getColumnIndex(colID))
             val categoryID = cursor.getInt(cursor.getColumnIndex(colCategoryID))
             val name = cursor.getString(cursor.getColumnIndex(colName))
             val date = cursor.getString(cursor.getColumnIndex(colDate))
@@ -314,22 +306,22 @@ class dbManager {
             val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
             cal.time = sdf.parse(date)
 
-            transaction = Transaction(ID, selectCategory(categoryID), name, cal, amount)
+            transaction = Transaction(id, selectCategory(categoryID), name, cal, amount)
         }
         return transaction
     }
 //  Function that selects transactions based on Category/Account ID as a list of Transaction objects
     fun selectTransaction(id: Int, type: String):ArrayList<Transaction> {
-//        val QB = SQLiteQueryBuilder()
-//        QB.tables = dbTransactionTable
+//        val qb = SQLiteQueryBuilder()
+//        qb.tables = dbTransactionTable
         var selectionArgs= arrayOf(id.toString())
-        var listTransactions = ArrayList<Transaction>()
+        val listTransactions = ArrayList<Transaction>()
 
-        var query: String = ""
+        var query = ""
         if (type == "Categories") {
             query = "SELECT T.${colID}, T.${colCategoryID}, " +
-                    "T.${colName}, T.${colDate}, T.${colAmount} FROM ${dbTransactionTable} T " +
-                    "JOIN ${dbCategoryTable} C ON C.${colID} = T.${colCategoryID}"
+                    "T.${colName}, T.${colDate}, T.${colAmount} FROM $dbTransactionTable T " +
+                    "JOIN $dbCategoryTable C ON C.${colID} = T.${colCategoryID}"
 
             if (id > 0) {
                 query += " WHERE C.${colID} = ? "
@@ -339,8 +331,8 @@ class dbManager {
         } else if (type == "Accounts") {
             println("ACC")
             query = "SELECT T.${colID}, T.${colCategoryID}, " +
-                    "T.${colName}, T.${colDate}, T.${colAmount} FROM ${dbTransactionTable} T " +
-                    "JOIN ${dbPaymentsTable} P ON P.${colTransactionID} = T.${colID} " +
+                    "T.${colName}, T.${colDate}, T.${colAmount} FROM $dbTransactionTable T " +
+                    "JOIN $dbPaymentsTable P ON P.${colTransactionID} = T.${colID} " +
                     "WHERE P.${colAccountID} = ?"
         }
         query += " ORDER BY T.${colDate} DESC"
@@ -348,7 +340,7 @@ class dbManager {
 
         if (cursor.moveToFirst()) {
             do {
-                val ID = cursor.getInt(cursor.getColumnIndex(colID))
+                val id = cursor.getInt(cursor.getColumnIndex(colID))
                 val categoryID = cursor.getInt(cursor.getColumnIndex(colCategoryID))
                 val name = cursor.getString(cursor.getColumnIndex(colName))
                 val date = cursor.getString(cursor.getColumnIndex(colDate))
@@ -358,7 +350,7 @@ class dbManager {
                 val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
                 cal.time = sdf.parse(date)
 
-                listTransactions.add(Transaction(ID, selectCategory(categoryID), name, cal, amount))
+                listTransactions.add(Transaction(id, selectCategory(categoryID), name, cal, amount))
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -366,10 +358,10 @@ class dbManager {
     }
 //  Function that updates a Transaction object in the database
     fun updateTransaction(transaction: Transaction, selection: String, selectionArgs: Array<String>):Int {
-        var values = ContentValues()
+        val values = ContentValues()
         values.put(colCategoryID, transaction.category.categoryID)
         values.put(colName, transaction.name)
-        values.put(colDate, Timestamp(transaction.date.getTimeInMillis()).toString())
+        values.put(colDate, Timestamp(transaction.date.timeInMillis).toString())
         values.put(colAmount, transaction.amount)
 
         return sqlDB!!.update(dbTransactionTable, values, selection, selectionArgs)
@@ -381,35 +373,37 @@ class dbManager {
 //  Functions to handle Payment objects within the database
 //  Function that inserts a payment object into the database
     fun insertPayment(payment: Payment):Long {
-        var values = ContentValues()
+        val values = ContentValues()
         values.put(colTransactionID, payment.transaction.transactionID)
         values.put(colAccountID, payment.account.accountID)
         values.put(colAmount, payment.amount)
 
-        val ID = sqlDB!!.insert(dbPaymentsTable, "", values)
-        return ID
+    return sqlDB!!.insert(dbPaymentsTable, "", values)
     }
 //  Function that selects payments based on a transaction ID as a list of Payment objects
     fun selectPayment(transactionID: Int):ArrayList<Payment> {
-        var selectionArgs= arrayOf(transactionID.toString())
-        var listPayments = ArrayList<Payment>()
+        val selectionArgs= arrayOf(transactionID.toString())
+        val listPayments = ArrayList<Payment>()
 
-        var query = "SELECT P.${colID}, P.${colTransactionID}, " +
-                "P.${colAccountID}, P.${colAmount} FROM ${dbPaymentsTable} P " +
-                "JOIN ${dbTransactionTable} T ON T.${colID} = P.${colTransactionID} " +
-                "JOIN ${dbAccountTable} A ON A.${colID} = P.${colAccountID} " +
+        val query = "SELECT P.${colID}, P.${colTransactionID}, " +
+                "P.${colAccountID}, P.${colAmount} FROM $dbPaymentsTable P " +
+                "JOIN $dbTransactionTable T ON T.${colID} = P.${colTransactionID} " +
+                "JOIN $dbAccountTable A ON A.${colID} = P.${colAccountID} " +
                 "WHERE T.${colID} = ? " +
                 "ORDER BY A.${colName} ASC"
         val cursor = sqlDB!!.rawQuery(query, selectionArgs)
 
         if (cursor.moveToFirst()) {
             do {
-                val ID = cursor.getInt(cursor.getColumnIndex(colID))
                 val transactionID = cursor.getInt(cursor.getColumnIndex(colTransactionID))
-                val accounID = cursor.getInt(cursor.getColumnIndex(colAccountID))
+                val accountID = cursor.getInt(cursor.getColumnIndex(colAccountID))
                 val amount = cursor.getDouble(cursor.getColumnIndex(colAmount))
 
-                listPayments.add(Payment(ID, selectTransaction(transactionID), selectAccount(accounID), amount))
+                listPayments.add(Payment(
+                    selectTransaction(transactionID),
+                    selectAccount(accountID),
+                    amount
+                ))
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -475,6 +469,7 @@ class dbManager {
                         arrayOf(id.toString()))
                 } while (cursor.moveToNext())
             }
+            cursor.close()
         } else if (table == dbCategoryTable) {
 //          If we are deleting a category, remove all of its transactions first
             sqlDB!!.delete(dbTransactionTable, "$colCategoryID = ?", selectionArgs)

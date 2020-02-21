@@ -30,23 +30,9 @@ tools:context=".ui.accounts.AccountTransactions">
     android:text="@string/name"
     android:textSize="18sp"
     android:textStyle="bold"
-    app:layout_constraintEnd_toStartOf="@+id/tvBalance"
     app:layout_constraintHorizontal_bias="0.0"
     app:layout_constraintStart_toEndOf="@+id/ivIcon"
     app:layout_constraintTop_toTopOf="parent" />
-
-<!--<TextView-->
-<!--    android:id="@+id/tvBalance"-->
-<!--    android:layout_width="wrap_content"-->
-<!--    android:layout_height="wrap_content"-->
-<!--    android:layout_marginTop="36dp"-->
-<!--    android:layout_marginEnd="16dp"-->
-<!--    android:layout_marginRight="16dp"-->
-<!--    android:text="@string/balance"-->
-<!--    android:textSize="18sp"-->
-<!--    android:textStyle="bold"-->
-<!--    app:layout_constraintEnd_toEndOf="parent"-->
-<!--    app:layout_constraintTop_toTopOf="parent" />-->
 
 <TextView
     android:id="@+id/tvTransactions"
@@ -60,14 +46,14 @@ tools:context=".ui.accounts.AccountTransactions">
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/ivIcon" />
 
-<ListView
-    android:id="@+id/lvTransactions"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    <ListView
+        android:id="@+id/lvTransactions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
 
-    android:layout_marginTop="16dp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/tvTransactions"></ListView>
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTransactions" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

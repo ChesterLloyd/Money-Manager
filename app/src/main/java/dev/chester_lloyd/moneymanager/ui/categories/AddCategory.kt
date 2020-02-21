@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.*
 import dev.chester_lloyd.moneymanager.R
-import dev.chester_lloyd.moneymanager.dbManager
+import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.Category
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.IconSpinner
@@ -64,7 +64,7 @@ class AddCategory : AppCompatActivity() {
             } else {
 //              All data has been filled out, start saving
 //              Get instance of the database manager class
-                val dbManager = dbManager(this)
+                val dbManager = DBManager(this)
 
                 if (category.categoryID == 0) {
 //                  Insert this new category into the categories table
@@ -81,7 +81,7 @@ class AddCategory : AppCompatActivity() {
                     }
                 } else {
 //                  Update this category in the database
-                    var selectionArgs = arrayOf(category.categoryID.toString())
+                    val selectionArgs = arrayOf(category.categoryID.toString())
                     val id = dbManager.updateCategory(category, "ID=?", selectionArgs)
                     if (id > 0) {
 //                      Category updated in the database, return to previous categories fragment

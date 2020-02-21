@@ -2,16 +2,10 @@ package dev.chester_lloyd.moneymanager.ui
 
 import android.widget.EditText
 
-class CurrencyValidator {
+class CurrencyValidator(private val editText: EditText) {
 
-    val editText: EditText
     var balance: String = ""
-    var balanceFocus: Boolean = false
-
-
-    constructor(editText: EditText) {
-        this.editText = editText
-    }
+    private var balanceFocus: Boolean = false
 
 
     fun focusListener(gainFocus: Boolean) {
@@ -42,12 +36,12 @@ class CurrencyValidator {
 
 //      Where to put the cursor if text is replaced
         var cursorPos = 0
-        var decimalCount = 0;
+        var decimalCount = 0
 
-        var diff = balance.length - s.length;
+        val diff = balance.length - s.length
 
 //      Check if balance contains multiple - or . or over 2dp
-        for (i in 0..s.length - 1) {
+        for (i in s.indices) {
             if (s[i] == '-') {
 //              Check if current character is a - sign
                 if (i == 1) {
@@ -71,19 +65,22 @@ class CurrencyValidator {
 
                 if (decimalCount == 0) {
 //                  Check if no decimal points have been added to the output yet
-
-                    if (i >= oldDecimalPos) {
-//                     We are adding the decimal at the position of the old one
-//                     (or the last in the input), so add it
-                        decimalCount++
-                        newBalance += s[i]
-                    } else if (i == oldDecimalPos - diff) {
-//                      Some characters have been removed before it, so add this one
-                        decimalCount++
-                        newBalance += s[i]
-                    } else {
-//                      Do not add this decimal point, update cursor position to here
-                        cursorPos = i
+                    when {
+                        i >= oldDecimalPos -> {
+//                          We are adding the decimal at the position of the old one
+//                          (or the last in the input), so add it
+                            decimalCount++
+                            newBalance += s[i]
+                        }
+                        i == oldDecimalPos - diff -> {
+//                          Some characters have been removed before it, so add this one
+                            decimalCount++
+                            newBalance += s[i]
+                        }
+                        else -> {
+//                          Do not add this decimal point, update cursor position to here
+                            cursorPos = i
+                        }
                     }
                 } else {
 //                  More than 1 decimal point being added, update cursor position to here
@@ -107,14 +104,14 @@ class CurrencyValidator {
         }
 
 //      Stop user deleting the currency symbol
-        if (s.length == 0 && balanceFocus) {
+        if (s.isEmpty() && balanceFocus) {
             newBalance = "£"
             cursorPos = 1
         }
 
 //      Add currency symbol in if it is not the first character
         if (s.firstOrNull() != '£' && balanceFocus) {
-            newBalance = "£" + newBalance
+            newBalance = "£$newBalance"
             cursorPos = 1
         }
 
@@ -132,11 +129,11 @@ class CurrencyValidator {
 
     fun getBalance(): Double {
         if (editText.text.firstOrNull() == '£') {
-            if (editText.text.length > 1) {
+            return if (editText.text.length > 1) {
                 val splitBalance = editText.text.split("£")
-                return splitBalance[1].toDouble()
+                splitBalance[1].toDouble()
             } else {
-                return 0.0
+                0.0
             }
         } else if (editText.text.isEmpty()) {
             return 0.0

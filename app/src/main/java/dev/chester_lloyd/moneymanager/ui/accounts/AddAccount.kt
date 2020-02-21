@@ -12,7 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.Account
 import dev.chester_lloyd.moneymanager.R
-import dev.chester_lloyd.moneymanager.dbManager
+import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.ui.CurrencyValidator
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.IconSpinner
@@ -48,7 +48,7 @@ class AddAccount : AppCompatActivity() {
 //      Validate the balance field
         val balanceValidator = CurrencyValidator(etBalance)
 
-        val etBalanceInput = findViewById(R.id.etBalance) as EditText
+        val etBalanceInput = findViewById<EditText>(R.id.etBalance)
         etBalanceInput.onFocusChangeListener = OnFocusChangeListener { v, gainFocus ->
             balanceValidator.focusListener(gainFocus)
         }
@@ -99,7 +99,7 @@ class AddAccount : AppCompatActivity() {
                 account.balance = balanceValidator.getBalance()
 
 //              Get instance of the database manager class
-                val dbManager = dbManager(this)
+                val dbManager = DBManager(this)
 
                 if (account.accountID == 0) {
 //                  Insert this new account into the accounts table
@@ -115,7 +115,7 @@ class AddAccount : AppCompatActivity() {
                     }
                 } else {
 //                  Update this account in the database
-                    var selectionArgs = arrayOf(account.accountID.toString())
+                    val selectionArgs = arrayOf(account.accountID.toString())
                     val id = dbManager.updateAccount(account, "ID=?", selectionArgs)
                     if (id > 0) {
 //                      Account updated in the database, return to previous accounts fragment

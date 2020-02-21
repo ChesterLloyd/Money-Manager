@@ -1,7 +1,6 @@
 package dev.chester_lloyd.moneymanager
 
 import android.content.Context
-import kotlinx.android.synthetic.main.transaction.view.*
 import java.util.*
 
 class Transaction {
@@ -26,24 +25,24 @@ class Transaction {
 
     fun getStringAmount(context: Context) :String {
 //      Place - sign before the pound if it is negative
-        if (amount.toString().first() == '-') {
+        return if (amount.toString().first() == '-') {
             val splitBalance = amount.toString().split("-")
-            return "- " + context.resources.getString(R.string.balance_text, splitBalance[1].toDouble())
+            "- " + context.resources.getString(R.string.balance_text, splitBalance[1].toDouble())
         } else {
-            return context.resources.getString(R.string.balance_text, amount)
+            context.resources.getString(R.string.balance_text, amount)
         }
     }
 
     fun getDate(context: Context, format: String) :String {
 //      Get date in a nice format
-        var stringDate = "";
-        if (format == "DMY") {
-            stringDate = context.resources.getString(R.string.date_DMY,
+        var stringDate = ""
+        stringDate = if (format == "DMY") {
+            context.resources.getString(R.string.date_DMY,
                 date.get(Calendar.DAY_OF_MONTH).toString(),
                 (date.get(Calendar.MONTH) + 1).toString(),
                 date.get(Calendar.YEAR).toString())
         } else {
-            stringDate = date.toString()
+            date.toString()
         }
         return stringDate
     }

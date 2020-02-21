@@ -3,26 +3,23 @@ package dev.chester_lloyd.moneymanager.ui
 import android.content.Context
 import dev.chester_lloyd.moneymanager.R
 
-class IconManager {
+class IconManager//      Setup the arrays that store the icons
+    (context: Context) {
 
-    var colourNames = arrayOf<String>()
-    var accountNames = arrayOf<String>()
-    var categoryNames = arrayOf<String>()
+    private var colourNames = arrayOf<String>()
+    private var accountNames = arrayOf<String>()
+    private var categoryNames = arrayOf<String>()
 
     var colourIcons = arrayOf<Icon>()
     var accountIcons = arrayOf<Icon>()
     var categoryIcons = arrayOf<Icon>()
 
-    constructor(context: Context) {
-
-//      Setup the arrays that store the icons
-
+    init {
         colourNames = context.resources.getStringArray(R.array.colour_names)
         colourIcons = arrayOf(
             Icon(0, R.drawable.ic_circle_green, colourNames[0]),
             Icon(1, R.drawable.ic_circle_dark_blue, colourNames[1]),
             Icon(2, R.drawable.ic_circle_paypal, colourNames[2]))
-
         accountNames = context.resources.getStringArray(R.array.account_names)
         accountIcons = arrayOf(
             Icon(0, R.drawable.ic_account_bank, accountNames[0]),
@@ -36,7 +33,6 @@ class IconManager {
             Icon(8, R.drawable.ic_account_paypal, accountNames[8]),
             Icon(9, R.drawable.ic_account_travel_card, accountNames[9]),
             Icon(10, R.drawable.ic_account_wallet, accountNames[10]))
-
         categoryNames = context.resources.getStringArray(R.array.category_names)
         categoryIcons = arrayOf(
             Icon(0, R.drawable.ic_category_bar, categoryNames[0]),
@@ -98,7 +94,7 @@ class IconManager {
 
 //  Returns an icon given its database storage ID
     fun getIconByID(iconArray: Array<Icon>, id: Int):Icon {
-        for (icon in 0..iconArray.size - 1) {
+        for (icon in iconArray.indices) {
             if (iconArray[icon].id == id) {
                 return iconArray[icon]
             }
@@ -109,7 +105,7 @@ class IconManager {
 //  Returns an icons position in a given array given its database storage ID
 //  Useful when setting the icons position in a spinner
     fun getIconPositionID(iconArray: Array<Icon>, id: Int):Int {
-        for (icon in 0..iconArray.size - 1) {
+        for (icon in iconArray.indices) {
             if (iconArray[icon].id == id) {
                 return icon
             }

@@ -13,7 +13,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             tools:context=".ui.transactions.AddTransaction">
 
             <TextView
@@ -63,7 +63,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvDetails" />
+                app:layout_constraintTop_toBottomOf="@+id/tvDetails"
+                android:importantForAutofill="no" />
 
             <EditText
                 android:id="@+id/etAmount"
@@ -75,14 +76,14 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
                 android:digits="-0123456789."
-                android:editable="true"
                 android:ems="10"
                 android:hint="@string/transaction_amount"
                 android:inputType="number|numberDecimal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.08"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etName" />
+                app:layout_constraintTop_toBottomOf="@+id/etName"
+                android:importantForAutofill="no" />
 
             <EditText
                 android:id="@+id/etDate"
@@ -99,7 +100,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etAmount" />
+                app:layout_constraintTop_toBottomOf="@+id/etAmount"
+                android:importantForAutofill="no" />
 
             <TextView
                 android:id="@+id/tvCategory"
@@ -174,7 +176,8 @@
         android:layout_height="wrap_content"
         android:gravity="bottom"
         android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabAddTransaction"
@@ -187,7 +190,8 @@
             app:backgroundTint="#4CAF50"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_check" />
+            app:srcCompat="@drawable/ic_check"
+            android:focusable="true" />
     </LinearLayout>
 
 </RelativeLayout>

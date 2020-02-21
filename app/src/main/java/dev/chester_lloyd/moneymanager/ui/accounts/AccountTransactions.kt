@@ -1,22 +1,24 @@
 package dev.chester_lloyd.moneymanager.ui.accounts
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import dev.chester_lloyd.moneymanager.*
+import androidx.appcompat.app.AppCompatActivity
+import dev.chester_lloyd.moneymanager.Account
+import dev.chester_lloyd.moneymanager.DBManager
+import dev.chester_lloyd.moneymanager.R
+import dev.chester_lloyd.moneymanager.Transaction
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import kotlinx.android.synthetic.main.account.view.ivIcon
 import kotlinx.android.synthetic.main.account.view.tvName
 import kotlinx.android.synthetic.main.activity_account_transactions.*
 import kotlinx.android.synthetic.main.transaction.view.*
-import kotlin.collections.ArrayList
 
 class AccountTransactions : AppCompatActivity() {
 
@@ -47,7 +49,7 @@ class AccountTransactions : AppCompatActivity() {
             iconManager.colourIcons, account.colour).drawable)
 
 //      Get transactions as an array list from database
-        var listTransactions = dbManager(this)
+        val listTransactions = DBManager(this)
             .selectTransaction(account.accountID, "Accounts")
 
 //      Pass this to the list view adaptor and populate
@@ -61,7 +63,7 @@ class AccountTransactions : AppCompatActivity() {
 
         if (intent.getIntExtra("accountID", 0) > 0) {
 //          Read current account from database
-            val dbManager = dbManager(this)
+            val dbManager = DBManager(this)
             account = dbManager.selectAccount(intent.getIntExtra("accountID", 0))
         }
 
@@ -105,16 +107,15 @@ class AccountTransactions : AppCompatActivity() {
 
             alertDialog.setMessage(resources.getString(R.string.alert_message_delete_account))
                 .setCancelable(false)
-                .setPositiveButton(resources.getString(R.string.yes), DialogInterface.OnClickListener {
-                    dialog, id -> finish()
+                .setPositiveButton(resources.getString(R.string.yes)) { dialog, id -> finish()
 //                  Delete the account
-                    dbManager(this).delete(dbManager(this).dbAccountTable,"ID=?",
+                    DBManager(this).delete(DBManager(this).dbAccountTable,"ID=?",
                         arrayOf(account.accountID.toString()))
-                })
-                .setNegativeButton(resources.getString(R.string.no), DialogInterface.OnClickListener {
+                }
+                .setNegativeButton(resources.getString(R.string.no)) {
 //                  Do nothing, close box
                     dialog, id -> dialog.cancel()
-                })
+                }
 
             val alert = alertDialog.create()
             alert.setTitle(resources.getString(R.string.alert_title_delete_account))
@@ -134,13 +135,10 @@ class AccountTransactions : AppCompatActivity() {
         return true
     }
 
-    inner class TransactionsAdapter: BaseAdapter {
-        private var listTransactionsAdapter = ArrayList<Transaction>()
-        constructor(listTransactionsAdapter:ArrayList<Transaction>):super() {
-            this.listTransactionsAdapter = listTransactionsAdapter
+    inner class TransactionsAdapter(private var listTransactionsAdapter: ArrayList<Transaction>) :
+        BaseAdapter() {
 
-        }
-
+        @SuppressLint("InflateParams", "ViewHolder")
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
 //          Adds each transaction to a new row in a list view
             val rowView = layoutInflater.inflate(R.layout.transaction, null)

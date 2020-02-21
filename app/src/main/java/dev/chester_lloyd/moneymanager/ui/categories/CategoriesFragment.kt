@@ -1,5 +1,6 @@
 package dev.chester_lloyd.moneymanager.ui.categories
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,10 +9,10 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.chester_lloyd.moneymanager.R
-import dev.chester_lloyd.moneymanager.dbManager
+import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.Category
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import kotlinx.android.synthetic.main.category.view.*
@@ -26,16 +27,15 @@ class CategoriesFragment : Fragment() {
         super.onResume()
 
 //      Get categories as an array list from database
-        var listCategories = dbManager(context!!).selectCategory()
+        val listCategories = DBManager(context!!).selectCategory()
 
 //      Pass this to the list view adaptor and populate
-        val myCategoriesAdapter = MyCategoriesAdapter(listCategories)
-        this.lvCategories.adapter = myCategoriesAdapter
+        val categoriesAdapter = CategoriesAdapter(listCategories)
+        this.lvCategories.adapter = categoriesAdapter
 
 //      When a category in the list is clicked
-        this.lvCategories.onItemClickListener = object : AdapterView.OnItemClickListener {
-            override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-
+        this.lvCategories.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, view, position, id ->
                 // value of item that is clicked
                 val category = lvCategories.getItemAtPosition(position) as Category
                 val intent = Intent(context, CategoryTransaction::class.java)
@@ -49,7 +49,6 @@ class CategoriesFragment : Fragment() {
 
                 startActivity(intent)
             }
-        }
     }
 
     override fun onCreateView(
@@ -57,8 +56,7 @@ class CategoriesFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        categoriesViewModel =
-            ViewModelProviders.of(this).get(CategoriesViewModel::class.java)
+        categoriesViewModel = ViewModelProvider(this)[CategoriesViewModel::class.java]
         val root = inflater.inflate(R.layout.fragment_categories, container, false)
 
 //      Launch new category activity with fab
@@ -72,13 +70,10 @@ class CategoriesFragment : Fragment() {
     }
 
 
-    inner class MyCategoriesAdapter:BaseAdapter {
-        var listCategoriesAdapter = ArrayList<Category>()
-        constructor(listCategoriesAdapter:ArrayList<Category>):super() {
-            this.listCategoriesAdapter = listCategoriesAdapter
+    inner class CategoriesAdapter(private var listCategoriesAdapter: ArrayList<Category>) :
+        BaseAdapter() {
 
-        }
-
+        @SuppressLint("InflateParams", "ViewHolder")
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
 //          Adds each category to a new row in a list view
             val rowView = layoutInflater.inflate(R.layout.category, null)

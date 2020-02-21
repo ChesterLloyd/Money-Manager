@@ -19,6 +19,6 @@
         android:id="@+id/lvTransactions"
         android:layout_width="fill_parent"
         android:layout_height="0dip"
-        android:layout_weight="1"></ListView>
+        android:layout_weight="1" />
 
 </LinearLayout>

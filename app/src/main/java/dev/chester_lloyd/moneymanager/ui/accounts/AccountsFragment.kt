@@ -1,5 +1,6 @@
 package dev.chester_lloyd.moneymanager.ui.accounts
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,10 +9,10 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.chester_lloyd.moneymanager.R
-import dev.chester_lloyd.moneymanager.dbManager
+import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.Account
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import kotlinx.android.synthetic.main.account.view.*
@@ -26,16 +27,15 @@ class AccountsFragment : Fragment() {
         super.onResume()
 
 //      Get accounts as an array list from database
-        var listAccounts = dbManager(context!!).selectAccount("active")
+        val listAccounts = DBManager(context!!).selectAccount("active")
 
 //      Pass this to the list view adaptor and populate
-        val myAccountsAdapter = MyAccountsAdapter(listAccounts)
-        this.lvAccounts.adapter = myAccountsAdapter
+        val accountsAdapter = AccountsAdapter(listAccounts)
+        this.lvAccounts.adapter = accountsAdapter
 
 //      When an account in the list is clicked
-        this.lvAccounts.onItemClickListener = object : AdapterView.OnItemClickListener {
-            override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-
+        this.lvAccounts.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, view, position, id ->
 //              Get account object of item that is clicked
                 val account = lvAccounts.getItemAtPosition(position) as Account
 
@@ -52,7 +52,6 @@ class AccountsFragment : Fragment() {
 
                 startActivity(intent)
             }
-        }
     }
 
     override fun onCreateView(
@@ -60,8 +59,7 @@ class AccountsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        accountsViewModel =
-            ViewModelProviders.of(this).get(AccountsViewModel::class.java)
+        accountsViewModel = ViewModelProvider(this)[AccountsViewModel::class.java]
         val root = inflater.inflate(R.layout.fragment_accounts, container, false)
 
 //      Launch new account activity with fab
@@ -75,13 +73,10 @@ class AccountsFragment : Fragment() {
     }
 
 
-    inner class MyAccountsAdapter:BaseAdapter {
-        var listAccountsAdapter = ArrayList<Account>()
-        constructor(listAccountsAdapter:ArrayList<Account>):super() {
-            this.listAccountsAdapter = listAccountsAdapter
+    inner class AccountsAdapter(private var listAccountsAdapter: ArrayList<Account>) :
+        BaseAdapter() {
 
-        }
-
+        @SuppressLint("InflateParams", "ViewHolder")
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
 //          Adds each account to a new row in a list view
             val rowView = layoutInflater.inflate(R.layout.account, null)

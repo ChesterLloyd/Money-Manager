@@ -14,8 +14,6 @@ import dev.chester_lloyd.moneymanager.ui.Icon
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.IconSpinner
 import kotlinx.android.synthetic.main.activity_add_transaction.*
-import java.math.RoundingMode
-import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -36,7 +34,7 @@ class AddTransaction : AppCompatActivity() {
 //      Validate the amount field
         val amountValidator = CurrencyValidator(etAmount)
 
-        val etAccountInput = etAmount as EditText
+        val etAccountInput = etAmount
         etAccountInput.onFocusChangeListener = View.OnFocusChangeListener { v, gainFocus ->
             amountValidator.focusListener(gainFocus)
         }
@@ -60,14 +58,13 @@ class AddTransaction : AppCompatActivity() {
         updateDateInView()
 
 //      Create a date picker, set values for class date value
-        val dateSetListener = object : DatePickerDialog.OnDateSetListener {
-            override fun onDateSet(view: DatePicker, year: Int, monthOfYear: Int, dayOfMonth: Int) {
+        val dateSetListener =
+            DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
                 transaction.date.set(Calendar.YEAR, year)
                 transaction.date.set(Calendar.MONTH, monthOfYear)
                 transaction.date.set(Calendar.DAY_OF_MONTH, dayOfMonth)
                 updateDateInView()
             }
-        }
 
 //      When the date edit text has focus (clicked), open the date picker
         etDate.onFocusChangeListener = View.OnFocusChangeListener { v, gainFocus ->
@@ -83,13 +80,13 @@ class AddTransaction : AppCompatActivity() {
         }
 
 //      Setup the category icon spinner
-        val categories: ArrayList<Category> = dbManager(this).selectCategory()
+        val categories: ArrayList<Category> = DBManager(this).selectCategory()
 
         val iconManager = IconManager(this)
         val icons = arrayOfNulls<Icon>(categories.size)
         val backgrounds = arrayOfNulls<Icon>(categories.size)
 
-        for (category in 0..categories.size - 1) {
+        for (category in 0 until categories.size) {
             icons[category] = Icon(category, iconManager.getIconByID(iconManager.categoryIcons,
                 categories[category].icon).drawable, categories[category].name)
 
@@ -113,20 +110,19 @@ class AddTransaction : AppCompatActivity() {
         }
 
 //      Setup the account entry texts
-        val accounts: ArrayList<Account> = dbManager(this).selectAccount("active")
+        val accounts: ArrayList<Account> = DBManager(this).selectAccount("active")
 
-        for (account in 0..accounts.size - 1) {
+        for (account in 0 until accounts.size) {
             val etAccount = EditText(this)
             etAccount.id = accounts[account].accountID
-            etAccount.setHint(accounts[account].name)
+            etAccount.hint = accounts[account].name
             etAccount.inputType = InputType.TYPE_CLASS_NUMBER + InputType.TYPE_NUMBER_FLAG_DECIMAL +
                     InputType.TYPE_NUMBER_FLAG_SIGNED
 
 //          Validate the currency field
             val balanceValidator = CurrencyValidator(etAccount)
 
-            val etAccountInput = etAccount as EditText
-            etAccountInput.onFocusChangeListener = View.OnFocusChangeListener { v, gainFocus ->
+            etAccount.onFocusChangeListener = View.OnFocusChangeListener { v, gainFocus ->
                 balanceValidator.focusListener(gainFocus)
             }
 
@@ -151,20 +147,20 @@ class AddTransaction : AppCompatActivity() {
         val transactionID = intent.getIntExtra("transactionID", 0)
 
         if (transactionID > 0) {
-            transaction = dbManager(this).selectTransaction(transactionID)
+            transaction = DBManager(this).selectTransaction(transactionID)
             etName.setText(transaction.name)
             etAmount.setText(transaction.getStringAmount(this))
             updateDateInView()
 
-            for (category in 0..categories.size - 1) {
+            for (category in 0 until categories.size) {
                 if (categories[category].icon == transaction.category.icon) {
                     spCategory.setSelection(category)
                     break
                 }
             }
 
-            val payments = dbManager(this).selectPayment(transactionID)
-            for (payment in 0..payments.size - 1) {
+            val payments = DBManager(this).selectPayment(transactionID)
+            for (payment in 0 until payments.size) {
                 if (payments[payment].amount > 0.0) {
                     findViewById<EditText>(payments[payment].account.accountID)
                         .setText(payments[payment].getEditTextAmount(this))
@@ -199,14 +195,14 @@ class AddTransaction : AppCompatActivity() {
                 transaction.amount = amountValidator.getBalance()
 
 //              Get instance of the database manager class
-                val dbManager = dbManager(this)
+                val dbManager = DBManager(this)
 
 //              Get all payments as Payment objects
-                var payments = ArrayList<Payment>()
-                var totalPayments: Double = 0.0
-                for (account in 0..accounts.size - 1) {
+                val payments = ArrayList<Payment>()
+                var totalPayments = 0.0
+                for (account in 0 until accounts.size) {
                     val accountValue = CurrencyValidator(
-                        this.findViewById<EditText>(accounts[account].accountID))
+                        this.findViewById(accounts[account].accountID))
                         .getBalance()
 
 //                  Round to 2dp (since double would probably do: 20.0000004 or something)
@@ -214,8 +210,7 @@ class AddTransaction : AppCompatActivity() {
                     totalPayments += accountValue2DP
                     payments.add(
                         Payment(
-                            0, Transaction(), accounts[account],
-                            accountValue
+                            Transaction(), accounts[account], accountValue
                         )
                     )
                 }
@@ -232,7 +227,7 @@ class AddTransaction : AppCompatActivity() {
                         val id = dbManager.insertTransaction(transaction)
                         if (id > 0) {
                             transaction.transactionID = id.toInt()
-                            for (payment in 0..payments.size - 1) {
+                            for (payment in 0 until payments.size) {
 //                              For each payment method (Account)
                                 if (payments[payment].amount > 0.0) {
 //                                  Add a payment for this amount
@@ -255,7 +250,7 @@ class AddTransaction : AppCompatActivity() {
                         }
                     } else {
 //                      Update this transaction in the database
-                        var selectionArgs = arrayOf(transaction.transactionID.toString())
+                        val selectionArgs = arrayOf(transaction.transactionID.toString())
                         val id = dbManager.updateTransaction(transaction, "ID=?", selectionArgs)
                         if (id > 0) {
 //                          Transaction updated in the database, return to previous fragment
@@ -281,7 +276,7 @@ class AddTransaction : AppCompatActivity() {
     private fun updateDateInView() {
         val myFormat = "dd/MM/yyyy"
         val sdf = SimpleDateFormat(myFormat, Locale.ENGLISH)
-        etDate!!.setText(sdf.format(transaction.date.getTime()))
+        etDate!!.setText(sdf.format(transaction.date.time))
     }
 
 //  Close activity once toolbar back button is pressed
