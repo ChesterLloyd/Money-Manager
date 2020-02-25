@@ -166,7 +166,7 @@ class DBManager(context: Context) {
         return account
     }
 //  Function that selects every account from the database as a list of Account objects
-    fun selectAccount(type: String):ArrayList<Account> {
+    fun selectAccount(type: String, limit:String?):ArrayList<Account> {
         val qb = SQLiteQueryBuilder()
         qb.tables = dbAccountTable
         val projection = arrayOf(colID, colName, colBalance, colIcon, colColour)
@@ -179,7 +179,7 @@ class DBManager(context: Context) {
             selectionArgs = arrayOf("1")
         }
 
-        val cursor = qb.query(sqlDB, projection, selection, selectionArgs, null, null, colName)
+        val cursor = qb.query(sqlDB, projection, selection, selectionArgs, null, null, colName, limit)
         if (cursor.moveToFirst()) {
             do {
                 val id = cursor.getInt(cursor.getColumnIndex(colID))
@@ -311,7 +311,7 @@ class DBManager(context: Context) {
         return transaction
     }
 //  Function that selects transactions based on Category/Account ID as a list of Transaction objects
-    fun selectTransaction(id: Int, type: String):ArrayList<Transaction> {
+    fun selectTransaction(id: Int, type: String, limit:String?):ArrayList<Transaction> {
 //        val qb = SQLiteQueryBuilder()
 //        qb.tables = dbTransactionTable
         var selectionArgs= arrayOf(id.toString())
@@ -336,6 +336,9 @@ class DBManager(context: Context) {
                     "WHERE P.${colAccountID} = ?"
         }
         query += " ORDER BY T.${colDate} DESC"
+        if (limit != null) {
+            query += " LIMIT $limit"
+        }
         val cursor = sqlDB!!.rawQuery(query, selectionArgs)
 
         if (cursor.moveToFirst()) {

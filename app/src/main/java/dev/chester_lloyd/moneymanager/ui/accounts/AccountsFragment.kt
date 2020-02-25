@@ -27,7 +27,7 @@ class AccountsFragment : Fragment() {
         super.onResume()
 
 //      Get accounts as an array list from database
-        val listAccounts = DBManager(context!!).selectAccount("active")
+        val listAccounts = DBManager(context!!).selectAccount("active", null)
 
 //      Pass this to the list view adaptor and populate
         val accountsAdapter = AccountsAdapter(listAccounts)
@@ -51,7 +51,7 @@ class AccountsFragment : Fragment() {
                 intent.putExtras(bundle)
 
                 startActivity(intent)
-            }
+        }
     }
 
     override fun onCreateView(

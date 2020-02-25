@@ -5,7 +5,8 @@
 <!--    <color name="colorPrimaryDark">#2196F3</color>-->
 <!--    <color name="colorAccent">#D81B60</color>-->
     <color name="black">#000000</color>
-
+    <color name="buttonLink">#1565C0</color>
+    <color name="fabComplete">#4CAF50</color>
 
     <color name="colorPrimary">#5d9e7a</color>
     <color name="colorPrimaryLight">#8dcfa9</color>

@@ -39,7 +39,7 @@ class TransactionTabFragment(private val tab: Int) : Fragment() {
         super.onResume()
 
 //      Get transactions as an array list from database
-        val listTransactions = DBManager(context!!).selectTransaction(tab, "Categories")
+        val listTransactions = DBManager(context!!).selectTransaction(tab, "Categories", null)
 
 //      If there are no transactions under this category, show a message
         if (listTransactions.isEmpty()) {
@@ -65,7 +65,7 @@ class TransactionTabFragment(private val tab: Int) : Fragment() {
                     intent.putExtras(bundle)
 
                     startActivity(intent)
-                }
+            }
         }
     }
 

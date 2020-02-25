@@ -77,7 +77,7 @@ class AddTransaction : AppCompatActivity() {
                         transaction.date.get(Calendar.MONTH),
                         transaction.date.get(Calendar.DAY_OF_MONTH)).show()
                     etDate.clearFocus()
-            }
+                }
         }
 
 //      Setup the category icon spinner
@@ -111,7 +111,7 @@ class AddTransaction : AppCompatActivity() {
         }
 
 //      Setup the account entry texts
-        val accounts: ArrayList<Account> = DBManager(this).selectAccount("active")
+        val accounts: ArrayList<Account> = DBManager(this).selectAccount("active", null)
 
         for (account in 0 until accounts.size) {
             val etAccount = EditText(this)

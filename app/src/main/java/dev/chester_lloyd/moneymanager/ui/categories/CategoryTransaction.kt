@@ -47,7 +47,7 @@ class CategoryTransaction : AppCompatActivity() {
 
 //      Get transactions as an array list from database
         val listTransactions = DBManager(this)
-            .selectTransaction(category.categoryID, "Categories")
+            .selectTransaction(category.categoryID, "Categories", null)
 
 //      Pass this to the list view adaptor and populate
         val myTransactionsAdapter = TransactionsAdapter(listTransactions)

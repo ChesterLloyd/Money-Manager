@@ -50,7 +50,7 @@ class AccountTransactions : AppCompatActivity() {
 
 //      Get transactions as an array list from database
         val listTransactions = DBManager(this)
-            .selectTransaction(account.accountID, "Accounts")
+            .selectTransaction(account.accountID, "Accounts", null)
 
 //      Pass this to the list view adaptor and populate
         val myTransactionsAdapter = TransactionsAdapter(listTransactions)
