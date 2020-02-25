@@ -148,9 +148,11 @@ class AddTransaction : AppCompatActivity() {
         val transactionID = intent.getIntExtra("transactionID", 0)
 
         if (transactionID > 0) {
+            this.supportActionBar?.title = getString(R.string.edit_transaction)
+            tvDesc.setText(R.string.text_edit_transaction_desc)
             transaction = DBManager(this).selectTransaction(transactionID)
             etName.setText(transaction.name)
-            etAmount.setText(transaction.getStringAmount(this))
+            etAmount.setText(CurrencyValidator.getEditTextAmount(transaction.amount))
             updateDateInView()
 
             for (category in 0 until categories.size) {
@@ -164,7 +166,7 @@ class AddTransaction : AppCompatActivity() {
             for (payment in 0 until payments.size) {
                 if (payments[payment].amount != 0.0) {
                     findViewById<EditText>(payments[payment].account.accountID)
-                        .setText(payments[payment].getEditTextAmount(this))
+                        .setText(CurrencyValidator.getEditTextAmount(payments[payment].amount))
                 }
             }
         }

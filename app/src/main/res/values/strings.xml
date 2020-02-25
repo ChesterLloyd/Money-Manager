@@ -25,7 +25,9 @@
     <string name="manage_category">Manage category</string>
 
     <string name="text_account_desc">Add a virtual account to represent an account you\'d like to track your expenses for.</string>
+    <string name="text_edit_account_desc">Edit this account.</string>
     <string name="button_add_account">Add account</string>
+    <string name="edit_account">Edit account</string>
     <string name="account_icon">Account icon</string>
     <string-array name="account_names">
         <item>Bank</item>
@@ -91,7 +93,9 @@
 
 
     <string name="text_category_desc">Add a category that will classify one or more transactions.</string>
+    <string name="text_edit_category_desc">Edit this category.</string>
     <string name="button_add_category">Add category</string>
+    <string name="edit_category">Edit category</string>
     <string name="category_icon">Category icon</string>
     <string-array name="category_names">
         <item>Bar</item>
@@ -154,7 +158,9 @@
 
 
     <string name="text_transaction_desc">Add a new transaction.</string>
+    <string name="text_edit_transaction_desc">Edit this transaction.</string>
     <string name="button_add_transaction">Add transaction</string>
+    <string name="edit_transaction">Edit transaction</string>
     <string name="transaction_amount">Amount</string>
     <string name="transaction_date">Date</string>
     <string name="transaction_category">Category</string>

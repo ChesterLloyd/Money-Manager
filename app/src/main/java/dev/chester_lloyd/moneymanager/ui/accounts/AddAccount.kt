@@ -73,8 +73,11 @@ class AddAccount : AppCompatActivity() {
 
 //      If the account ID > 0 (not a new one) then auto fill these fields with the saved values
         if (account.accountID > 0) {
+            this.supportActionBar?.title = getString(R.string.edit_account)
+            tvDesc.setText(R.string.text_edit_account_desc)
             etName.setText(intent.getStringExtra("name"))
-            etBalance.setText(intent.getDoubleExtra("balance", 0.0).toString())
+            etBalance.setText(CurrencyValidator.getEditTextAmount(intent.getDoubleExtra(
+                "balance", 0.0)))
 
             spIcon.setSelection(iconManager.getIconPositionID(
                 iconManager.accountIcons,

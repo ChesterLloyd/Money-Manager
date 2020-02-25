@@ -147,4 +147,20 @@ class CurrencyValidator(private val editText: EditText) {
         }
         return false
     }
+
+//  Companion object so basically a Java static class
+    companion object {
+        fun getEditTextAmount(amount: Double): String {
+//          Add a symbol to the amount given as a double
+            if (amount != 0.0) {
+                val splitBalance = amount.toString().split(".")
+                if (splitBalance.size == 2 && splitBalance[1].length == 1) {
+                    return "£" + amount.toString() + "0"
+                }
+                return "£$amount"
+            } else {
+                return "£0.0"
+            }
+        }
+    }
 }

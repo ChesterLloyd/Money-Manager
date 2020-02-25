@@ -43,6 +43,8 @@ class AddCategory : AppCompatActivity() {
 
 //      If the category ID > 0 (not a new one) then auto fill these fields with the saved values
         if (category.categoryID > 0) {
+            this.supportActionBar?.title = getString(R.string.edit_category)
+            tvDesc.setText(R.string.text_edit_category_desc)
             etName.setText(intent.getStringExtra("name"))
 
             spIcon.setSelection(iconManager.getIconPositionID(
