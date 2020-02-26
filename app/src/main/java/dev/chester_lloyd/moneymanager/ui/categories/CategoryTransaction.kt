@@ -8,6 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.BaseAdapter
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.Category
@@ -15,6 +16,7 @@ import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.Transaction
 import dev.chester_lloyd.moneymanager.ui.IconManager
+import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import kotlinx.android.synthetic.main.activity_category_transaction.*
 import kotlinx.android.synthetic.main.transaction.view.*
 
@@ -71,6 +73,20 @@ class CategoryTransaction : AppCompatActivity() {
             iconManager.categoryIcons, category.icon).drawable)
         ivIcon.setBackgroundResource(iconManager.getIconByID(
             iconManager.colourIcons, category.colour).drawable)
+
+//      When a transaction in the list is clicked
+        this.lvTransactions.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, view, position, id ->
+//              Get transaction object of item that is clicked
+                val transaction = lvTransactions.getItemAtPosition(position) as Transaction
+
+//              Setup an intent to send this across to view the transaction's details
+                val intent = Intent(this, TransactionDetails::class.java)
+                val bundle = Bundle()
+                bundle.putInt("transactionID", transaction.transactionID)
+                intent.putExtras(bundle)
+                startActivity(intent)
+            }
     }
 
 //  Setting menu in action bar

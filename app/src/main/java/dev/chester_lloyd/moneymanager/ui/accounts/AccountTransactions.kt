@@ -8,6 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.BaseAdapter
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.Account
@@ -15,6 +16,7 @@ import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.Transaction
 import dev.chester_lloyd.moneymanager.ui.IconManager
+import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import kotlinx.android.synthetic.main.account.view.ivIcon
 import kotlinx.android.synthetic.main.account.view.tvName
 import kotlinx.android.synthetic.main.activity_account_transactions.*
@@ -47,14 +49,6 @@ class AccountTransactions : AppCompatActivity() {
             iconManager.accountIcons, account.icon).drawable)
         ivIcon.setBackgroundResource(iconManager.getIconByID(
             iconManager.colourIcons, account.colour).drawable)
-
-//      Get transactions as an array list from database
-        val listTransactions = DBManager(this)
-            .selectTransaction(account.accountID, "Accounts", null)
-
-//      Pass this to the list view adaptor and populate
-        val myTransactionsAdapter = TransactionsAdapter(listTransactions)
-        this.lvTransactions.adapter = myTransactionsAdapter
     }
 
 //  If we have come back (after updating) show potential updated account status
@@ -75,6 +69,28 @@ class AccountTransactions : AppCompatActivity() {
             iconManager.accountIcons, account.icon).drawable)
         ivIcon.setBackgroundResource(iconManager.getIconByID(
             iconManager.colourIcons, account.colour).drawable)
+
+//      Get transactions as an array list from database
+        val listTransactions = DBManager(this)
+            .selectTransaction(account.accountID, "Accounts", null)
+
+//      Pass this to the list view adaptor and populate
+        val myTransactionsAdapter = TransactionsAdapter(listTransactions)
+        this.lvTransactions.adapter = myTransactionsAdapter
+
+//      When a transaction in the list is clicked
+        this.lvTransactions.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, view, position, id ->
+//              Get transaction object of item that is clicked
+                val transaction = lvTransactions.getItemAtPosition(position) as Transaction
+
+//              Setup an intent to send this across to view the transaction's details
+                val intent = Intent(this, TransactionDetails::class.java)
+                val bundle = Bundle()
+                bundle.putInt("transactionID", transaction.transactionID)
+                intent.putExtras(bundle)
+                startActivity(intent)
+            }
     }
 
 //  Settings menu in action bar

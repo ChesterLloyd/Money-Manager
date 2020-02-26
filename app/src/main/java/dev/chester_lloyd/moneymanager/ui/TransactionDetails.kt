@@ -8,12 +8,14 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.BaseAdapter
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.Payment
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.Transaction
+import dev.chester_lloyd.moneymanager.ui.categories.CategoryTransaction
 import dev.chester_lloyd.moneymanager.ui.transactions.AddTransaction
 import kotlinx.android.synthetic.main.account.view.*
 import kotlinx.android.synthetic.main.activity_transation_details.*
@@ -78,6 +80,25 @@ class TransactionDetails : AppCompatActivity() {
 //      Pass this to the list view adaptor and populate
         val myPaymentsAdapter = PaymentsAdapter(listPayments)
         this.lvPayments.adapter = myPaymentsAdapter
+
+//      When a transaction in the list is clicked
+        this.lvPayments.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, view, position, id ->
+//              Get payment object of item that is clicked
+                val payment = lvPayments.getItemAtPosition(position) as Payment
+
+                    // value of item that is clicked
+                    val intent = Intent(this, CategoryTransaction::class.java)
+
+                    val bundle = Bundle()
+                    bundle.putInt("categoryID", payment.transaction.category.categoryID)
+                    bundle.putString("name", payment.transaction.category.name)
+                    bundle.putInt("icon", payment.transaction.category.icon)
+                    bundle.putInt("colour", payment.transaction.category.colour)
+                    intent.putExtras(bundle)
+
+                startActivity(intent)
+            }
     }
 
     //  Settings menu in action bar
