@@ -44,14 +44,6 @@ class TransactionDetails : AppCompatActivity() {
             iconManager.categoryIcons, transaction.category.icon).drawable)
         ivIcon.setBackgroundResource(iconManager.getIconByID(
             iconManager.colourIcons, transaction.category.colour).drawable)
-
-//      Get payments as an array list from database
-        val listPayments = DBManager(this)
-            .selectPayment(transaction.transactionID)
-
-//      Pass this to the list view adaptor and populate
-        val myPaymentsAdapter = PaymentsAdapter(listPayments)
-        this.lvPayments.adapter = myPaymentsAdapter
     }
 
 //  If we have come back (after updating) show potential updated account status
@@ -78,6 +70,14 @@ class TransactionDetails : AppCompatActivity() {
             tvDetails.text = transaction.details
             tvDetails.visibility = View.VISIBLE
         }
+
+//      Get payments as an array list from database
+        val listPayments = DBManager(this)
+            .selectPayment(transaction.transactionID)
+
+//      Pass this to the list view adaptor and populate
+        val myPaymentsAdapter = PaymentsAdapter(listPayments)
+        this.lvPayments.adapter = myPaymentsAdapter
     }
 
     //  Settings menu in action bar
