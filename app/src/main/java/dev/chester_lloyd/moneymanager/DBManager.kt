@@ -32,6 +32,7 @@ class DBManager(context: Context) {
     private val colTransactionID = "TransactionID"
     private val colAccountID = "AccountID"
     private val colActive = "Active"
+    private val colDetails = "Details"
     val dbVersion = 1
 
     private var sqlDB:SQLiteDatabase? = null
@@ -70,6 +71,7 @@ class DBManager(context: Context) {
                     "$colID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "$colCategoryID INTEGER, " +
                     "$colName VARCHAR(30), " +
+                    "$colDetails VARCHAR(100), " +
                     "$colDate DATETIME, " +
                     "$colAmount FLOAT, " +
                     "FOREIGN KEY(${colCategoryID}) REFERENCES ${dbCategoryTable}(${colID}) );")
@@ -281,7 +283,8 @@ class DBManager(context: Context) {
     fun insertTransaction(transaction: Transaction):Long {
         val values = ContentValues()
         values.put(colCategoryID, transaction.category.categoryID)
-        values.put(colName, transaction.name)
+        values.put(colName, transaction.merchant)
+        values.put(colDetails, transaction.details)
         values.put(colDate, Timestamp(transaction.date.timeInMillis).toString())
         values.put(colAmount, transaction.amount)
 
@@ -291,14 +294,17 @@ class DBManager(context: Context) {
     fun selectTransaction(transactionID: Int):Transaction {
         val qb = SQLiteQueryBuilder()
         qb.tables = dbTransactionTable
-        val projection = arrayOf(colID, colCategoryID, colName, colDate, colAmount)
+        val projection = arrayOf(colID, colCategoryID, colName, colDetails,
+            colDate, colAmount)
         val selectionArgs = arrayOf(transactionID.toString())
         var transaction = Transaction()
-        val cursor = qb.query(sqlDB, projection, "${colID}=?", selectionArgs, null, null, colName)
+        val cursor = qb.query(sqlDB, projection, "${colID}=?", selectionArgs,
+            null, null, colName)
         if (cursor.moveToFirst()) {
             val id = cursor.getInt(cursor.getColumnIndex(colID))
             val categoryID = cursor.getInt(cursor.getColumnIndex(colCategoryID))
-            val name = cursor.getString(cursor.getColumnIndex(colName))
+            val merchant = cursor.getString(cursor.getColumnIndex(colName))
+            val details = cursor.getString(cursor.getColumnIndex(colDetails))
             val date = cursor.getString(cursor.getColumnIndex(colDate))
             val amount = cursor.getDouble(cursor.getColumnIndex(colAmount))
 
@@ -306,7 +312,7 @@ class DBManager(context: Context) {
             val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
             cal.time = sdf.parse(date)
 
-            transaction = Transaction(id, selectCategory(categoryID), name, cal, amount)
+            transaction = Transaction(id, selectCategory(categoryID), merchant, details, cal, amount)
         }
         return transaction
     }
@@ -319,8 +325,8 @@ class DBManager(context: Context) {
 
         var query = ""
         if (type == "Categories") {
-            query = "SELECT T.${colID}, T.${colCategoryID}, " +
-                    "T.${colName}, T.${colDate}, T.${colAmount} FROM $dbTransactionTable T " +
+            query = "SELECT T.${colID}, T.${colCategoryID}, T.${colName}, T.${colDetails}, " +
+                    "T.${colDate}, T.${colAmount} FROM $dbTransactionTable T " +
                     "JOIN $dbCategoryTable C ON C.${colID} = T.${colCategoryID}"
 
             if (id > 0) {
@@ -330,8 +336,8 @@ class DBManager(context: Context) {
             }
         } else if (type == "Accounts") {
             println("ACC")
-            query = "SELECT T.${colID}, T.${colCategoryID}, " +
-                    "T.${colName}, T.${colDate}, T.${colAmount} FROM $dbTransactionTable T " +
+            query = "SELECT T.${colID}, T.${colCategoryID}, T.${colName}, T.${colDetails}, " +
+                    "T.${colDate}, T.${colAmount} FROM $dbTransactionTable T " +
                     "JOIN $dbPaymentsTable P ON P.${colTransactionID} = T.${colID} " +
                     "WHERE P.${colAccountID} = ?"
         }
@@ -346,6 +352,7 @@ class DBManager(context: Context) {
                 val id = cursor.getInt(cursor.getColumnIndex(colID))
                 val categoryID = cursor.getInt(cursor.getColumnIndex(colCategoryID))
                 val name = cursor.getString(cursor.getColumnIndex(colName))
+                val details = cursor.getString(cursor.getColumnIndex(colDetails))
                 val date = cursor.getString(cursor.getColumnIndex(colDate))
                 val amount = cursor.getDouble(cursor.getColumnIndex(colAmount))
 
@@ -353,7 +360,7 @@ class DBManager(context: Context) {
                 val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
                 cal.time = sdf.parse(date)
 
-                listTransactions.add(Transaction(id, selectCategory(categoryID), name, cal, amount))
+                listTransactions.add(Transaction(id, selectCategory(categoryID), name, details, cal, amount))
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -363,7 +370,8 @@ class DBManager(context: Context) {
     fun updateTransaction(transaction: Transaction, selection: String, selectionArgs: Array<String>):Int {
         val values = ContentValues()
         values.put(colCategoryID, transaction.category.categoryID)
-        values.put(colName, transaction.name)
+        values.put(colName, transaction.merchant)
+        values.put(colDetails, transaction.details)
         values.put(colDate, Timestamp(transaction.date.timeInMillis).toString())
         values.put(colAmount, transaction.amount)
 

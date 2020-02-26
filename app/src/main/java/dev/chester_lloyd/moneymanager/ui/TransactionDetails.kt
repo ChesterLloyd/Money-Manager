@@ -36,7 +36,7 @@ class TransactionDetails : AppCompatActivity() {
         transaction = DBManager(this).selectTransaction(intent
             .getIntExtra("transactionID", 0))
 
-        tvName.text = transaction.name
+        tvName.text = transaction.merchant
         tvAmount.text = transaction.getStringAmount(this)
 
         val iconManager = IconManager(this)
@@ -65,13 +65,19 @@ class TransactionDetails : AppCompatActivity() {
         }
 
 //      Update entry fields with account info
-        tvName.text = transaction.name
+        tvName.text = transaction.merchant
         tvAmount.text = transaction.getStringAmount(this)
         val iconManager = IconManager(this)
         ivIcon.setImageResource(iconManager.getIconByID(
             iconManager.categoryIcons, transaction.category.icon).drawable)
         ivIcon.setBackgroundResource(iconManager.getIconByID(
             iconManager.colourIcons, transaction.category.colour).drawable)
+
+//      Show details text if user has written it
+        if (transaction.details != null) {
+            tvDetails.text = transaction.details
+            tvDetails.visibility = View.VISIBLE
+        }
     }
 
     //  Settings menu in action bar

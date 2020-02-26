@@ -142,7 +142,7 @@ class DashboardFragment : Fragment() {
 //          Adds each transaction to a new row in a linear layout
             val rowView = layoutInflater.inflate(R.layout.transaction, null)
             val transaction = transactions[item]
-            rowView.tvName.text = transaction.name
+            rowView.tvName.text = transaction.merchant
             rowView.tvDate.text = transaction.getDate(context!!, "DMY")
             rowView.tvAmount.text = transaction.getStringAmount(context!!)
 

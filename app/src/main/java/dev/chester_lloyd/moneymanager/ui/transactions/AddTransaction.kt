@@ -151,7 +151,8 @@ class AddTransaction : AppCompatActivity() {
             this.supportActionBar?.title = getString(R.string.edit_transaction)
             tvDesc.setText(R.string.text_edit_transaction_desc)
             transaction = DBManager(this).selectTransaction(transactionID)
-            etName.setText(transaction.name)
+            etMerchant.setText(transaction.merchant)
+            etDetails.setText(transaction.details)
             etAmount.setText(CurrencyValidator.getEditTextAmount(transaction.amount))
             updateDateInView()
 
@@ -172,8 +173,9 @@ class AddTransaction : AppCompatActivity() {
         }
 
         fabAddTransaction.setOnClickListener {
-            transaction.name = etName.text.toString()
-            if (transaction.name == "") {
+            transaction.merchant = etMerchant.text.toString()
+            transaction.details = etDetails.text.toString()
+            if (transaction.merchant == "") {
 //              Transaction name is empty, show an error
                 Toast.makeText(this, R.string.transaction_validation_name,
                     Toast.LENGTH_SHORT).show()

@@ -77,7 +77,7 @@ class TransactionTabFragment(private val tab: Int) : Fragment() {
 //          Adds each transaction to a new row in a list view
             val rowView = layoutInflater.inflate(R.layout.transaction, null)
             val transaction = listTransactionsAdapter[position]
-            rowView.tvName.text = transaction.name
+            rowView.tvName.text = transaction.merchant
             rowView.tvDate.text = transaction.getDate(context!!, "DMY")
             rowView.tvAmount.text = transaction.getStringAmount(context!!)
 

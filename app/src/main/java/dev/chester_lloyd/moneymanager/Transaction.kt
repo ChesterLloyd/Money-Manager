@@ -6,14 +6,17 @@ import java.util.*
 class Transaction {
     var transactionID: Int = 0
     var category = Category()
-    var name: String? = null
+    var merchant: String? = null
+    var details: String? = null
     var amount: Double = 0.00
     var date: Calendar = Calendar.getInstance()
 
-    constructor(transactionID: Int, category: Category, name: String, date: Calendar, amount: Double) {
+    constructor(transactionID: Int, category: Category, merchant: String, details: String?,
+                date: Calendar, amount: Double) {
         this.transactionID = transactionID
         this.category = category
-        this.name = name
+        this.merchant = merchant
+        this.details = details
         this.date = date
         this.amount = amount
     }
@@ -21,7 +24,6 @@ class Transaction {
     constructor() {
         this.transactionID = 0
     }
-
 
     fun getStringAmount(context: Context) :String {
 //      Place - sign before the pound if it is negative
