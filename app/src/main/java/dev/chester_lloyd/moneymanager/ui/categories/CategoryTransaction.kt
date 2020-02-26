@@ -104,7 +104,7 @@ class CategoryTransaction : AppCompatActivity() {
                 .setCancelable(false)
                 .setPositiveButton(resources.getString(R.string.yes)) { dialog, id -> finish()
 //                  Delete the category
-                    DBManager(this).delete(DBManager(this).dbCategoryTable,"ID=?",
+                    DBManager(this).delete(DBManager(this).dbCategoryTable,
                         arrayOf(category.categoryID.toString()))
                 }
                 .setNegativeButton(resources.getString(R.string.no)) {

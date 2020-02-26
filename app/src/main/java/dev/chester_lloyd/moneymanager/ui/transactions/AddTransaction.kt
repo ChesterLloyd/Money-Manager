@@ -69,15 +69,17 @@ class AddTransaction : AppCompatActivity() {
 
 //      When the date edit text has focus (clicked), open the date picker
         etDate.onFocusChangeListener = View.OnFocusChangeListener { v, gainFocus ->
-                if (gainFocus) {
-                    DatePickerDialog(this@AddTransaction,
-                        dateSetListener,
-                        // set to point to today's date when it loads up
-                        transaction.date.get(Calendar.YEAR),
-                        transaction.date.get(Calendar.MONTH),
-                        transaction.date.get(Calendar.DAY_OF_MONTH)).show()
-                    etDate.clearFocus()
-                }
+            if (gainFocus) {
+                DatePickerDialog(
+                    this@AddTransaction,
+                    dateSetListener,
+                    // set to point to today's date when it loads up
+                    transaction.date.get(Calendar.YEAR),
+                    transaction.date.get(Calendar.MONTH),
+                    transaction.date.get(Calendar.DAY_OF_MONTH)
+                ).show()
+                etDate.clearFocus()
+            }
         }
 
 //      Setup the category icon spinner
@@ -88,11 +90,19 @@ class AddTransaction : AppCompatActivity() {
         val backgrounds = arrayOfNulls<Icon>(categories.size)
 
         for (category in 0 until categories.size) {
-            icons[category] = Icon(category, iconManager.getIconByID(iconManager.categoryIcons,
-                categories[category].icon).drawable, categories[category].name)
+            icons[category] = Icon(
+                category, iconManager.getIconByID(
+                    iconManager.categoryIcons,
+                    categories[category].icon
+                ).drawable, categories[category].name
+            )
 
-            backgrounds[category] = Icon(category, iconManager.getIconByID(iconManager.colourIcons,
-                categories[category].colour).drawable, "")
+            backgrounds[category] = Icon(
+                category, iconManager.getIconByID(
+                    iconManager.colourIcons,
+                    categories[category].colour
+                ).drawable, ""
+            )
         }
 
         val categorySpinner = findViewById<Spinner>(R.id.spCategory)
@@ -105,7 +115,13 @@ class AddTransaction : AppCompatActivity() {
         spCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 transaction.category = categories[position]
             }
         }
@@ -131,7 +147,12 @@ class AddTransaction : AppCompatActivity() {
                 override fun afterTextChanged(s: Editable) {
                 }
 
-                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int){
+                override fun beforeTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
 //                  Update balance before changes have been made (i.e user changed it)
                     balanceValidator.beforeTextChangedListener(s)
                 }
@@ -177,8 +198,10 @@ class AddTransaction : AppCompatActivity() {
             transaction.details = etDetails.text.toString()
             if (transaction.merchant == "") {
 //              Transaction name is empty, show an error
-                Toast.makeText(this, R.string.transaction_validation_name,
-                    Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this, R.string.transaction_validation_name,
+                    Toast.LENGTH_SHORT
+                ).show()
             } else if (etAmount.text.toString() == "" || etAmount.text.length == 1) {
 //              Transaction amount is empty, show an error
                 Toast.makeText(
@@ -193,8 +216,10 @@ class AddTransaction : AppCompatActivity() {
                 ).show()
             } else if (etDate.text.toString() == "") {
 //              Transaction date is empty, show an error
-                Toast.makeText(this, R.string.transaction_validation_date,
-                    Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this, R.string.transaction_validation_date,
+                    Toast.LENGTH_SHORT
+                ).show()
             } else {
 //              All data has been filled out, start saving
                 transaction.amount = amountValidator.getBalance()
@@ -207,8 +232,8 @@ class AddTransaction : AppCompatActivity() {
                 var totalPayments = 0.0
                 for (account in 0 until accounts.size) {
                     val accountValue = CurrencyValidator(
-                        this.findViewById(accounts[account].accountID))
-                        .getBalance()
+                        this.findViewById(accounts[account].accountID)
+                    ).getBalance()
 
 //                  Round to 2dp (since double would probably do: 20.0000004 or something)
                     val accountValue2DP: Double = String.format("%.2f", accountValue).toDouble()
@@ -256,8 +281,17 @@ class AddTransaction : AppCompatActivity() {
                     } else {
 //                      Update this transaction in the database
                         val selectionArgs = arrayOf(transaction.transactionID.toString())
-                        val id = dbManager.updateTransaction(transaction, "ID=?", selectionArgs)
+                        val id = dbManager.updateTransaction(transaction, "ID=?",
+                            selectionArgs)
                         if (id > 0) {
+                            for (payment in 0 until payments.size) {
+//                              For each payment method (Account) update the payments that are stored
+                                payments[payment].transaction = transaction
+                                dbManager.updatePayment(payments[payment],
+                                    "TransactionID=? AND AccountID=?",
+                                    arrayOf(transaction.transactionID.toString(),
+                                        payments[payment].account.accountID.toString()))
+                            }
 //                          Transaction updated in the database, return to previous fragment
                             Toast.makeText(
                                 this, R.string.transaction_update_success,

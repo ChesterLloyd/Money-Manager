@@ -109,7 +109,7 @@ class AccountTransactions : AppCompatActivity() {
                 .setCancelable(false)
                 .setPositiveButton(resources.getString(R.string.yes)) { dialog, id -> finish()
 //                  Delete the account
-                    DBManager(this).delete(DBManager(this).dbAccountTable,"ID=?",
+                    DBManager(this).delete(DBManager(this).dbAccountTable,
                         arrayOf(account.accountID.toString()))
                 }
                 .setNegativeButton(resources.getString(R.string.no)) {
