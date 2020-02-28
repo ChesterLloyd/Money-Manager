@@ -44,9 +44,15 @@
     </string-array>
     <string name="account_colour">Account colour</string>
     <string-array name="colour_names">
+        <item>Red</item>
+        <item>Orange</item>
+        <item>Yellow</item>
         <item>Green</item>
         <item>Blue</item>
-        <item>PayPal</item>i
+        <item>Indigo</item>
+        <item>Violet</item>
+        <item>Blue Grey</item>
+        <item>PayPal</item>
     </string-array>
 
 

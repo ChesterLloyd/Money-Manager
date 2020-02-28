@@ -17,9 +17,15 @@ class IconManager//      Setup the arrays that store the icons
     init {
         colourNames = context.resources.getStringArray(R.array.colour_names)
         colourIcons = arrayOf(
-            Icon(0, R.drawable.ic_circle_green, colourNames[0]),
-            Icon(1, R.drawable.ic_circle_dark_blue, colourNames[1]),
-            Icon(2, R.drawable.ic_circle_paypal, colourNames[2]))
+            Icon(3, R.drawable.bg_colour_red, colourNames[0]),
+            Icon(4, R.drawable.bg_colour_orange, colourNames[1]),
+            Icon(5, R.drawable.bg_colour_yellow, colourNames[2]),
+            Icon(0, R.drawable.bg_colour_green, colourNames[3]),
+            Icon(1, R.drawable.bg_colour_blue, colourNames[4]),
+            Icon(6, R.drawable.bg_colour_indigo, colourNames[5]),
+            Icon(7, R.drawable.bg_colour_violet, colourNames[6]),
+            Icon(8, R.drawable.bg_colour_blue_grey, colourNames[7]),
+            Icon(2, R.drawable.bg_colour_paypal, colourNames[8]))
         accountNames = context.resources.getStringArray(R.array.account_names)
         accountIcons = arrayOf(
             Icon(0, R.drawable.ic_account_bank, accountNames[0]),
