@@ -184,7 +184,7 @@ class AddTransaction : AppCompatActivity() {
                 }
             }
 
-            val payments = DBManager(this).selectPayment(transactionID)
+            val payments = DBManager(this).selectPayment(transactionID, "transaction")
             for (payment in 0 until payments.size) {
                 if (payments[payment].amount != 0.0) {
                     findViewById<EditText>(payments[payment].account.accountID)

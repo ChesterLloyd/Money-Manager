@@ -471,18 +471,29 @@ class DBManager(context: Context) {
         return null
     }
 
-    //  Function that selects payments based on a transaction ID as a list of Payment objects
-    fun selectPayment(transactionID: Int): ArrayList<Payment> {
-        val selectionArgs = arrayOf(transactionID.toString())
+    //  Function that selects payments based on a transaction/account ID as a list of Payment objects
+    fun selectPayment(id: Int, type: String): ArrayList<Payment> {
+        val selectionArgs = arrayOf(id.toString())
         val listPayments = ArrayList<Payment>()
 
-        val query = "SELECT P.${colID}, P.${colTransactionID}, " +
+        // Assume this is fetching by an account ID
+        var query = "SELECT P.${colID}, P.${colTransactionID}, " +
                 "P.${colAccountID}, P.${colAmount} FROM $dbPaymentsTable P " +
-                "JOIN $dbTransactionTable T ON T.${colID} = P.${colTransactionID} " +
                 "JOIN $dbAccountTable A ON A.${colID} = P.${colAccountID} " +
-                "WHERE T.${colID} = ? " +
+                "WHERE P.${colAccountID} = ? " +
                 "ORDER BY A.${colName} ASC"
-        val cursor = sqlDB!!.rawQuery(query, selectionArgs)
+        var cursor = sqlDB!!.rawQuery(query, selectionArgs)
+
+        if (type == "transaction") {
+            // Get by transaction ID instead
+            query = "SELECT P.${colID}, P.${colTransactionID}, " +
+                    "P.${colAccountID}, P.${colAmount} FROM $dbPaymentsTable P " +
+                    "JOIN $dbTransactionTable T ON T.${colID} = P.${colTransactionID} " +
+                    "JOIN $dbAccountTable A ON A.${colID} = P.${colAccountID} " +
+                    "WHERE T.${colID} = ? " +
+                    "ORDER BY A.${colName} ASC"
+            cursor = sqlDB!!.rawQuery(query, selectionArgs)
+        }
 
         if (cursor.moveToFirst()) {
             do {

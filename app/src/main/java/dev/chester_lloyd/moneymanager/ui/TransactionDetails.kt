@@ -75,7 +75,7 @@ class TransactionDetails : AppCompatActivity() {
 
 //      Get payments as an array list from database
         val listPayments = DBManager(this)
-            .selectPayment(transaction.transactionID)
+            .selectPayment(transaction.transactionID, "transaction")
 
 //      Pass this to the list view adaptor and populate
         val myPaymentsAdapter = PaymentsAdapter(listPayments)

@@ -11,10 +11,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
 import androidx.appcompat.app.AppCompatActivity
-import dev.chester_lloyd.moneymanager.Account
-import dev.chester_lloyd.moneymanager.DBManager
-import dev.chester_lloyd.moneymanager.R
-import dev.chester_lloyd.moneymanager.Transaction
+import dev.chester_lloyd.moneymanager.*
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import kotlinx.android.synthetic.main.account.view.ivIcon
@@ -70,24 +67,24 @@ class AccountTransactions : AppCompatActivity() {
         ivIcon.setBackgroundResource(iconManager.getIconByID(
             iconManager.colourIcons, account.colour).drawable)
 
-//      Get transactions as an array list from database
-        val listTransactions = DBManager(this)
-            .selectTransaction(account.accountID, "Accounts", null)
+//      Get transactions (as payments) as an array list from database
+        val listPayments = DBManager(this)
+            .selectPayment(account.accountID, "accounts")
 
 //      Pass this to the list view adaptor and populate
-        val myTransactionsAdapter = TransactionsAdapter(listTransactions)
-        this.lvTransactions.adapter = myTransactionsAdapter
+        val transactionsAdapter = TransactionsAdapter(listPayments)
+        this.lvTransactions.adapter = transactionsAdapter
 
 //      When a transaction in the list is clicked
         this.lvTransactions.onItemClickListener =
             AdapterView.OnItemClickListener { parent, view, position, id ->
 //              Get transaction object of item that is clicked
-                val transaction = lvTransactions.getItemAtPosition(position) as Transaction
+                val payment = lvTransactions.getItemAtPosition(position) as Payment
 
 //              Setup an intent to send this across to view the transaction's details
                 val intent = Intent(this, TransactionDetails::class.java)
                 val bundle = Bundle()
-                bundle.putInt("transactionID", transaction.transactionID)
+                bundle.putInt("transactionID", payment.transaction.transactionID)
                 intent.putExtras(bundle)
                 startActivity(intent)
             }
@@ -151,23 +148,24 @@ class AccountTransactions : AppCompatActivity() {
         return true
     }
 
-    inner class TransactionsAdapter(private var listTransactionsAdapter: ArrayList<Transaction>) :
+    inner class TransactionsAdapter(private var listTransactionsAdapter: ArrayList<Payment>) :
         BaseAdapter() {
 
         @SuppressLint("InflateParams", "ViewHolder")
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
 //          Adds each transaction to a new row in a list view
             val rowView = layoutInflater.inflate(R.layout.transaction, null)
-            val transaction = listTransactionsAdapter[position]
-            rowView.tvName.text = transaction.merchant
-            rowView.tvDate.text = transaction.getDate(applicationContext, "DMY")
-            rowView.tvAmount.text = transaction.getStringAmount(applicationContext)
+            val payment = listTransactionsAdapter[position]
+            rowView.tvName.text = payment.transaction.merchant
+            rowView.tvDate.text = payment.transaction.getDate(applicationContext, "DMY")
+//            rowView.tvAmount.text = payment.getStringAmount(applicationContext)
+            rowView.tvAmount.text = payment.getStringAmount(applicationContext)
 
             val iconManager = IconManager(applicationContext)
             rowView.ivIcon.setImageResource(iconManager.getIconByID(
-                iconManager.categoryIcons, transaction.category.icon).drawable)
+                iconManager.categoryIcons, payment.transaction.category.icon).drawable)
             rowView.ivIcon.setBackgroundResource(iconManager.getIconByID(
-                iconManager.colourIcons, transaction.category.colour).drawable)
+                iconManager.colourIcons, payment.transaction.category.colour).drawable)
 
             return rowView
         }
