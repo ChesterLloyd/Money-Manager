@@ -122,13 +122,12 @@ class TransactionDetails : AppCompatActivity() {
 //          Delete icon clicked
 //          Build an alert dialog to get user confirmation
             val alertDialog = AlertDialog.Builder(this)
-
             alertDialog.setMessage(resources.getString(R.string.alert_message_delete_transaction))
                 .setCancelable(false)
                 .setPositiveButton(resources.getString(R.string.yes)) { dialog, id -> finish()
-//                  Delete the account
-//                    dbManager(this).delete("Accounts","ID=?",
-//                        arrayOf(account.accountID.toString()))
+//                  Delete the transaction
+                    DBManager(this).deleteTransaction(
+                        arrayOf(transaction.transactionID.toString()))
                 }
                 .setNegativeButton(resources.getString(R.string.no)) {
 //                  Do nothing, close box

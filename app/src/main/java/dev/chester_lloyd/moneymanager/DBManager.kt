@@ -429,6 +429,28 @@ class DBManager(context: Context) {
         return sqlDB!!.update(dbTransactionTable, values, selection, selectionArgs)
     }
 
+    // Function that deletes a transaction object from the database
+    fun deleteTransaction(SelectionArgs: Array<String>) {
+        val payments = selectPayment(SelectionArgs[0].toInt(), "transaction")
+        for (payment in payments.indices) {
+            // Get account for the payment and update the balance
+            val account = payments[payment].account
+            account.balance = account.balance - payments[payment].amount
+            updateAccount(account, "$colID = ?", arrayOf(account.accountID.toString()))
+
+            // Delete the payment
+            sqlDB!!.delete(
+                dbPaymentsTable, "$colTransactionID = ? AND $colAccountID = ?",
+                arrayOf(SelectionArgs[0], account.accountID.toString())
+            )
+        }
+
+        // Now delete the transaction
+        sqlDB!!.delete(dbTransactionTable, "$colID = ?", arrayOf(SelectionArgs[0]))
+    }
+
+
+
 
     //  Functions to handle Payment objects within the database
 //  Function that inserts a payment object into the database
