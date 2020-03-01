@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class DBManager(context: Context) {
+open class DBManager(context: Context) {
 //  Opens database to write to it
 
     val dbName = "MoneyManager"
@@ -21,21 +21,21 @@ class DBManager(context: Context) {
     val dbCategoryTable = "Categories"
     val dbTransactionTable = "Transactions"
     val dbPaymentsTable = "Payments"
-    private val colID = "ID"
+    internal val colID = "ID"
     private val colName = "Name"
     private val colBalance = "Balance"
-    private val colDate = "Date"
-    private val colAmount = "Amount"
+    internal val colDate = "Date"
+    internal val colAmount = "Amount"
     private val colIcon = "Icon"
     private val colColour = "Colour"
-    private val colCategoryID = "CategoryID"
-    private val colTransactionID = "TransactionID"
-    private val colAccountID = "AccountID"
+    internal val colCategoryID = "CategoryID"
+    internal val colTransactionID = "TransactionID"
+    internal val colAccountID = "AccountID"
     private val colActive = "Active"
     private val colDetails = "Details"
     val dbVersion = 1
 
-    private var sqlDB: SQLiteDatabase? = null
+    internal var sqlDB: SQLiteDatabase? = null
 
     init {
         val db = DatabaseHelper(context)
@@ -646,6 +646,4 @@ class DBManager(context: Context) {
             }
         }
     }
-
-//    fun updateAccount(table: String, values: ContentValues, selection: String, selectionArgs: Array<String>):Int {
 }

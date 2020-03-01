@@ -94,14 +94,15 @@ class AddTransaction : AppCompatActivity() {
                 category, iconManager.getIconByID(
                     iconManager.categoryIcons,
                     categories[category].icon
-                ).drawable, categories[category].name
+                ).drawable, categories[category].name,
+                null
             )
 
             backgrounds[category] = Icon(
                 category, iconManager.getIconByID(
                     iconManager.colourIcons,
                     categories[category].colour
-                ).drawable, ""
+                ).drawable, "", null
             )
         }
 
