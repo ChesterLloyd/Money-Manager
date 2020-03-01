@@ -12,21 +12,24 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import android.view.Menu
 
+/**
+ * An [AppCompatActivity] subclass for the main activity.
+ *
+ * @author Chester Lloyd
+ * @since 1.0
+ */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
 
+    /**
+     * An [onCreate] method that sets up the toolbar and navigation drawer.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-
-//        val fab: FloatingActionButton = findViewById(R.id.fab)
-//        fab.setOnClickListener { view ->
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                .setAction("Action", null).show()
-//        }
 
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
@@ -43,12 +46,25 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
     }
 
+    /**
+     * An [onCreateOptionsMenu] method that adds the settings menu to the toolbar.
+     *
+     * @param menu The options menu to place items.
+     * @return True to display the menu, or false to not show the menu.
+     */
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
 //        menuInflater.inflate(R.menu.main, menu)
         return true
     }
 
+    /**
+     * An [onSupportNavigateUp] method that closes this activity (goes to previous page) once
+     * toolbar back button is pressed.
+     *
+     * @return true if Up navigation completed successfully and this Activity was finished, false
+     * otherwise.
+     */
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()

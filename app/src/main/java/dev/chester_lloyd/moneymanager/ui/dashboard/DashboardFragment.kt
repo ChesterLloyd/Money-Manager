@@ -31,10 +31,19 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.fragment_dashboard.*
 import kotlinx.android.synthetic.main.transaction.view.*
 
+/**
+ * A [Fragment] subclass to show the dashboard.
+ *
+ * @author Chester Lloyd
+ * @since 1.0
+ */
 class DashboardFragment : Fragment() {
 
     private lateinit var dashboardViewModel: DashboardViewModel
 
+    /**
+     * An [onCreateView] method that sets up the FAB and view
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -45,7 +54,7 @@ class DashboardFragment : Fragment() {
         dashboardViewModel.text.observe(viewLifecycleOwner, Observer {
         })
 
-//      Launch new transaction activity with fab
+        // Launch new transaction activity with fab
         val fab: FloatingActionButton = root.findViewById(R.id.fab)
         fab.setOnClickListener {
             val intent = Intent(context, AddTransaction::class.java)
@@ -55,33 +64,44 @@ class DashboardFragment : Fragment() {
         return root
     }
 
+    /**
+     * An [onResume] method that adds up to 3 accounts and up to 3 recent transactions to the
+     * ListViews and updates the view
+     */
     override fun onResume() {
         super.onResume()
-//      Update page title and set active drawer item
+        // Update page title and set active drawer item
         activity!!.toolbar.title = getString(R.string.menu_dashboard)
         activity!!.nav_view.setCheckedItem(R.id.nav_home)
 
-//      Get accounts as an array list from database and add them to the list
-        val listAccounts = DBManager(context!!).selectAccount("active", "3")
+        // Get accounts as an array list from database and add them to the list
+        val dbManager = DBManager(context!!)
+        val listAccounts = dbManager.selectAccounts("active", "3")
         addAccounts(listAccounts)
 
-//      Get transactions as an array list from database and add them to the recent list
-        val listTransactions = DBManager(context!!).selectTransaction(0, "Categories", "3")
+        // Get transactions as an array list from database and add them to the recent list
+        val listTransactions = dbManager.selectTransactions(0, "Categories", "3")
         addTransactions(listTransactions)
+        dbManager.sqlDB!!.close()
     }
 
-//  Add accounts to the dashboard
+    /**
+     * Add accounts to the dashboard
+     *
+     * @param accounts An [ArrayList] of [Account] objects.
+     * @suppress InflateParams as the layout is inflating without a Parent
+     */
     @SuppressLint("InflateParams")
     private fun addAccounts(accounts: ArrayList<Account>) {
         llAccounts.removeAllViews()
         for (item in 0 until accounts.size) {
-//          Adds each account to a new row in a linear layout
+            // Adds each account to a new row in a linear layout
             val rowView = layoutInflater.inflate(R.layout.account, null)
             val account = accounts[item]
             rowView.tvName.text = account.name
             rowView.tvBalance.text = account.getStringBalance(context!!)
 
-//          Get the account's icon and colour
+            // Get the account's icon and colour
             val iconManager = IconManager(context!!)
             rowView.ivIcon.setImageResource(
                 iconManager.getIconByID(iconManager.accountIcons, account.icon).drawable
@@ -90,14 +110,14 @@ class DashboardFragment : Fragment() {
                 iconManager.getIconByID(iconManager.colourIcons, account.colour).drawable
             )
 
-//          Add the account to the layout
+            // Add the account to the layout
             llAccounts.addView(rowView)
 
-//          When an account is clicked
+            // When an account is clicked
             rowView.setOnClickListener {
                 val clickedAccount = accounts[item]
 
-//              Setup an intent to send this across to view the account's transactions
+                // Setup an intent to send this across to view the account's transactions
                 val intent = Intent(context, AccountTransactions::class.java)
                 val bundle = Bundle()
                 bundle.putInt("accountID", account.accountID)
@@ -110,57 +130,72 @@ class DashboardFragment : Fragment() {
             }
         }
 
-//      If there are more than 3 accounts, show a view more button
-        if (DBManager(context!!).selectAccount("active", null).size > 3) {
+        // If there are more than 3 accounts, show a view more button
+        val dbManager = DBManager(context!!)
+        if (dbManager.selectAccounts("active", null).size > 3) {
             val buAccounts = Button(context)
             buAccounts.text = getString(R.string.view_more)
             buAccounts.setTextColor(ContextCompat.getColor(context!!, R.color.buttonLink))
             buAccounts.setBackgroundResource(0)
             buAccounts.layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            )
 
-//          When the view more accounts button is clicked, switch to this fragment
+            // When the view more accounts button is clicked, switch to this fragment
             buAccounts.setOnClickListener {
                 val fragmentManager = parentFragmentManager
-                fragmentManager.beginTransaction().replace(R.id.nav_host_fragment, AccountsFragment())
+                fragmentManager.beginTransaction()
+                    .replace(R.id.nav_host_fragment, AccountsFragment())
                     .addToBackStack(null)
                     .commit()
-//              Update page title and set active drawer item
+                // Update page title and set active drawer item
                 activity!!.toolbar.title = getString(R.string.menu_accounts)
                 activity!!.nav_view.setCheckedItem(R.id.nav_accounts)
             }
-//          Add button to the page
+            // Add button to the page
             llAccounts.addView(buAccounts)
         }
+        dbManager.sqlDB!!.close()
     }
 
-//  Add transactions to the dashboard
+    /**
+     * Add transactions to the dashboard
+     *
+     * @param transactions An [ArrayList] of [Transaction] objects.
+     * @suppress InflateParams as the layout is inflating without a Parent
+     */
     @SuppressLint("InflateParams")
     private fun addTransactions(transactions: ArrayList<Transaction>) {
         llTransactions.removeAllViews()
         for (item in 0 until transactions.size) {
-//          Adds each transaction to a new row in a linear layout
+            // Adds each transaction to a new row in a linear layout
             val rowView = layoutInflater.inflate(R.layout.transaction, null)
             val transaction = transactions[item]
             rowView.tvName.text = transaction.merchant
             rowView.tvDate.text = transaction.getDate(context!!, "DMY")
             rowView.tvAmount.text = transaction.getStringAmount(context!!)
 
-//          Get the transaction's category icon and colour
+            // Get the transaction's category icon and colour
             val iconManager = IconManager(context!!)
-            rowView.ivIcon.setImageResource(iconManager.getIconByID(
-                iconManager.categoryIcons, transaction.category.icon).drawable)
-            rowView.ivIcon.setBackgroundResource(iconManager.getIconByID(
-                iconManager.colourIcons, transaction.category.colour).drawable)
+            rowView.ivIcon.setImageResource(
+                iconManager.getIconByID(
+                    iconManager.categoryIcons, transaction.category.icon
+                ).drawable
+            )
+            rowView.ivIcon.setBackgroundResource(
+                iconManager.getIconByID(
+                    iconManager.colourIcons, transaction.category.colour
+                ).drawable
+            )
 
-//          Add the transaction to the layout
+            // Add the transaction to the layout
             llTransactions.addView(rowView)
 
-//          When a transactions is clicked
+            // When a transactions is clicked
             rowView.setOnClickListener {
                 val clickedTransaction = transactions[item]
 
-//              Setup an intent to send this across to view this transactions details
+                // Setup an intent to send this across to view this transactions details
                 val intent = Intent(context, TransactionDetails::class.java)
                 val bundle = Bundle()
                 bundle.putInt("transactionID", clickedTransaction.transactionID)
@@ -169,28 +204,32 @@ class DashboardFragment : Fragment() {
             }
         }
 
-//      If there are more than 3 transactions, show a view more button
-        if (DBManager(context!!).selectTransaction(0, "Categories", null).size > 3) {
+        // If there are more than 3 transactions, show a view more button
+        val dbManager = DBManager(context!!)
+        if (dbManager.selectTransactions(0, "Categories", null).size > 3) {
             val buTransactions = Button(context)
             buTransactions.text = getString(R.string.view_more)
             buTransactions.setTextColor(ContextCompat.getColor(context!!, R.color.buttonLink))
             buTransactions.setBackgroundResource(0)
             buTransactions.layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            )
 
-//          When the view more transactions button is clicked, switch to this fragment
+            // When the view more transactions button is clicked, switch to this fragment
             buTransactions.setOnClickListener {
                 val fragmentManager = parentFragmentManager
-                fragmentManager.beginTransaction().replace(R.id.nav_host_fragment, TransactionsFragment())
+                fragmentManager.beginTransaction()
+                    .replace(R.id.nav_host_fragment, TransactionsFragment())
                     .addToBackStack(null)
                     .commit()
-//              Update page title and set active drawer item
+                // Update page title and set active drawer item
                 activity!!.toolbar.title = getString(R.string.menu_transactions)
                 activity!!.nav_view.setCheckedItem(R.id.nav_transactions)
             }
 
-//          Add button to the page
+            // Add button to the page
             llTransactions.addView(buTransactions)
         }
+        dbManager.sqlDB!!.close()
     }
 }

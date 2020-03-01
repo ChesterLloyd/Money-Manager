@@ -2,6 +2,7 @@
   <dictionary name="Chester">
     <words>
       <w>moneymanager</w>
+      <w>strftime</w>
     </words>
   </dictionary>
 </component>

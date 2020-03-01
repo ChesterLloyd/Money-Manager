@@ -13,14 +13,28 @@ import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import dev.chester_lloyd.moneymanager.R
 
+/**
+ * A [Fragment] subclass to show a tabbed layout containing ListViews of transactions based on their
+ * categories.
+ *
+ * @author Chester Lloyd
+ * @since 1.0
+ */
 class GoalsFragment : Fragment() {
 
     private lateinit var goalsViewModel: GoalsViewModel
     private var tabLayout: TabLayout? = null
     private var viewPager: ViewPager? = null
-    private var selectedTab :Int = 0
-//    private val mainTabs = arrayMapOf(Pair(0, context!!.getString(R.string.income)), Pair(1, context!!.getString(R.string.expense)))
+    private var selectedTab: Int = 0
 
+    /**
+     * An [onCreateView] method that sets up the View and tabs
+     *
+     * @param inflater The LayoutInflater object
+     * @container The parent view.
+     * @param savedInstanceState Fragment is being re-constructed from a previous saved state.
+     * @return The View for the fragment's UI, or null.
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -41,11 +55,12 @@ class GoalsFragment : Fragment() {
         return root
     }
 
-    //  On tab change
+    /**
+     * When the selected tab changes, update the [selectedTab] variable.
+     */
     private fun onChangeListener() {
         tabLayout!!.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
-//                Toast.makeText(context, "Tab selected", Toast.LENGTH_SHORT).show()
                 selectedTab = tab.position + 1
             }
 
@@ -54,10 +69,22 @@ class GoalsFragment : Fragment() {
         })
     }
 
-    //  Adaptor to manage the tabs and fragments that are loaded
+    /**
+     * An inner class that loads a [Fragment] containing a ListView of pie charts for income or
+     * expenses.
+     *
+     * @param fm A [FragmentManager].
+     */
     private inner class MyTabsAdapter(fm: FragmentManager?) :
         FragmentPagerAdapter(fm!!, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
+        /**
+         * Get the [Fragment] to be placed within this page that loads the corresponding pie charts
+         * based on income or expenses.
+         *
+         * @param position Position of the tab in the tabbed layout.
+         * @return A [Fragment], passing it the ID of the selected tab.
+         */
         override fun getItem(position: Int): Fragment {
             var fragment: Fragment? = null
             when (position) {
@@ -66,14 +93,25 @@ class GoalsFragment : Fragment() {
             return fragment!!
         }
 
+        /**
+         * Returns number of tabs.
+         *
+         * @return The number of tabs.
+         */
         override fun getCount(): Int {
             return 2
         }
 
+        /**
+         * Get the title of the tab.
+         *
+         * @param position Position of the tab in the tabbed layout.
+         * @return The category's name, or null
+         */
         override fun getPageTitle(position: Int): CharSequence? {
             return when (position) {
-                0 -> "Income"
-                1 -> "Expenses"
+                0 -> getString(R.string.income)
+                1 -> getString(R.string.expense)
                 else -> null
             }
         }

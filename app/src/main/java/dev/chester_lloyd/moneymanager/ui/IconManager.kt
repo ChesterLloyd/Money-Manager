@@ -4,13 +4,22 @@ import android.content.Context
 import android.graphics.Color
 import dev.chester_lloyd.moneymanager.R
 
-class IconManager//      Setup the arrays that store the icons
-    (context: Context) {
+/**
+ * A class that handles icons and colours. This will maintain an order of icons and colours and
+ * keep its own ID for each that can be safely store in the database.
+ *
+ * @param context Context.
+ * @author Chester Lloyd
+ * @since 1.0
+ */
+class IconManager (context: Context) {
 
+    // Setup the arrays that store the labels
     private var colourNames = arrayOf<String>()
     private var accountNames = arrayOf<String>()
     private var categoryNames = arrayOf<String>()
 
+    // Setup the arrays that store the icons
     var colourIcons = arrayOf<Icon>()
     var accountIcons = arrayOf<Icon>()
     var categoryIcons = arrayOf<Icon>()
@@ -99,8 +108,14 @@ class IconManager//      Setup the arrays that store the icons
             Icon(54, R.drawable.ic_category_work, categoryNames[54], null))
     }
 
-//  Returns an icon given its database storage ID
-    fun getIconByID(iconArray: Array<Icon>, id: Int):Icon {
+    /**
+     * Get the [Icon] in a specified [Array] given its ID. Most useful in finding the [Icon] using
+     * the ID given by the database.
+     *
+     * @param iconArray An [Array] of [Icon] objects that is stored within this class.
+     * @return The [Icon] object at this position the array.
+     */
+    fun getIconByID(iconArray: Array<Icon>, id: Int): Icon {
         for (icon in iconArray.indices) {
             if (iconArray[icon].id == id) {
                 return iconArray[icon]
@@ -109,9 +124,15 @@ class IconManager//      Setup the arrays that store the icons
         return colourIcons[0]
     }
 
-//  Returns an icons position in a given array given its database storage ID
-//  Useful when setting the icons position in a spinner
-    fun getIconPositionID(iconArray: Array<Icon>, id: Int):Int {
+    /**
+     * Get the position of the [Icon] at a specified [Array] given its ID. Most useful when setting
+     * the icon position in a spinner.
+     *
+     * @param iconArray An [Array] of [Icon] objects that is stored within this class.
+     * @param id The ID of the icon, [Icon.id]
+     * @return The position of the [Icon] in the given array. 0 if it does not exist.
+     */
+    fun getIconPositionID(iconArray: Array<Icon>, id: Int): Int {
         for (icon in iconArray.indices) {
             if (iconArray[icon].id == id) {
                 return icon
@@ -119,5 +140,4 @@ class IconManager//      Setup the arrays that store the icons
         }
         return 0
     }
-
 }

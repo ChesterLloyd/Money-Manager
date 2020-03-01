@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.lifecycle.ViewModelProvider
 import dev.chester_lloyd.moneymanager.PieManager
 import dev.chester_lloyd.moneymanager.R
 import kotlinx.android.synthetic.main.fragment_goals_tab.*
@@ -17,10 +16,22 @@ import lecho.lib.hellocharts.view.PieChartView
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * A [Fragment] subclass to show a tabbed layout containing pie charts.
+ *
+ * @author Chester Lloyd
+ * @since 1.0
+ */
 class GoalsTabFragment(private val tab: Int) : Fragment() {
 
-    private lateinit var viewModel: GoalsTabFragmentViewModel
-
+    /**
+     * An [onCreateView] method that sets up the View
+     *
+     * @param inflater The LayoutInflater object
+     * @param container The parent view.
+     * @param savedInstanceState Fragment is being re-constructed from a previous saved state.
+     * @return The View for the fragment's UI, or null.
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -28,11 +39,9 @@ class GoalsTabFragment(private val tab: Int) : Fragment() {
         return inflater.inflate(R.layout.fragment_goals_tab, container, false)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this)[GoalsTabFragmentViewModel::class.java]
-    }
-
+    /**
+     * An [onResume] method that creates a pie chart per month that there exists a transaction.
+     */
     override fun onResume() {
         super.onResume()
 
@@ -65,7 +74,7 @@ class GoalsTabFragment(private val tab: Int) : Fragment() {
             // Set up the text to show the month and year of the pie
             val tvDate = TextView(context)
             tvDate.text = "${SimpleDateFormat("MMMM").format(dates[date].time)}, $year"
-            tvDate.setTextSize(TypedValue.COMPLEX_UNIT_SP,28F)
+            tvDate.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28F)
             var top = (30 * density + 0.5f).toInt()
             if (date == 0) {
                 top = 0
@@ -92,5 +101,6 @@ class GoalsTabFragment(private val tab: Int) : Fragment() {
             llCharts.addView(tvDate)
             llCharts.addView(pieChart)
         }
+        pieManager.sqlDB!!.close()
     }
 }

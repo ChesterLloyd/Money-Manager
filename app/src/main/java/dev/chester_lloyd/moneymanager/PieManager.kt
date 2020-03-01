@@ -8,12 +8,24 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.absoluteValue
 
-class PieManager(context: Context) : DBManager(context) {
+/**
+ * An [DBManager] subclass to handle collecting data from the database when creating pie charts.
+ *
+ * @param context Context.
+ * @author Chester Lloyd
+ * @since 1.0
+ */
+class PieManager(private val context: Context) : DBManager(context) {
 
-    private val context: Context = context
     val iconManager = IconManager(context)
 
-    //  Function that selects payments based on a transaction/account ID as a list of Payment objects
+    /**
+     * Gets the total amount for each category for a given month.
+     *
+     * @param month The month to get data for.
+     * @param direction Can be In for income or Out for expenses.
+     * @return [SliceValue] data that can be used to construct a pie chart.
+     */
     fun categoryMonth(month: String, direction: String): ArrayList<SliceValue> {
         val pieData = ArrayList<SliceValue>()
         var selectionArgs = arrayOfNulls<String>(0)
@@ -40,17 +52,24 @@ class PieManager(context: Context) : DBManager(context) {
                 val transactionID = cursor.getInt(cursor.getColumnIndex(colTransactionID))
                 val accountID = cursor.getInt(cursor.getColumnIndex(colAccountID))
                 val amount = cursor.getDouble(cursor.getColumnIndex("total"))
-                val payment = Payment(selectTransaction(transactionID), selectAccount(accountID),
+                val payment = Payment(
+                    selectTransaction(transactionID), selectAccount(accountID),
                     amount
                 )
 
-                pieData.add(SliceValue(
-                    (payment.amount.absoluteValue).toFloat(),
-                    (iconManager.getIconByID(
-                        iconManager.colourIcons,
-                        payment.transaction.category.colour
-                    ).colour!!)
-                ).setLabel(payment.transaction.category.name + " " + payment.getStringAmount(context)))
+                pieData.add(
+                    SliceValue(
+                        (payment.amount.absoluteValue).toFloat(),
+                        (iconManager.getIconByID(
+                            iconManager.colourIcons,
+                            payment.transaction.category.colour
+                        ).colour!!)
+                    ).setLabel(
+                        payment.transaction.category.name + " " + payment.getStringAmount(
+                            context
+                        )
+                    )
+                )
 
             } while (cursor.moveToNext())
         }
@@ -58,6 +77,12 @@ class PieManager(context: Context) : DBManager(context) {
         return pieData
     }
 
+    /**
+     * Gets the date of a transaction in each month.
+     *
+     * @param direction Can be In for income or Out for expenses.
+     * @return [Calendar] of only 1 transaction for each month that there exists a transaction.
+     */
     fun getAllDates(direction: String): ArrayList<Calendar> {
         val dates = ArrayList<Calendar>()
         val selectionArgs = arrayOfNulls<String>(0)
@@ -84,5 +109,4 @@ class PieManager(context: Context) : DBManager(context) {
         cursor.close()
         return dates
     }
-
 }
