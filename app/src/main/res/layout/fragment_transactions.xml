@@ -13,6 +13,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tabGravity="fill"
         app:tabIndicatorColor="@color/colorAccent"
+        app:tabIndicatorHeight="3dp"
         app:tabMode="scrollable"
         app:tabSelectedTextColor="@color/black"
         app:tabTextColor="@color/black" />

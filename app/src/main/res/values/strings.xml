@@ -177,4 +177,13 @@
 
     <string name="income">Income</string>
     <string name="expense">Expense</string>
+
+    <string name="add_transaction_shortcut_short">Add transaction</string>
+    a
+    <string name="add_transaction_shortcut_long">Add a new transaction</string>
+    <string name="add_transaction_disabled_message">Add transaction unavailable</string>
+    <string name="transactions_shortcut_short">Transactions</string>
+    a
+    <string name="transactions_shortcut_long">View all transactions</string>
+    <string name="transactions_disabled_message">View all transactions unavailable</string>
 </resources>

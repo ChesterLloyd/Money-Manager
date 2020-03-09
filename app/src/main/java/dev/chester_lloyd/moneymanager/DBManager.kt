@@ -583,9 +583,9 @@ open class DBManager(context: Context) {
             val amount = cursor.getDouble(cursor.getColumnIndex(colAmount))
 
             return Payment(
-                    selectTransaction(selectedTransactionID),
-                    selectAccount(selectedAccountID),
-                    amount
+                selectTransaction(selectedTransactionID),
+                selectAccount(selectedAccountID),
+                amount
             )
         }
         cursor.close()
@@ -652,8 +652,10 @@ open class DBManager(context: Context) {
      */
     fun updatePayment(payment: Payment, selection: String, selectionArgs: Array<String>): Int {
         var result = 0
-        val existingPayment = selectPayment(payment.transaction.transactionID,
-            payment.account.accountID)
+        val existingPayment = selectPayment(
+            payment.transaction.transactionID,
+            payment.account.accountID
+        )
 
         // If this payment exists, update it
         if (existingPayment != null) {
@@ -667,8 +669,12 @@ open class DBManager(context: Context) {
             if (result > 0) {
                 // If the new payment amount is 0, delete it
                 if (payment.amount == 0.0) {
-                    delete(dbPaymentsTable, arrayOf(payment.transaction.transactionID.toString(),
-                        payment.account.accountID.toString()))
+                    delete(
+                        dbPaymentsTable, arrayOf(
+                            payment.transaction.transactionID.toString(),
+                            payment.account.accountID.toString()
+                        )
+                    )
                 }
                 // Update the account's balance where this payment was made
                 val account = payment.account
@@ -720,7 +726,7 @@ open class DBManager(context: Context) {
                 hideAccount(selectionArgs)
                 /*
                    Remove any orphaned transactions
-                   These are any that were aid by multiple accounts and this is the last of those
+                   These are any that were paid by multiple accounts and this is the last of those
                    accounts to be deleted, so delete all payments and transactions under these
                    accounts
                 */
@@ -759,11 +765,17 @@ open class DBManager(context: Context) {
             }
             dbCategoryTable -> {
                 // If we are deleting a category, remove all of its transactions first
-                sqlDB!!.delete(dbTransactionTable, "$colCategoryID = ?", selectionArgs)
+                val result = sqlDB!!.delete(dbTransactionTable, "$colCategoryID = ?",
+                    selectionArgs)
+                if (result >= 0) {
+                    sqlDB!!.delete(dbCategoryTable, "$colID = ?", selectionArgs)
+                }
             }
             dbPaymentsTable -> {
-                sqlDB!!.delete(dbPaymentsTable, "$colTransactionID = ? AND $colAccountID = ?",
-                    selectionArgs)
+                sqlDB!!.delete(
+                    dbPaymentsTable, "$colTransactionID = ? AND $colAccountID = ?",
+                    selectionArgs
+                )
             }
         }
     }

@@ -161,10 +161,10 @@ class AccountTransactions : AppCompatActivity() {
                 .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
                     finish()
                     // Delete the account
-//                    DBManager(this).delete(
-//                        DBManager(this).dbAccountTable,
-//                        arrayOf(account.accountID.toString())
-//                    )
+                    DBManager(this).delete(
+                        DBManager(this).dbAccountTable,
+                        arrayOf(account.accountID.toString())
+                    )
                 }
                 .setNegativeButton(resources.getString(R.string.no)) {
                     // Do nothing, close box
