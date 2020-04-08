@@ -140,10 +140,18 @@ class MainActivity : AppCompatActivity() {
              * first bit, then replace with user defined symbol. Finally, trim the decimal places
              * off.
              */
-            val groupString = format[0] + DecimalFormat("#,###.00")
+            start += format[0]
+            var groupString = DecimalFormat("#,###.00")
                 .format(absAmount.toBigDecimal())
-            start += groupString.replace(",", format[1], false)
-                .subSequence(0, groupString.length - 3)
+            groupString = groupString.replace(",", format[1], false)
+                .subSequence(0, groupString.length - 3).toString()
+
+            // If there is only a decimal, add 0 to the start so it becomes 0.XX, else the main group
+            start += if (groupString.isEmpty()) {
+                "0"
+            } else {
+                groupString
+            }
 
             // Get only the decimal places of the number (2dp)
             var decimalPart = DecimalFormat("#.00").format(absAmount.toBigDecimal())

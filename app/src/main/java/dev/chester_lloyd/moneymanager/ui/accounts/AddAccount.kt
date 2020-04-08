@@ -3,10 +3,9 @@ package dev.chester_lloyd.moneymanager.ui.accounts
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.method.DigitsKeyListener
 import android.view.View
-import android.view.View.OnFocusChangeListener
 import android.widget.AdapterView
-import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -59,12 +58,7 @@ class AddAccount : AppCompatActivity() {
 
         // Validate the balance field
         val balanceValidator = CurrencyValidator(etBalance)
-
-//        val etBalanceInput = findViewById<EditText>(R.id.etBalance)
-//        etBalanceInput.onFocusChangeListener = OnFocusChangeListener { _, gainFocus ->
-//            balanceValidator.focusListener(gainFocus)
-//        }
-
+        etBalance.keyListener = DigitsKeyListener.getInstance("-0123456789${format[2]}")
         etBalance.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
             }
@@ -88,7 +82,7 @@ class AddAccount : AppCompatActivity() {
             tvDesc.setText(R.string.text_edit_account_desc)
             etName.setText(intent.getStringExtra("name"))
             etBalance.setText(
-                CurrencyValidator.getEditTextAmount(
+                CurrencyValidator.getEditTextAmountNeg(
                     intent.getDoubleExtra("balance", 0.0),
                     format[2]
                 )

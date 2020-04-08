@@ -41,7 +41,16 @@ class CurrencyValidator(private val editText: EditText) {
 
         // Check if balance contains multiple - or . or over 2dp
         for (i in s.indices) {
-            if (s[i] == decimal[0]) {
+            if (s[i] == '-') {
+                // Check if current character is a - sign
+                if (i == 0) {
+                    // Check if this was found at the start, if so add to output string
+                    newBalance += s[i]
+                } else {
+                    // If not, update cursor position to here as this char was removed
+                    cursorPos = i
+                }
+            } else if (s[i] == decimal[0]) {
                 // Check if current character is the specified decimal sign
 
                 if (decimalCount == 0) {
@@ -80,7 +89,7 @@ class CurrencyValidator(private val editText: EditText) {
             if (splitBalance[1].length > 2) {
                 // If there are more than 2 numbers after dp, remove any past the 2
                 newBalance =
-                    splitBalance[0] + "." + splitBalance[1].dropLast((splitBalance[1].length - 2))
+                    splitBalance[0] + decimal + splitBalance[1].dropLast((splitBalance[1].length - 2))
                 cursorPos = newBalance.length
             }
         }
@@ -114,14 +123,14 @@ class CurrencyValidator(private val editText: EditText) {
 
         /**
          * Gets an amount as a [Double] and adds the currency decimal symbol to it. This also enforces
-         * 2dp.
+         * 2dp. This will trim off the negative sign.
          *
          * @param amount The amount to add symbols to.
          * @param decimal The decimal point symbol.
          * @return The [amount] with the currency symbols.
          */
         fun getEditTextAmount(amount: Double, decimal: String): String {
-            var absAmount = abs(amount)
+            val absAmount = abs(amount)
             var stringAmount = "0${decimal}00"
             if (absAmount != 0.0) {
                 stringAmount = absAmount.toString().replace(".", decimal)
@@ -132,6 +141,21 @@ class CurrencyValidator(private val editText: EditText) {
                 }
             }
             return stringAmount
+        }
+
+        /**
+         * Gets an amount as a [Double] and adds the currency decimal symbol to it. This also enforces
+         * 2dp. This will return a negative sign if the [amount] is negative.
+         *
+         * @param amount The amount to add symbols to.
+         * @param decimal The decimal point symbol.
+         * @return The [amount] with the currency symbols.
+         */
+        fun getEditTextAmountNeg(amount: Double, decimal: String): String {
+            if (amount < 0) {
+                return "-" + getEditTextAmount(amount, decimal)
+            }
+            return getEditTextAmount(amount, decimal)
         }
     }
 }
