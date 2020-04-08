@@ -1,6 +1,7 @@
 package dev.chester_lloyd.moneymanager.ui
 
 import android.widget.EditText
+import kotlin.math.abs
 
 /**
  * Manages any currency input.
@@ -12,29 +13,6 @@ import android.widget.EditText
 class CurrencyValidator(private val editText: EditText) {
 
     private var balance: String = ""
-    private var balanceFocus: Boolean = false
-
-    /**
-     * Add or remove the currency symbol based on focus. If it is not there on focus add it in. If
-     * it is there but there is no value, remove it on blur.
-     *
-     * @param gainFocus Has the edit text input gained focus.
-     */
-    fun focusListener(gainFocus: Boolean) {
-        if (gainFocus) {
-            // Check if a currency symbol is present first
-            if (editText.text.firstOrNull() != '£') {
-                balanceFocus = true
-                editText.setText("£" + editText.text)
-            }
-        } else {
-            // On blur, check if a empty and remove the symbol
-            if (editText.text.firstOrNull() == '£' && editText.text.length == 1) {
-                balanceFocus = false
-                editText.setText("")
-            }
-        }
-    }
 
     /**
      * Keep a record of the balance before any changes are made.
@@ -50,7 +28,7 @@ class CurrencyValidator(private val editText: EditText) {
      *
      * @param s The string from the edit text entry.
      */
-    fun onTextChangedListener(s: CharSequence) {
+    fun onTextChangedListener(s: CharSequence, decimal: String) {
         // Get old position of decimal point
         val oldDecimalPos = balance.indexOf('.')
         var newBalance = ""
@@ -63,26 +41,8 @@ class CurrencyValidator(private val editText: EditText) {
 
         // Check if balance contains multiple - or . or over 2dp
         for (i in s.indices) {
-            if (s[i] == '-') {
-                // Check if current character is a - sign
-                if (i == 1) {
-                    // Check if this was found at the start (after £), if so add to output string
-                    newBalance += s[i]
-                } else {
-                    // If not, update cursor position to here as this char was removed
-                    cursorPos = i
-                }
-            } else if (s[i] == '£') {
-                // Check if current character is a £ sign
-                if (i == 0) {
-                    // Check if this was found at the start, if so add to output string
-                    newBalance += s[i]
-                } else {
-                    // If not, update cursor position to here as this char was removed
-                    cursorPos = i
-                }
-            } else if (s[i] == '.') {
-                // Check if current character is a . sign
+            if (s[i] == decimal[0]) {
+                // Check if current character is the specified decimal sign
 
                 if (decimalCount == 0) {
                     // Check if no decimal points have been added to the output yet
@@ -116,25 +76,13 @@ class CurrencyValidator(private val editText: EditText) {
 
         if (decimalCount == 1) {
             // Check if a decimal point is present first
-            val splitBalance = newBalance.split(".")
+            val splitBalance = newBalance.split(decimal)
             if (splitBalance[1].length > 2) {
                 // If there are more than 2 numbers after dp, remove any past the 2
                 newBalance =
                     splitBalance[0] + "." + splitBalance[1].dropLast((splitBalance[1].length - 2))
                 cursorPos = newBalance.length
             }
-        }
-
-        // Stop user deleting the currency symbol
-        if (s.isEmpty() && balanceFocus) {
-            newBalance = "£"
-            cursorPos = 1
-        }
-
-        // Add currency symbol in if it is not the first character
-        if (s.firstOrNull() != '£' && balanceFocus) {
-            newBalance = "£$newBalance"
-            cursorPos = 1
         }
 
         // Update balance and cursor position
@@ -150,56 +98,40 @@ class CurrencyValidator(private val editText: EditText) {
     }
 
     /**
-     * Gets the [balance] from the edit text input.
+     * Gets the [balance] from the edit text input as a [Double].
      *
      * @return The [balance] without any currency symbols.
      */
-    fun getBalance(): Double {
-        if (editText.text.firstOrNull() == '£') {
-            return if (editText.text.length > 1) {
-                val splitBalance = editText.text.split("£")
-                splitBalance[1].toDouble()
-            } else {
-                0.0
-            }
-        } else if (editText.text.isEmpty()) {
-            return 0.0
+    fun getBalance(decimal: String): Double {
+        if (editText.text.isNotEmpty()) {
+            return editText.text.toString().replace(decimal, ".").toDouble()
         }
-        return editText.text.toString().toDouble()
-    }
-
-    /**
-     * Returns a [Boolean] if the [balance] is 0.
-     *
-     * @return true if it is 0.0.
-     */
-    fun isZero(): Boolean {
-        if (getBalance() == 0.0) {
-            return true
-        }
-        return false
+        return 0.0
     }
 
     companion object {
         //  Companion object so basically a Java static class
 
         /**
-         * Gets an amount as a [Double] and adds the currency symbol to it.
+         * Gets an amount as a [Double] and adds the currency decimal symbol to it. This also enforces
+         * 2dp.
          *
          * @param amount The amount to add symbols to.
+         * @param decimal The decimal point symbol.
          * @return The [amount] with the currency symbols.
          */
-        fun getEditTextAmount(amount: Double): String {
-//          Add a symbol to the amount given as a double
-            if (amount != 0.0) {
-                val splitBalance = amount.toString().split(".")
+        fun getEditTextAmount(amount: Double, decimal: String): String {
+            var absAmount = abs(amount)
+            var stringAmount = "0${decimal}00"
+            if (absAmount != 0.0) {
+                stringAmount = absAmount.toString().replace(".", decimal)
+
+                val splitBalance = absAmount.toString().split(".")
                 if (splitBalance.size == 2 && splitBalance[1].length == 1) {
-                    return "£" + amount.toString() + "0"
+                    stringAmount += "0"
                 }
-                return "£$amount"
-            } else {
-                return "£0.0"
             }
+            return stringAmount
         }
     }
 }

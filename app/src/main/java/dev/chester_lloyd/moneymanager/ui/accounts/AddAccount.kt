@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.Account
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.DBManager
+import dev.chester_lloyd.moneymanager.MainActivity
 import dev.chester_lloyd.moneymanager.ui.CurrencyValidator
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.IconSpinner
@@ -34,6 +35,7 @@ class AddAccount : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_account)
 
+        val format = MainActivity.getCurrencyFormat(this)
         val iconManager = IconManager(this)
 
         // Setup toolbar name and show a back button
@@ -58,10 +60,10 @@ class AddAccount : AppCompatActivity() {
         // Validate the balance field
         val balanceValidator = CurrencyValidator(etBalance)
 
-        val etBalanceInput = findViewById<EditText>(R.id.etBalance)
-        etBalanceInput.onFocusChangeListener = OnFocusChangeListener { _, gainFocus ->
-            balanceValidator.focusListener(gainFocus)
-        }
+//        val etBalanceInput = findViewById<EditText>(R.id.etBalance)
+//        etBalanceInput.onFocusChangeListener = OnFocusChangeListener { _, gainFocus ->
+//            balanceValidator.focusListener(gainFocus)
+//        }
 
         etBalance.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
@@ -73,7 +75,7 @@ class AddAccount : AppCompatActivity() {
             }
 
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                balanceValidator.onTextChangedListener(s)
+                balanceValidator.onTextChangedListener(s, format[2])
             }
         })
 
@@ -87,9 +89,8 @@ class AddAccount : AppCompatActivity() {
             etName.setText(intent.getStringExtra("name"))
             etBalance.setText(
                 CurrencyValidator.getEditTextAmount(
-                    intent.getDoubleExtra(
-                        "balance", 0.0
-                    )
+                    intent.getDoubleExtra("balance", 0.0),
+                    format[2]
                 )
             )
 
@@ -120,7 +121,7 @@ class AddAccount : AppCompatActivity() {
                 Toast.makeText(this, R.string.account_validation_balance, Toast.LENGTH_SHORT).show()
             } else {
                 // All data has been filled out, start saving
-                account.balance = balanceValidator.getBalance()
+                account.balance = balanceValidator.getBalance(format[2])
 
                 // Get instance of the database manager class
                 val dbManager = DBManager(this)

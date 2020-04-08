@@ -28,6 +28,7 @@ import kotlin.collections.ArrayList
 class AddTransaction : AppCompatActivity() {
 
     var transaction = Transaction()
+    private var income = false
 
     /**
      * An [onCreate] method that sets up the supportActionBar, category and account spinners,
@@ -42,14 +43,14 @@ class AddTransaction : AppCompatActivity() {
         this.supportActionBar?.setDisplayShowHomeEnabled(true)
         this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        // Add the currency symbol and suffix to the amount row
+        val format = MainActivity.getCurrencyFormat(this)
+        tvSymbol.text = format[0]
+        tvSuffix.text = format[3]
+
         // Validate the amount field
         val amountValidator = CurrencyValidator(etAmount)
-
-        val etAccountInput = etAmount
-        etAccountInput.onFocusChangeListener = View.OnFocusChangeListener { _, gainFocus ->
-            amountValidator.focusListener(gainFocus)
-        }
-
+        etAmount.keyListener = DigitsKeyListener.getInstance("0123456789${format[2]}")
         etAmount.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
             }
@@ -60,9 +61,14 @@ class AddTransaction : AppCompatActivity() {
             }
 
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                amountValidator.onTextChangedListener(s)
+                amountValidator.onTextChangedListener(s, format[2])
             }
         })
+
+        // Listen for when income switch is changed
+        swIncome.setOnCheckedChangeListener { _, isChecked ->
+            income = isChecked
+        }
 
         // Setup the date to the current device date
         val etDate = this.etDate
@@ -140,23 +146,17 @@ class AddTransaction : AppCompatActivity() {
         }
 
         // Setup the account entry texts
-        val accounts: ArrayList<Account> = dbManager.selectAccounts("active",
-            null)
+        val accounts: ArrayList<Account> = dbManager.selectAccounts("active", null)
 
         for (account in 0 until accounts.size) {
             val etAccount = EditText(this)
             etAccount.id = accounts[account].accountID
             etAccount.hint = accounts[account].name
             etAccount.inputType = InputType.TYPE_NUMBER_FLAG_SIGNED + InputType.TYPE_CLASS_NUMBER
-            etAccount.keyListener = DigitsKeyListener.getInstance("-0123456789.")
+            etAccount.keyListener = DigitsKeyListener.getInstance("0123456789${format[2]}")
 
             // Validate the currency field
             val balanceValidator = CurrencyValidator(etAccount)
-
-            etAccount.onFocusChangeListener = View.OnFocusChangeListener { _, gainFocus ->
-                balanceValidator.focusListener(gainFocus)
-            }
-
             etAccount.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable) {
                 }
@@ -172,11 +172,50 @@ class AddTransaction : AppCompatActivity() {
                 }
 
                 override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                    balanceValidator.onTextChangedListener(s)
+                    balanceValidator.onTextChangedListener(s, format[2])
                 }
             })
 
-            llAccounts.addView(etAccount)
+            // Create new linear layout for each account to add (Symbol - Edit Text - Suffix)
+            val llAccountRow = LinearLayout(this)
+            llAccountRow.layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            llAccountRow.orientation = LinearLayout.HORIZONTAL
+
+            // Create a text view for the symbol and suffix
+            val tvSymbol = TextView(this)
+            tvSymbol.text = format[0]
+            tvSymbol.textSize = 18f
+            val tvSuffix = TextView(this)
+            tvSuffix.text = format[3]
+            tvSuffix.textSize = 18f
+
+            // Add all elements to the row's view
+            llAccountRow.addView(tvSymbol)
+            llAccountRow.addView(etAccount)
+            llAccountRow.addView(tvSuffix)
+
+            // Setup layout parameters so they match the main amount layout (above)
+            tvSymbol.layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
+            )
+            etAccount.layoutParams = LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                10000f
+            )
+            tvSuffix.layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
+            )
+
+            // Add this row to the main linear layout containing the accounts
+            llAccounts.addView(llAccountRow)
         }
 
         // Get transaction from database, if ID given (to edit)
@@ -188,7 +227,11 @@ class AddTransaction : AppCompatActivity() {
             transaction = dbManager.selectTransaction(transactionID)
             etMerchant.setText(transaction.merchant)
             etDetails.setText(transaction.details)
-            etAmount.setText(CurrencyValidator.getEditTextAmount(transaction.amount))
+            etAmount.setText(CurrencyValidator.getEditTextAmount(transaction.amount, format[2]))
+            if (transaction.amount > 0) {
+                swIncome.toggle()
+                income = true
+            }
             updateDateInView()
 
             for (category in 0 until categories.size) {
@@ -198,12 +241,14 @@ class AddTransaction : AppCompatActivity() {
                 }
             }
 
-            val payments = dbManager.selectPayments(transactionID,
-                "transaction")
+            val payments = dbManager.selectPayments(transactionID, "transaction")
             for (payment in 0 until payments.size) {
                 if (payments[payment].amount != 0.0) {
                     findViewById<EditText>(payments[payment].account.accountID)
-                        .setText(CurrencyValidator.getEditTextAmount(payments[payment].amount))
+                        .setText(CurrencyValidator.getEditTextAmount(
+                            payments[payment].amount,
+                            format[2])
+                        )
                 }
             }
         }
@@ -218,13 +263,13 @@ class AddTransaction : AppCompatActivity() {
                     this, R.string.transaction_validation_name,
                     Toast.LENGTH_SHORT
                 ).show()
-            } else if (etAmount.text.toString() == "" || etAmount.text.length == 1) {
+            } else if (etAmount.text.toString() == "") {
                 // Transaction amount is empty, show an error
                 Toast.makeText(
                     this, R.string.transaction_validation_amount,
                     Toast.LENGTH_SHORT
                 ).show()
-            } else if (amountValidator.isZero()) {
+            } else if (amountValidator.getBalance(format[2]) == 0.0) {
                 // Transaction amount is zero (or the currency equivalent), show an error
                 Toast.makeText(
                     this, R.string.transaction_validation_amount_zero,
@@ -238,15 +283,17 @@ class AddTransaction : AppCompatActivity() {
                 ).show()
             } else {
                 // All data has been filled out, start saving
-                transaction.amount = amountValidator.getBalance()
+                transaction.amount = amountValidator.getBalance(format[2])
+                if (!income) transaction.amount *= -1
 
                 // Get all payments as Payment objects
                 val payments = ArrayList<Payment>()
                 var totalPayments = 0.0
                 for (account in 0 until accounts.size) {
-                    val accountValue = CurrencyValidator(
+                    var accountValue = CurrencyValidator(
                         this.findViewById(accounts[account].accountID)
-                    ).getBalance()
+                    ).getBalance(format[2])
+                    if (!income) accountValue *= -1
 
                     // Round to 2dp (since double would probably do: 20.0000004 or something)
                     val accountValue2DP: Double = String.format("%.2f", accountValue).toDouble()
@@ -276,7 +323,7 @@ class AddTransaction : AppCompatActivity() {
                                 if (payments[payment].amount != 0.0) {
                                     // Add a payment for this amount
                                     payments[payment].transaction = transaction
-                                    val id = dbManager.insertPayment(payments[payment])
+                                    dbManager.insertPayment(payments[payment])
                                 }
                             }
                             // Transaction saved to database, return to previous fragment

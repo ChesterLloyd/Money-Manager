@@ -128,17 +128,27 @@ class MainActivity : AppCompatActivity() {
             // Get user specified locale options
             val format = getCurrencyFormat(context)
             var start = ""
+            var absAmount = amount
 
             // Get negative sign, if there
-            if (amount < 0) start += "-"
+            if (absAmount < 0) {
+                start += "-"
+                absAmount *= -1
+            }
 
-            // Get part and add grouping digit (Use comma for first bit, then replace)
-            val groupString = format[0] + DecimalFormat("#,###").format(amount.toBigDecimal())
+            /* Get the number (now without the minus sign) and add grouping digit. Use comma for
+             * first bit, then replace with user defined symbol. Finally, trim the decimal places
+             * off.
+             */
+            val groupString = format[0] + DecimalFormat("#,###.00")
+                .format(absAmount.toBigDecimal())
             start += groupString.replace(",", format[1], false)
+                .subSequence(0, groupString.length - 3)
 
-            // Get decimal part
-            var decimalPart = DecimalFormat("#.00").format(amount.toBigDecimal())
-            decimalPart = decimalPart.subSequence(decimalPart.length - 2, decimalPart.length).toString()
+            // Get only the decimal places of the number (2dp)
+            var decimalPart = DecimalFormat("#.00").format(absAmount.toBigDecimal())
+            decimalPart = decimalPart.subSequence(decimalPart.length - 2, decimalPart.length)
+                .toString()
 
             // Put it all together and return
             return "${start}${format[2]}${decimalPart}${format[3]}"
