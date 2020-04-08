@@ -13,10 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import dev.chester_lloyd.moneymanager.Account
-import dev.chester_lloyd.moneymanager.DBManager
-import dev.chester_lloyd.moneymanager.R
-import dev.chester_lloyd.moneymanager.Transaction
+import dev.chester_lloyd.moneymanager.*
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import dev.chester_lloyd.moneymanager.ui.accounts.AccountTransactions
@@ -70,19 +67,26 @@ class DashboardFragment : Fragment() {
      */
     override fun onResume() {
         super.onResume()
-        // Update page title and set active drawer item
-        activity!!.toolbar.title = getString(R.string.menu_dashboard)
-        activity!!.nav_view.setCheckedItem(R.id.nav_home)
 
-        // Get accounts as an array list from database and add them to the list
-        val dbManager = DBManager(context!!)
-        val listAccounts = dbManager.selectAccounts("active", "3")
-        addAccounts(listAccounts)
+        val format = MainActivity.getCurrencyFormat(context!!)
+        if (format[0] == "" && format[3] == "") {
+            // The app has not been set up, load setup page
+            startActivity(Intent(context, SetupApp::class.java))
+        } else {
+            // Update page title and set active drawer item
+            activity!!.toolbar.title = getString(R.string.menu_dashboard)
+            activity!!.nav_view.setCheckedItem(R.id.nav_home)
 
-        // Get transactions as an array list from database and add them to the recent list
-        val listTransactions = dbManager.selectTransactions(0, "Categories", "3")
-        addTransactions(listTransactions)
-        dbManager.sqlDB!!.close()
+            // Get accounts as an array list from database and add them to the list
+            val dbManager = DBManager(context!!)
+            val listAccounts = dbManager.selectAccounts("active", "3")
+            addAccounts(listAccounts)
+
+            // Get transactions as an array list from database and add them to the recent list
+            val listTransactions = dbManager.selectTransactions(0, "Categories", "3")
+            addTransactions(listTransactions)
+            dbManager.sqlDB!!.close()
+        }
     }
 
     /**
@@ -99,7 +103,7 @@ class DashboardFragment : Fragment() {
             val rowView = layoutInflater.inflate(R.layout.account, null)
             val account = accounts[item]
             rowView.tvName.text = account.name
-            rowView.tvBalance.text = account.getStringBalance(context!!)
+            rowView.tvBalance.text = MainActivity.stringBalance(context!!, account.balance)
 
             // Get the account's icon and colour
             val iconManager = IconManager(context!!)
@@ -173,7 +177,7 @@ class DashboardFragment : Fragment() {
             val transaction = transactions[item]
             rowView.tvName.text = transaction.merchant
             rowView.tvDate.text = transaction.getDate(context!!, "DMY")
-            rowView.tvAmount.text = transaction.getStringAmount(context!!)
+            rowView.tvAmount.text = MainActivity.stringBalance(context!!, transaction.amount)
 
             // Get the transaction's category icon and colour
             val iconManager = IconManager(context!!)

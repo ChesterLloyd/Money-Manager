@@ -11,10 +11,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
 import androidx.appcompat.app.AppCompatActivity
-import dev.chester_lloyd.moneymanager.Category
-import dev.chester_lloyd.moneymanager.DBManager
-import dev.chester_lloyd.moneymanager.R
-import dev.chester_lloyd.moneymanager.Transaction
+import dev.chester_lloyd.moneymanager.*
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import kotlinx.android.synthetic.main.activity_category_transaction.*
@@ -217,7 +214,7 @@ class CategoryTransaction : AppCompatActivity() {
             val transaction = listTransactionsAdapter[position]
             rowView.tvName.text = transaction.merchant
             rowView.tvDate.text = transaction.getDate(applicationContext, "DMY")
-            rowView.tvAmount.text = transaction.getStringAmount(applicationContext)
+            rowView.tvAmount.text = MainActivity.stringBalance(applicationContext, transaction.amount)
 
             val iconManager = IconManager(applicationContext)
             rowView.ivIcon.setImageResource(

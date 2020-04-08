@@ -11,10 +11,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
 import androidx.appcompat.app.AppCompatActivity
-import dev.chester_lloyd.moneymanager.DBManager
-import dev.chester_lloyd.moneymanager.Payment
-import dev.chester_lloyd.moneymanager.R
-import dev.chester_lloyd.moneymanager.Transaction
+import dev.chester_lloyd.moneymanager.*
 import dev.chester_lloyd.moneymanager.ui.categories.CategoryTransaction
 import dev.chester_lloyd.moneymanager.ui.transactions.AddTransaction
 import kotlinx.android.synthetic.main.account.view.*
@@ -53,7 +50,7 @@ class TransactionDetails : AppCompatActivity() {
         dbManager.sqlDB!!.close()
 
         tvName.text = transaction.merchant
-        tvAmount.text = transaction.getStringAmount(this)
+        tvAmount.text = MainActivity.stringBalance(this, transaction.amount)
 
         val iconManager = IconManager(this)
         ivIcon.setImageResource(
@@ -87,7 +84,7 @@ class TransactionDetails : AppCompatActivity() {
 
         // Update entry fields with account info
         tvName.text = transaction.merchant
-        tvAmount.text = transaction.getStringAmount(this)
+        tvAmount.text = MainActivity.stringBalance(this, transaction.amount)
         val iconManager = IconManager(this)
         ivIcon.setImageResource(
             iconManager.getIconByID(
@@ -243,7 +240,7 @@ class TransactionDetails : AppCompatActivity() {
             )
 
             rowView.tvName.text = payment.account.name
-            rowView.tvBalance.text = payment.getStringAmount(applicationContext)
+            rowView.tvBalance.text = MainActivity.stringBalance(applicationContext, payment.amount)
             return rowView
         }
 

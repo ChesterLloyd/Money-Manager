@@ -12,6 +12,7 @@ import android.widget.BaseAdapter
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.Transaction
 import dev.chester_lloyd.moneymanager.DBManager
+import dev.chester_lloyd.moneymanager.MainActivity
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import kotlinx.android.synthetic.main.fragment_transaction_tab.*
@@ -109,7 +110,7 @@ class TransactionTabFragment(private val tab: Int) : Fragment() {
             val transaction = listTransactionsAdapter[position]
             rowView.tvName.text = transaction.merchant
             rowView.tvDate.text = transaction.getDate(context!!, "DMY")
-            rowView.tvAmount.text = transaction.getStringAmount(context!!)
+            rowView.tvAmount.text = MainActivity.stringBalance(context!!, transaction.amount)
 
             val iconManager = IconManager(context!!)
             rowView.ivIcon.setImageResource(

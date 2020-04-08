@@ -1,35 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
-    <shortcut
-        android:shortcutId="scTransaction"
-        android:enabled="true"
-        android:icon="@mipmap/ic_new_transaction"
-        android:shortcutShortLabel="@string/add_transaction_shortcut_short"
-        android:shortcutLongLabel="@string/add_transaction_shortcut_long"
-        android:shortcutDisabledMessage="@string/add_transaction_disabled_message">
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:targetPackage="dev.chester_lloyd.moneymanager"
-            android:targetClass="dev.chester_lloyd.moneymanager.MainActivity" />
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:targetPackage="dev.chester_lloyd.moneymanager"
-            android:targetClass="dev.chester_lloyd.moneymanager.ui.transactions.AddTransaction" />
-    </shortcut>
-<!--    <shortcut-->
-<!--        android:shortcutId="scTransactions"-->
-<!--        android:enabled="true"-->
-<!--        android:icon="@drawable/ic_add"-->
-<!--        android:shortcutShortLabel="@string/transactions_shortcut_short"-->
-<!--        android:shortcutLongLabel="@string/transactions_shortcut_long"-->
-<!--        android:shortcutDisabledMessage="@string/transactions_disabled_message">-->
-<!--        <intent-->
-<!--            android:action="android.intent.action.VIEW"-->
-<!--            android:targetPackage="dev.chester_lloyd.moneymanager"-->
-<!--            android:targetClass="dev.chester_lloyd.moneymanager.MainActivity" />-->
-<!--        <intent-->
-<!--            android:action="dev.chester_lloyd.moneymanager.ui.transactions.TransactionsFragment"-->
-<!--            android:targetPackage="dev.chester_lloyd.moneymanager"-->
-<!--            android:targetClass="dev.chester_lloyd.moneymanager.MainActivity" />-->
-<!--    </shortcut>-->
+<shortcuts>
 </shortcuts>

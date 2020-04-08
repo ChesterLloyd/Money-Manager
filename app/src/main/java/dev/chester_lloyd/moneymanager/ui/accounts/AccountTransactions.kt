@@ -51,7 +51,7 @@ class AccountTransactions : AppCompatActivity() {
         )
 
         tvName.text = account.name
-        tvBalance.text = account.getStringBalance(this)
+        tvBalance.text = MainActivity.stringBalance(this, account.balance)
 
         val iconManager = IconManager(this)
         ivIcon.setImageResource(
@@ -81,7 +81,7 @@ class AccountTransactions : AppCompatActivity() {
 
         // Update entry fields with account info
         tvName.text = account.name
-        tvBalance.text = account.getStringBalance(this)
+        tvBalance.text = MainActivity.stringBalance(this, account.balance)
         val iconManager = IconManager(this)
         ivIcon.setImageResource(
             iconManager.getIconByID(
@@ -222,7 +222,7 @@ class AccountTransactions : AppCompatActivity() {
             val payment = listTransactionsAdapter[position]
             rowView.tvName.text = payment.transaction.merchant
             rowView.tvDate.text = payment.transaction.getDate(applicationContext, "DMY")
-            rowView.tvAmount.text = payment.getStringAmount(applicationContext)
+            rowView.tvAmount.text = MainActivity.stringBalance(applicationContext, payment.amount)
 
             // Use IconManager to load the icons
             val iconManager = IconManager(applicationContext)

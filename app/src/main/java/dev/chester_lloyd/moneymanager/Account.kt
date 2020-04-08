@@ -1,7 +1,5 @@
 package dev.chester_lloyd.moneymanager
 
-import android.content.Context
-
 /**
  * A [Class] that stores all the information about an account that the user has saved.
  *
@@ -37,22 +35,6 @@ class Account {
      */
     constructor() {
         this.accountID = 0
-    }
-
-    /**
-     * Gets the [balance] as a [String] with a currency symbol.
-     *
-     * @param context Context.
-     * @return The [balance] with a currency symbol.
-     */
-    fun getStringBalance(context: Context): String {
-//      Place - sign before the pound if it is negative
-        return if (balance.toString().first() == '-') {
-            val splitBalance = balance.toString().split("-")
-            "- " + context.resources.getString(R.string.balance_text, splitBalance[1].toDouble())
-        } else {
-            context.resources.getString(R.string.balance_text, balance)
-        }
     }
 
     /**

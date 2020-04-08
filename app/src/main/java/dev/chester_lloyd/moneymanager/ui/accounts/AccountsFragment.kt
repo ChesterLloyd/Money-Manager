@@ -14,6 +14,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.Account
+import dev.chester_lloyd.moneymanager.MainActivity
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import kotlinx.android.synthetic.main.account.view.*
 import kotlinx.android.synthetic.main.fragment_accounts.*
@@ -116,7 +117,7 @@ class AccountsFragment : Fragment() {
             val rowView = layoutInflater.inflate(R.layout.account, null)
             val account = listAccountsAdapter[position]
             rowView.tvName.text = account.name
-            rowView.tvBalance.text = account.getStringBalance(context!!)
+            rowView.tvBalance.text = MainActivity.stringBalance(context!!, account.balance)
 
             // Use IconManager to load the icons
             val iconManager = IconManager(context!!)

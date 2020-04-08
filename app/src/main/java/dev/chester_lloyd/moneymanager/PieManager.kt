@@ -65,9 +65,8 @@ class PieManager(private val context: Context) : DBManager(context) {
                             payment.transaction.category.colour
                         ).colour!!)
                     ).setLabel(
-                        payment.transaction.category.name + " " + payment.getStringAmount(
-                            context
-                        )
+                        payment.transaction.category.name + " " +
+                                MainActivity.stringBalance(context, payment.amount)
                     )
                 )
 

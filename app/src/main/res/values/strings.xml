@@ -179,11 +179,22 @@
     <string name="expense">Expense</string>
 
     <string name="add_transaction_shortcut_short">Add transaction</string>
-    a
     <string name="add_transaction_shortcut_long">Add a new transaction</string>
     <string name="add_transaction_disabled_message">Add transaction unavailable</string>
     <string name="transactions_shortcut_short">Transactions</string>
-    a
     <string name="transactions_shortcut_long">View all transactions</string>
     <string name="transactions_disabled_message">View all transactions unavailable</string>
+
+    <string name="setup_currency">Setup currency</string>
+    <string name="settings_currency_format">Update the settings below to customise the currency format</string>
+    <string name="settings_currency_symbol">Currency symbol</string>
+    <string name="settings_currency_group">Digit grouping symbol</string>
+    <string name="settings_currency_decimal">Decimal symbol</string>
+    <string name="settings_currency_suffix">Suffix</string>
+    <string name="settings_currency_blank">Currency symbol and suffix cannot both be blank</string>
+    <string name="settings_currency_updated">Currency format saved</string>
+    <string name="app_setup_back">Please complete currency setup first</string>
+
+    <string name="settings_currency">Currency settings</string>
+    <string name="settings_currency_button">Change format</string>
 </resources>

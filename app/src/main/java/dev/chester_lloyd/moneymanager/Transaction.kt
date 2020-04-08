@@ -47,22 +47,6 @@ class Transaction {
     }
 
     /**
-     * Gets the [amount] as a String with a currency symbol.
-     *
-     * @param context Context.
-     * @return The [amount] with a currency symbol.
-     */
-    fun getStringAmount(context: Context): String {
-//      Place - sign before the pound if it is negative
-        return if (amount.toString().first() == '-') {
-            val splitBalance = amount.toString().split("-")
-            "- " + context.resources.getString(R.string.balance_text, splitBalance[1].toDouble())
-        } else {
-            context.resources.getString(R.string.balance_text, amount)
-        }
-    }
-
-    /**
      * Gets the [date] as a formatted [String].
      *
      * @param context Context.
