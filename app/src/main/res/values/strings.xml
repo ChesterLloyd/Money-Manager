@@ -57,11 +57,13 @@
 
     <string name="account_validation_name">Account name cannot be blank</string>
     <string name="account_validation_balance">Account balance cannot be blank</string>
+    <string name="account_validation_balance_invalid">Account balance is invalid</string>
 
     <string name="category_validation_name">Category name cannot be blank</string>
 
     <string name="transaction_validation_name">Transaction name cannot be blank</string>
     <string name="transaction_validation_amount">Transaction amount cannot be blank</string>
+    <string name="transaction_validation_amount_invalid">Transaction amount is invalid</string>
     <string name="transaction_validation_amount_zero">Transaction amount cannot be 0</string>
     <string name="transaction_validation_date">Transaction date cannot be blank</string>
     <string name="transaction_validation_payments">Account payments do not make up the transaction amount</string>

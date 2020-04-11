@@ -17,6 +17,9 @@ import dev.chester_lloyd.moneymanager.ui.CurrencyValidator
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.IconSpinner
 import kotlinx.android.synthetic.main.activity_add_account.*
+import kotlinx.android.synthetic.main.activity_add_account.tvDesc
+import kotlinx.android.synthetic.main.activity_add_account.tvSuffix
+import kotlinx.android.synthetic.main.activity_add_account.tvSymbol
 
 /**
  * An [AppCompatActivity] subclass to add or edit an [Account].
@@ -34,7 +37,10 @@ class AddAccount : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_account)
 
+        // Add the currency symbol and suffix to the amount row
         val format = MainActivity.getCurrencyFormat(this)
+        tvSymbol.text = format[0]
+        tvSuffix.text = format[3]
         val iconManager = IconManager(this)
 
         // Setup toolbar name and show a back button
@@ -113,6 +119,12 @@ class AddAccount : AppCompatActivity() {
             } else if (etBalance.text.toString() == "") {
                 // Account balance is empty, show an error
                 Toast.makeText(this, R.string.account_validation_balance, Toast.LENGTH_SHORT).show()
+            } else if (etBalance.text.toString() == format[2]
+                || etBalance.text.toString() == "-"
+                || etBalance.text.toString() == "-${format[2]}"
+            ) {
+                // Account balance is only the decimal sign or minus sign, show an error
+                Toast.makeText(this, R.string.account_validation_balance_invalid, Toast.LENGTH_SHORT).show()
             } else {
                 // All data has been filled out, start saving
                 account.balance = balanceValidator.getBalance(format[2])

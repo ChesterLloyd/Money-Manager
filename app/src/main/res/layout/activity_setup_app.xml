@@ -99,6 +99,7 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
+                android:digits=".,"
                 android:ems="10"
                 android:hint="@string/settings_currency_decimal"
                 android:importantForAutofill="no"

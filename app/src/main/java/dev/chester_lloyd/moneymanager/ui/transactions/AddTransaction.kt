@@ -245,9 +245,11 @@ class AddTransaction : AppCompatActivity() {
             for (payment in 0 until payments.size) {
                 if (payments[payment].amount != 0.0) {
                     findViewById<EditText>(payments[payment].account.accountID)
-                        .setText(CurrencyValidator.getEditTextAmount(
-                            payments[payment].amount,
-                            format[2])
+                        .setText(
+                            CurrencyValidator.getEditTextAmount(
+                                payments[payment].amount,
+                                format[2]
+                            )
                         )
                 }
             }
@@ -267,6 +269,12 @@ class AddTransaction : AppCompatActivity() {
                 // Transaction amount is empty, show an error
                 Toast.makeText(
                     this, R.string.transaction_validation_amount,
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else if (etAmount.text.toString() == format[2]) {
+                // Transaction amount is the decimal sign only, show an error
+                Toast.makeText(
+                    this, R.string.transaction_validation_amount_invalid,
                     Toast.LENGTH_SHORT
                 ).show()
             } else if (amountValidator.getBalance(format[2]) == 0.0) {
@@ -290,19 +298,31 @@ class AddTransaction : AppCompatActivity() {
                 val payments = ArrayList<Payment>()
                 var totalPayments = 0.0
                 for (account in 0 until accounts.size) {
-                    var accountValue = CurrencyValidator(
-                        this.findViewById(accounts[account].accountID)
-                    ).getBalance(format[2])
-                    if (!income) accountValue *= -1
+                    if ((this.findViewById(accounts[account].accountID) as EditText)
+                            .text.toString() == format[2]
+                    ) {
+                        // Transaction amount is the decimal sign only, show an error
+                        Toast.makeText(
+                            this, R.string.transaction_validation_amount_invalid,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        break
+                    } else {
+                        var accountValue = CurrencyValidator(
+                            this.findViewById(accounts[account].accountID)
+                        ).getBalance(format[2])
+                        if (!income) accountValue *= -1
 
-                    // Round to 2dp (since double would probably do: 20.0000004 or something)
-                    val accountValue2DP: Double = String.format("%.2f", accountValue).toDouble()
-                    totalPayments += accountValue2DP
-                    payments.add(
-                        Payment(
-                            Transaction(), accounts[account], accountValue
+                        // Round to 2dp (since double would probably do: 20.0000004 or something)
+                        val accountValue2DP: Double = String.format("%.2f", accountValue).toDouble()
+                        totalPayments += accountValue2DP
+                        payments.add(
+                            Payment(
+                                Transaction(), accounts[account], accountValue
+                            )
                         )
-                    )
+                    }
+
                 }
 
                 if (String.format("%.2f", totalPayments).toDouble() != transaction.amount) {

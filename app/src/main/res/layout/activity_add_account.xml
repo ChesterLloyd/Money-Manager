@@ -67,23 +67,45 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvDetails" />
 
-            <EditText
-                android:id="@+id/etBalance"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_height="match_parent"
                 android:layout_marginLeft="16dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
-                android:ems="10"
-                android:hint="@string/current_balance"
-                android:importantForAutofill="no"
-                android:inputType="number|numberDecimal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.08"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etName" />
+                android:orientation="horizontal"
+                android:paddingTop="12dp">
+
+                <TextView
+                    android:id="@+id/tvSymbol"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@+id/swIncome"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/etDetails" />
+
+                <EditText
+                    android:id="@+id/etBalance"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/current_balance"
+                    android:importantForAutofill="no"
+                    android:inputType="number|numberDecimal"
+                    app:layout_constraintTop_toBottomOf="@+id/etName" />
+
+                <TextView
+                    android:id="@+id/tvSuffix"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@+id/swIncome"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/etDetails" />
+            </LinearLayout>
+
 
             <TextView
                 android:id="@+id/tvAppearance"
