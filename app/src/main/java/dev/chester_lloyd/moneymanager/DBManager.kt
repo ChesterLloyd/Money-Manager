@@ -38,6 +38,7 @@ open class DBManager(context: Context) {
     internal val colAccountID = "AccountID"
     private val colActive = "Active"
     private val colDetails = "Details"
+    private val colDefault = "TheDefault"
     val dbVersion = 1
 
     internal var sqlDB: SQLiteDatabase? = null
@@ -70,7 +71,8 @@ open class DBManager(context: Context) {
                         "$colBalance FLOAT, " +
                         "$colIcon INTEGER, " +
                         "$colColour INTEGER, " +
-                        "$colActive INTEGER);"
+                        "$colActive INTEGER, " +
+                        "$colDefault BOOLEAN);"
             )
             // Create Categories table if it does not exist
             db.execSQL(
@@ -106,16 +108,16 @@ open class DBManager(context: Context) {
 
             // Create default accounts
             db.execSQL(
-                "INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive) " +
-                        "VALUES ('Cash', 0.0, 2, 0, 1)"
+                "INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive, $colActive) " +
+                        "VALUES ('Cash', 0.0, 2, 0, 1, 0)"
             )
             db.execSQL(
-                "INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive) " +
-                        "VALUES ('Current', 50.25, 3, 0, 1)"
+                "INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive, $colActive) " +
+                        "VALUES ('Current', 50.25, 3, 0, 1, 1)"
             )
             db.execSQL(
-                "INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive) " +
-                        "VALUES ('Savings', 1000.0, 0, 0, 1)"
+                "INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive, $colActive) " +
+                        "VALUES ('Savings', 1000.0, 0, 0, 1, 0)"
             )
 
             // Create default categories
@@ -188,12 +190,23 @@ open class DBManager(context: Context) {
      * @return The ID that the account has been saved as.
      */
     fun insertAccount(account: Account): Long {
+        if (selectAccounts("active", null).isEmpty()) {
+            // This is the only active account, set aas default
+            account.default = true
+        }
+
+        if (account.default) {
+            // Account is default, clear defaults
+            clearDefaultAccount()
+        }
+
         val values = ContentValues()
         values.put(colName, account.name)
         values.put(colBalance, account.balance)
         values.put(colIcon, account.icon)
         values.put(colColour, account.colour)
         values.put(colActive, 1)
+        values.put(colDefault, account.default)
 
         return sqlDB!!.insert(dbAccountTable, "", values)
     }
@@ -207,7 +220,7 @@ open class DBManager(context: Context) {
     fun selectAccount(accountID: Int): Account {
         val qb = SQLiteQueryBuilder()
         qb.tables = dbAccountTable
-        val projection = arrayOf(colID, colName, colBalance, colIcon, colColour)
+        val projection = arrayOf(colID, colName, colBalance, colIcon, colColour, colDefault)
         val selectionArgs = arrayOf(accountID.toString())
         var account = Account()
         val cursor = qb.query(sqlDB, projection, "${colID}=?", selectionArgs, null, null, colName)
@@ -217,7 +230,8 @@ open class DBManager(context: Context) {
             val balance = cursor.getDouble(cursor.getColumnIndex(colBalance))
             val icon = cursor.getInt(cursor.getColumnIndex(colIcon))
             val colour = cursor.getInt(cursor.getColumnIndex(colColour))
-            account = Account(id, name, balance, icon, colour)
+            val default = cursor.getInt(cursor.getColumnIndex(colDefault))
+            account = Account(id, name, balance, icon, colour, (default == 1))
         }
         cursor.close()
         return account
@@ -234,7 +248,7 @@ open class DBManager(context: Context) {
     fun selectAccounts(type: String, limit: String?): ArrayList<Account> {
         val qb = SQLiteQueryBuilder()
         qb.tables = dbAccountTable
-        val projection = arrayOf(colID, colName, colBalance, colIcon, colColour)
+        val projection = arrayOf(colID, colName, colBalance, colIcon, colColour, colDefault)
         val listAccounts = ArrayList<Account>()
 
         var selection = "$colName LIKE ?"
@@ -253,8 +267,9 @@ open class DBManager(context: Context) {
                 val balance = cursor.getDouble(cursor.getColumnIndex(colBalance))
                 val icon = cursor.getInt(cursor.getColumnIndex(colIcon))
                 val colour = cursor.getInt(cursor.getColumnIndex(colColour))
+                val default = cursor.getInt(cursor.getColumnIndex(colDefault))
 
-                listAccounts.add(Account(id, name, balance, icon, colour))
+                listAccounts.add(Account(id, name, balance, icon, colour, (default == 1)))
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -270,11 +285,16 @@ open class DBManager(context: Context) {
      * @return Number of rows updated.
      */
     fun updateAccount(account: Account, selection: String, selectionArgs: Array<String>): Int {
+        if (account.default) {
+            clearDefaultAccount()
+        }
+
         val values = ContentValues()
         values.put(colName, account.name)
         values.put(colBalance, account.balance)
         values.put(colIcon, account.icon)
         values.put(colColour, account.colour)
+        values.put(colDefault, account.default)
 
         return sqlDB!!.update(dbAccountTable, values, selection, selectionArgs)
     }
@@ -288,7 +308,40 @@ open class DBManager(context: Context) {
     private fun hideAccount(accountID: Array<String>): Int {
         val values = ContentValues()
         values.put(colActive, 0)
+        values.put(colDefault, false)
         return sqlDB!!.update(dbAccountTable, values, "$colID = ?", accountID)
+    }
+
+    /**
+     * Gets the default [Account].
+     *
+     * @return The default [Account].
+     */
+    fun getDefaultAccount(): Account? {
+        val qb = SQLiteQueryBuilder()
+        qb.tables = dbAccountTable
+        val projection = arrayOf(colID, colName, colBalance, colIcon, colColour, colDefault)
+        val selectionArgs = arrayOf("1")
+        val cursor = qb.query(sqlDB, projection, "${colDefault}=?", selectionArgs, null, null, colName)
+        if (cursor.moveToFirst()) {
+            val id = cursor.getInt(cursor.getColumnIndex(colID))
+            println(id)
+            return selectAccount(id)
+        }
+        cursor.close()
+        return null
+    }
+
+    /**
+     * Clears the default flag for all accounts.
+     *
+     * @return Number of rows updated.
+     */
+    private fun clearDefaultAccount(): Int {
+        val values = ContentValues()
+        values.put(colDefault, false)
+
+        return sqlDB!!.update(dbAccountTable, values, "$colID LIKE ?", arrayOf("%"))
     }
 
     /**

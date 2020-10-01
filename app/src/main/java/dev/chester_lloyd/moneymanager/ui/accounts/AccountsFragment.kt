@@ -85,10 +85,18 @@ class AccountsFragment : Fragment() {
                 bundle.putDouble("balance", account.balance)
                 bundle.putInt("icon", account.icon)
                 bundle.putInt("colour", account.colour)
+                bundle.putBoolean("default", account.default)
                 intent.putExtras(bundle)
 
                 startActivity(intent)
             }
+
+        // Show no accounts text
+        if (listAccounts.isEmpty()) {
+            this.tvNoAccounts.visibility = View.VISIBLE
+        } else {
+            this.tvNoAccounts.visibility = View.INVISIBLE
+        }
     }
 
     /**

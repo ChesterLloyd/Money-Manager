@@ -18,7 +18,7 @@ import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import dev.chester_lloyd.moneymanager.ui.accounts.AccountTransactions
 import dev.chester_lloyd.moneymanager.ui.accounts.AccountsFragment
-import dev.chester_lloyd.moneymanager.ui.transactions.AddTransaction
+import dev.chester_lloyd.moneymanager.ui.transactions.AddTransactionCheckRequirements
 import dev.chester_lloyd.moneymanager.ui.transactions.TransactionsFragment
 import kotlinx.android.synthetic.main.account.view.*
 import kotlinx.android.synthetic.main.account.view.ivIcon
@@ -26,6 +26,7 @@ import kotlinx.android.synthetic.main.account.view.tvName
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.fragment_dashboard.*
+import kotlinx.android.synthetic.main.fragment_dashboard.tvNoAccounts
 import kotlinx.android.synthetic.main.transaction.view.*
 
 /**
@@ -54,8 +55,7 @@ class DashboardFragment : Fragment() {
         // Launch new transaction activity with fab
         val fab: FloatingActionButton = root.findViewById(R.id.fab)
         fab.setOnClickListener {
-            val intent = Intent(context, AddTransaction::class.java)
-//            intent.putExtra("tabID", -1)
+            val intent = Intent(context, AddTransactionCheckRequirements::class.java)
             startActivity(intent)
         }
         return root
@@ -82,10 +82,24 @@ class DashboardFragment : Fragment() {
             val listAccounts = dbManager.selectAccounts("active", "3")
             addAccounts(listAccounts)
 
+            // Show no accounts text
+            if (listAccounts.isEmpty()) {
+                this.tvNoAccounts.visibility = View.VISIBLE
+            } else {
+                this.tvNoAccounts.visibility = View.GONE
+            }
+
             // Get transactions as an array list from database and add them to the recent list
             val listTransactions = dbManager.selectTransactions(0, "Categories", "3")
             addTransactions(listTransactions)
             dbManager.sqlDB!!.close()
+
+            // Show no transactions text
+            if (listTransactions.isEmpty()) {
+                this.tvNoTransactions.visibility = View.VISIBLE
+            } else {
+                this.tvNoTransactions.visibility = View.GONE
+            }
         }
     }
 
@@ -129,6 +143,7 @@ class DashboardFragment : Fragment() {
                 bundle.putDouble("balance", account.balance)
                 bundle.putInt("icon", account.icon)
                 bundle.putInt("colour", account.colour)
+                bundle.putBoolean("default", account.default)
                 intent.putExtras(bundle)
                 startActivity(intent)
             }

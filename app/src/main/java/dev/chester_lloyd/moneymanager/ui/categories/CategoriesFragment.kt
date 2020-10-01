@@ -85,6 +85,13 @@ class CategoriesFragment : Fragment() {
 
                 startActivity(intent)
             }
+
+        // Show no accounts text
+        if (listCategories.isEmpty()) {
+            this.tvNoCategories.visibility = View.VISIBLE
+        } else {
+            this.tvNoCategories.visibility = View.INVISIBLE
+        }
     }
 
     /**

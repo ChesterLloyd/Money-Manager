@@ -1,5 +1,6 @@
 package dev.chester_lloyd.moneymanager.ui.accounts
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -82,6 +83,53 @@ class AddAccount : AppCompatActivity() {
         val account = Account()
         account.accountID = intent.getIntExtra("accountID", 0)
 
+
+        val dbManager = DBManager(this)
+        val defaultAccount = dbManager.getDefaultAccount()
+
+        // Listen for when default account switch is changed
+        swSetDefault.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                if (defaultAccount != null) {
+                    if (defaultAccount.accountID != 0 && defaultAccount.accountID != account.accountID) {
+                        // Delete icon clicked, build an alert dialog to get user confirmation
+                        val alertDialog = AlertDialog.Builder(this)
+
+                        alertDialog.setMessage("Are you sure you want this account to be your default, " +
+                                "instead of ${defaultAccount.name}?")
+                            .setCancelable(false)
+                            .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
+                                swSetDefault.isChecked = true
+                                account.default = true
+                            }
+                            .setNegativeButton(resources.getString(R.string.no)) {
+                                // Do nothing, close box
+                                    dialog, _ ->
+                                dialog.cancel()
+                                swSetDefault.isChecked = false
+                                account.default = false
+                            }
+
+                        val alert = alertDialog.create()
+                        alert.setTitle("You already have a default account")
+                        alert.show()
+                    }
+                } else {
+                    // No account, set this as default
+                    swSetDefault.isChecked = true
+                    account.default = true
+                }
+            }
+        }
+
+        // Disable toggle if this will be the only account
+        if (dbManager.selectAccounts("active", null).isEmpty()) {
+            swSetDefault.isChecked = true
+            swSetDefault.isEnabled = false
+            account.default = true
+        }
+        dbManager.sqlDB!!.close()
+
         // If the account ID > 0 (not a new one) then auto fill these fields with the saved values
         if (account.accountID > 0) {
             this.supportActionBar?.title = getString(R.string.edit_account)
@@ -93,6 +141,20 @@ class AddAccount : AppCompatActivity() {
                     format[2]
                 )
             )
+
+            // Set default switch to on
+            if (intent.getBooleanExtra("default", false)) {
+                swSetDefault.isChecked = true
+            }
+
+            // Disable toggle if this is the only account
+            val dbManager = DBManager(this)
+            if (dbManager.selectAccounts("active", null).size == 1) {
+                swSetDefault.isChecked = true
+                swSetDefault.isEnabled = false
+                account.default = true
+            }
+            dbManager.sqlDB!!.close()
 
             spIcon.setSelection(
                 iconManager.getIconPositionID(

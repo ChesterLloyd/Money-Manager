@@ -15,7 +15,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="88dp">
 
             <TextView
                 android:id="@+id/tvDesc"
@@ -104,8 +105,17 @@
                     app:layout_constraintBottom_toTopOf="@+id/swIncome"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/etDetails" />
+
             </LinearLayout>
 
+            <Switch
+                android:id="@+id/swSetDefault"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dp"
+                android:paddingTop="24dp"
+                android:paddingRight="16dp"
+                android:text="@string/account_set_default" />
 
             <TextView
                 android:id="@+id/tvAppearance"

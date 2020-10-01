@@ -47,7 +47,8 @@ class AccountTransactions : AppCompatActivity() {
             intent.getStringExtra("name"),
             intent.getDoubleExtra("balance", 0.0),
             intent.getIntExtra("icon", 0),
-            intent.getIntExtra("colour", 0)
+            intent.getIntExtra("colour", 0),
+            intent.getBooleanExtra("default", false)
         )
 
         tvName.text = account.name
@@ -147,6 +148,7 @@ class AccountTransactions : AppCompatActivity() {
             bundle.putDouble("balance", account.balance)
             bundle.putInt("icon", account.icon)
             bundle.putInt("colour", account.colour)
+            bundle.putBoolean("default", account.default)
             intent.putExtras(bundle)
 
             startActivity(intent)

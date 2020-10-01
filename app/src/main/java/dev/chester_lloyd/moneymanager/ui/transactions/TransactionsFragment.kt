@@ -61,7 +61,7 @@ class TransactionsFragment : Fragment() {
         // Launch new transaction activity with fab
         val fab: FloatingActionButton = root.findViewById(R.id.fab)
         fab.setOnClickListener {
-            val intent = Intent(context, AddTransaction::class.java)
+            val intent = Intent(context, AddTransactionCheckRequirements::class.java)
             intent.putExtra("tabID", selectedTab)
             startActivity(intent)
         }

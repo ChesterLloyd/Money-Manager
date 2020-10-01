@@ -14,7 +14,7 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="dev.chester_lloyd.moneymanager"
-            android:targetClass="dev.chester_lloyd.moneymanager.ui.transactions.AddTransaction" />
+            android:targetClass="dev.chester_lloyd.moneymanager.ui.transactions.AddTransactionCheckRequirements" />
     </shortcut>
 <!--    <shortcut-->
 <!--        android:shortcutId="scTransactions"-->

@@ -28,6 +28,15 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <TextView
+                android:id="@+id/tvNoAccounts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dp"
+                android:paddingTop="16dp"
+                android:paddingRight="16dp"
+                android:text="@string/dash_no_accounts" />
+
             <LinearLayout
                 android:id="@+id/llAccounts"
                 android:layout_width="match_parent"
@@ -50,6 +59,15 @@
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/llAccounts" />
+
+            <TextView
+                android:id="@+id/tvNoTransactions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dp"
+                android:paddingTop="16dp"
+                android:paddingRight="16dp"
+                android:text="@string/dash_no_transactions" />
 
             <LinearLayout
                 android:id="@+id/llTransactions"

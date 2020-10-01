@@ -48,23 +48,6 @@ class AddTransaction : AppCompatActivity() {
         tvSymbol.text = format[0]
         tvSuffix.text = format[3]
 
-        // Validate the amount field
-        val amountValidator = CurrencyValidator(etAmount)
-        etAmount.keyListener = DigitsKeyListener.getInstance("0123456789${format[2]}")
-        etAmount.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable) {
-            }
-
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-                // Update balance before changes have been made (i.e user changed it)
-                amountValidator.beforeTextChangedListener(s)
-            }
-
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                amountValidator.onTextChangedListener(s, format[2])
-            }
-        })
-
         // Listen for when income switch is changed
         swIncome.setOnCheckedChangeListener { _, isChecked ->
             income = isChecked
@@ -144,6 +127,18 @@ class AddTransaction : AppCompatActivity() {
                 transaction.category = categories[position]
             }
         }
+
+        // Listen for when multiple payment methods switch is changed
+        swMultiplePaymentMethods.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                llAccounts.visibility = View.VISIBLE
+            } else {
+                llAccounts.visibility = View.GONE
+            }
+        }
+
+        // Set default account for this transaction
+        val defaultAccountID = dbManager.getDefaultAccount()?.accountID ?: 0
 
         // Setup the account entry texts
         val accounts: ArrayList<Account> = dbManager.selectAccounts("active", null)
@@ -255,6 +250,63 @@ class AddTransaction : AppCompatActivity() {
             }
         }
 
+        // Validate the amount field
+        val amountValidator = CurrencyValidator(etAmount)
+        etAmount.keyListener = DigitsKeyListener.getInstance("0123456789${format[2]}")
+        etAmount.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {
+            }
+
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+                // Update balance before changes have been made (i.e user changed it)
+                amountValidator.beforeTextChangedListener(s)
+            }
+
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                amountValidator.onTextChangedListener(s, format[2])
+
+                // Work out which account to add the new amount to
+                var enteredAmountAccountID = 0
+                for (account in 0 until accounts.size) {
+                    if ((findViewById<EditText>(accounts[account].accountID)).text.toString() != "") {
+                        // If more than one box filled in, give up as too complicated to adjust
+                        enteredAmountAccountID = if (enteredAmountAccountID == -1 || enteredAmountAccountID != 0) {
+                            -1
+                        } else {
+                            // Else just update this one
+                            accounts[account].accountID
+                        }
+                    }
+                }
+                if (enteredAmountAccountID == 0) {
+                    // Update default account amount at the bottom if there is a default set
+                    if (defaultAccountID != 0) {
+                        val accountAmount = findViewById<EditText>(defaultAccountID)
+                        accountAmount.setText(etAmount.text.toString())
+                    }
+                } else if (enteredAmountAccountID != -1) {
+                    // Update the account we just worked out
+                    val accountAmount = findViewById<EditText>(enteredAmountAccountID)
+                    accountAmount.setText(etAmount.text.toString())
+                }
+            }
+        })
+
+        // If only 1 account and default set, hide switch and payments
+        if (accounts.size == 1 && defaultAccountID != 0) {
+            swMultiplePaymentMethods.visibility = View.GONE
+            tvPayments.visibility = View.GONE
+        } else {
+            swMultiplePaymentMethods.visibility = View.VISIBLE
+            tvPayments.visibility = View.VISIBLE
+        }
+
+        // If there is no default set or paid by multiple payments, show the accounts list
+        if (defaultAccountID == 0 || dbManager.selectPayments(transactionID, "transaction").size > 1) {
+            swMultiplePaymentMethods.isChecked = true
+            llAccounts.visibility = View.VISIBLE
+        }
+
         // Save or update the transaction on FAB click
         fabAddTransaction.setOnClickListener {
             transaction.merchant = etMerchant.text.toString()
@@ -351,6 +403,7 @@ class AddTransaction : AppCompatActivity() {
                                 this, R.string.transaction_insert_success,
                                 Toast.LENGTH_LONG
                             ).show()
+                            setResult(RESULT_OK)
                             this.finish()
                         } else {
                             // Failed to save, show this error
@@ -384,6 +437,7 @@ class AddTransaction : AppCompatActivity() {
                                 this, R.string.transaction_update_success,
                                 Toast.LENGTH_LONG
                             ).show()
+                            setResult(RESULT_OK)
                             this.finish()
                         } else {
                             // Failed to save, show this error
@@ -419,5 +473,14 @@ class AddTransaction : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
+    }
+
+    /**
+     * An [onBackPressed] method that informs the calling activity that we have closed this activity
+     * (by toolbar or device back button.
+     */
+    override fun onBackPressed() {
+        setResult(RESULT_OK)
+        super.onBackPressed()
     }
 }

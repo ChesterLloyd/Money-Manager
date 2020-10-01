@@ -12,6 +12,7 @@ class Account {
     var balance: Double = 0.00
     var icon: Int = 0
     var colour: Int = 0
+    var default: Boolean = false
 
     /**
      * Creates a complete [Account] when all necessary fields have been provided.
@@ -21,13 +22,15 @@ class Account {
      * @param balance The amount of money saved in the account.
      * @param icon The ID of the icon associated with the account.
      * @param colour The ID of the colour associated with the account.
+     * @param default Whether this account is the default used for transactions.
      */
-    constructor(accountID: Int, name: String, balance: Double, icon: Int, colour: Int) {
+    constructor(accountID: Int, name: String, balance: Double, icon: Int, colour: Int, default: Boolean) {
         this.accountID = accountID
         this.name = name
         this.balance = balance
         this.icon = icon
         this.colour = colour
+        this.default = default
     }
 
     /**

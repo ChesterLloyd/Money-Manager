@@ -12,6 +12,7 @@
         <activity android:name=".ui.dashboard.SetupApp" />
         <activity android:name=".ui.TransactionDetails" />
         <activity android:name=".ui.transactions.AddTransaction" />
+        <activity android:name=".ui.transactions.AddTransactionCheckRequirements" />
         <activity android:name=".ui.categories.CategoryTransaction" />
         <activity android:name=".ui.categories.AddCategory" />
         <activity android:name=".ui.accounts.AccountTransactions" />
