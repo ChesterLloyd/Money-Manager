@@ -1,4 +1,4 @@
-package dev.chester_lloyd.moneymanager.ui.goals
+package dev.chester_lloyd.moneymanager.ui.monthlySummary
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -20,9 +20,9 @@ import dev.chester_lloyd.moneymanager.R
  * @author Chester Lloyd
  * @since 1.0
  */
-class GoalsFragment : Fragment() {
+class MonthlySummaryFragment : Fragment() {
 
-    private lateinit var goalsViewModel: GoalsViewModel
+    private lateinit var monthlySummaryViewModel: MonthlySummaryViewModel
     private var tabLayout: TabLayout? = null
     private var viewPager: ViewPager? = null
     private var selectedTab: Int = 0
@@ -40,9 +40,9 @@ class GoalsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        goalsViewModel = ViewModelProvider(this)[GoalsViewModel::class.java]
-        val root = inflater.inflate(R.layout.fragment_goals, container, false)
-        goalsViewModel.text.observe(viewLifecycleOwner, Observer {
+        monthlySummaryViewModel = ViewModelProvider(this)[MonthlySummaryViewModel::class.java]
+        val root = inflater.inflate(R.layout.fragment_monthly_summary, container, false)
+        monthlySummaryViewModel.text.observe(viewLifecycleOwner, Observer {
         })
 
         // Set up tabs
@@ -88,7 +88,7 @@ class GoalsFragment : Fragment() {
         override fun getItem(position: Int): Fragment {
             var fragment: Fragment? = null
             when (position) {
-                position -> fragment = GoalsTabFragment(position)
+                position -> fragment = MonthlySummaryTabFragment(position)
             }
             return fragment!!
         }
@@ -99,7 +99,7 @@ class GoalsFragment : Fragment() {
          * @return The number of tabs.
          */
         override fun getCount(): Int {
-            return 2
+            return 3
         }
 
         /**
@@ -112,6 +112,7 @@ class GoalsFragment : Fragment() {
             return when (position) {
                 0 -> getString(R.string.income)
                 1 -> getString(R.string.expense)
+                2 -> getString(R.string.all)
                 else -> null
             }
         }

@@ -7,21 +7,11 @@
     <LinearLayout
         android:id="@+id/llCharts"
         android:layout_width="match_parent"
-        android:layout_height="800dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingLeft="15dp"
         android:paddingTop="15dp"
         android:paddingRight="15dp"
         android:paddingBottom="30dp" />
 
-
-
 </ScrollView>
-
-
-    <!--    <lecho.lib.hellocharts.view.PieChartView-->
-    <!--        android:id="@+id/chart"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="400dp" />-->
-
-

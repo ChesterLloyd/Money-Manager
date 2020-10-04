@@ -1,5 +1,6 @@
 package dev.chester_lloyd.moneymanager
 
+import android.annotation.SuppressLint
 import android.content.Context
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import lecho.lib.hellocharts.model.SliceValue
@@ -9,7 +10,7 @@ import kotlin.collections.ArrayList
 import kotlin.math.absoluteValue
 
 /**
- * An [DBManager] subclass to handle collecting data from the database when creating pie charts.
+ * A [DBManager] subclass to handle collecting data from the database when creating pie charts.
  *
  * @param context Context.
  * @author Chester Lloyd
@@ -77,35 +78,45 @@ class PieManager(private val context: Context) : DBManager(context) {
     }
 
     /**
-     * Gets the date of a transaction in each month.
+     * Gets all the months that are present between the first transaction and the current date.
      *
-     * @param direction Can be In for income or Out for expenses.
-     * @return [Calendar] of only 1 transaction for each month that there exists a transaction.
+     * @return [Calendar] for each month that is found.
      */
-    fun getAllDates(direction: String): ArrayList<Calendar> {
+    @SuppressLint("SimpleDateFormat")
+    fun getAllMonths(): ArrayList<Calendar> {
         val dates = ArrayList<Calendar>()
+
+        // Get first transaction date
+        val firstTransaction = Calendar.getInstance()
         val selectionArgs = arrayOfNulls<String>(0)
-        var query = "SELECT T.${colDate} FROM $dbTransactionTable T "
-
-        when (direction) {
-            "in" -> query += "WHERE T.${colAmount} > 0 "
-            "out" -> query += "WHERE T.${colAmount} < 0 "
-        }
-        query += "GROUP BY strftime('%m', T.${colDate}) " +
-                "ORDER BY T.${colDate} DESC"
-
+        val query = "SELECT T.${colDate} FROM $dbTransactionTable T WHERE T.${colAmount} != 0 " +
+                    "ORDER BY T.${colDate} ASC LIMIT 1"
         val cursor = sqlDB!!.rawQuery(query, selectionArgs)
         if (cursor.moveToFirst()) {
-            do {
-                val date = cursor.getString(cursor.getColumnIndex(colDate))
-                val cal = Calendar.getInstance()
-                val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
-                cal.time = sdf.parse(date)
-
-                dates.add(cal)
-            } while (cursor.moveToNext())
+            val date = cursor.getString(cursor.getColumnIndex(colDate))
+            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
+            firstTransaction.time = sdf.parse(date)
         }
         cursor.close()
+
+        /*
+         * If looping date is before the current date, add it to the array.
+         * Start from first transaction to 1 month prior to today so add this after.
+         * This will add older dates first so reverse the array at the end.
+         */
+        val now = Calendar.getInstance()
+        while (firstTransaction.time.before(now.time)) {
+            val cal = Calendar.getInstance()
+            cal.set(
+                firstTransaction.get(Calendar.YEAR),
+                (SimpleDateFormat("MM").format(firstTransaction.time).toInt() - 1),
+                1
+            )
+            dates.add(cal)
+            firstTransaction.add(Calendar.MONTH, 1)
+        }
+        dates.add(now)
+        dates.reverse()
         return dates
     }
 }

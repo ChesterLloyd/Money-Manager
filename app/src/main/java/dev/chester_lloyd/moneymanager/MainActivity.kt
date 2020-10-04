@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_home, R.id.nav_accounts, R.id.nav_transactions,
-                R.id.nav_categories, R.id.nav_goals, R.id.nav_settings
+                R.id.nav_categories, R.id.nav_monthly_summary, R.id.nav_settings
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -122,9 +122,10 @@ class MainActivity : AppCompatActivity() {
          * formatting.
          *
          * @param context Context.
+         * @param addMinus Add the minus sign.
          * @return The balance formatted as a currency value.
          */
-        fun stringBalance(context: Context, amount: Double): String {
+        fun stringBalance(context: Context, amount: Double, addMinus: Boolean = true): String {
             // Get user specified locale options
             val format = getCurrencyFormat(context)
             var start = ""
@@ -132,7 +133,9 @@ class MainActivity : AppCompatActivity() {
 
             // Get negative sign, if there
             if (absAmount < 0) {
-                start += "-"
+                if (addMinus) {
+                    start += "-"
+                }
                 absAmount *= -1
             }
 

@@ -21,9 +21,9 @@
             android:icon="@drawable/ic_menu_categories"
             android:title="@string/menu_categories" />
         <item
-            android:id="@+id/nav_goals"
-            android:icon="@drawable/ic_menu_goals"
-            android:title="@string/menu_goals" />
+            android:id="@+id/nav_monthly_summary"
+            android:icon="@drawable/ic_menu_monthly_summary"
+            android:title="@string/menu_monthly_summary" />
     </group>
 
     <group>

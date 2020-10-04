@@ -1,10 +1,10 @@
-package dev.chester_lloyd.moneymanager.ui.goals
+package dev.chester_lloyd.moneymanager.ui.monthlySummary
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class GoalsViewModel : ViewModel() {
+class MonthlySummaryViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
         value = "This is tools Fragment"
