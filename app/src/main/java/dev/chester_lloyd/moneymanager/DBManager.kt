@@ -39,6 +39,7 @@ open class DBManager(context: Context) {
     private val colActive = "Active"
     private val colDetails = "Details"
     private val colDefault = "TheDefault"
+    private val colTransferTransactionID = "TransferTransactionID"
     val dbVersion = 1
 
     internal var sqlDB: SQLiteDatabase? = null
@@ -91,6 +92,7 @@ open class DBManager(context: Context) {
                         "$colDetails VARCHAR(100), " +
                         "$colDate DATETIME, " +
                         "$colAmount FLOAT, " +
+                        "$colTransferTransactionID INTEGER, " +
                         "FOREIGN KEY(${colCategoryID}) REFERENCES ${dbCategoryTable}(${colID}) );"
             )
             // Create Payments table if it does not exist
@@ -108,19 +110,23 @@ open class DBManager(context: Context) {
 
             // Create default accounts
             db.execSQL(
-                "INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive, $colActive) " +
+                "INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive, $colDefault) " +
                         "VALUES ('Cash', 0.0, 2, 0, 1, 0)"
             )
             db.execSQL(
-                "INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive, $colActive) " +
+                "INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive, $colDefault) " +
                         "VALUES ('Current', 50.25, 3, 0, 1, 1)"
             )
             db.execSQL(
-                "INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive, $colActive) " +
+                "INSERT INTO $dbAccountTable ($colName, $colBalance, $colIcon, $colColour, $colActive, $colDefault) " +
                         "VALUES ('Savings', 1000.0, 0, 0, 1, 0)"
             )
 
             // Create default categories
+            db.execSQL(
+                "INSERT INTO $dbCategoryTable ($colName, $colIcon, $colColour) " +
+                        "VALUES ('Transfer', 55, 0)"
+            )
             db.execSQL(
                 "INSERT INTO $dbCategoryTable ($colName, $colIcon, $colColour) " +
                         "VALUES ('Bills', 3, 0)"
@@ -440,6 +446,7 @@ open class DBManager(context: Context) {
         values.put(colDetails, transaction.details)
         values.put(colDate, Timestamp(transaction.date.timeInMillis).toString())
         values.put(colAmount, transaction.amount)
+        values.put(colTransferTransactionID, transaction.transferTransactionID)
 
         return sqlDB!!.insert(dbTransactionTable, "", values)
     }
@@ -476,7 +483,7 @@ open class DBManager(context: Context) {
             cal.time = sdf.parse(date)
 
             transaction =
-                Transaction(id, selectCategory(categoryID), merchant, details, cal, amount)
+                Transaction(id, selectCategory(categoryID), merchant, details, cal, amount, null)
         }
         cursor.close()
         return transaction
@@ -538,7 +545,8 @@ open class DBManager(context: Context) {
                         name,
                         details,
                         cal,
-                        amount
+                        amount,
+                        null
                     )
                 )
             } while (cursor.moveToNext())
@@ -566,6 +574,7 @@ open class DBManager(context: Context) {
         values.put(colDetails, transaction.details)
         values.put(colDate, Timestamp(transaction.date.timeInMillis).toString())
         values.put(colAmount, transaction.amount)
+        values.put(colTransferTransactionID, transaction.transferTransactionID)
 
         return sqlDB!!.update(dbTransactionTable, values, selection, selectionArgs)
     }

@@ -61,6 +61,14 @@
     <string name="account_validation_balance">Account balance cannot be blank</string>
     <string name="account_validation_balance_invalid">Account balance is invalid</string>
 
+    <string name="transfer">Transfer</string>
+    <string name="transfer_funds">Transfer funds</string>
+    <string name="text_transfer_desc">Transfer any amount from one of your accounts to another.</string>
+    <string name="transfer_source_account">Source account</string>
+    <string name="transfer_destination_account">Destination account</string>
+    <string name="transfer_to">%1$s to %2$s</string>
+    <string name="transfer_from_to">Transfer from %1$s to %2$s</string>
+
     <string name="category_validation_name">Category name cannot be blank</string>
 
     <string name="transaction_validation_name">Transaction name cannot be blank</string>
@@ -162,6 +170,7 @@
         <item>Taxi</item>
         <item>Train</item>
         <item>Work</item>
+        <item>Transfer</item>
     </string-array>
     <string name="category_colour">Category colour</string>
 

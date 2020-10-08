@@ -10,8 +10,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.*
+import dev.chester_lloyd.moneymanager.MainActivity.Companion.TRANSFER_CATEGORY_ID
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import kotlinx.android.synthetic.main.activity_category_transaction.*
@@ -123,7 +125,7 @@ class CategoryTransaction : AppCompatActivity() {
      * @return True to display the menu, or false to not show the menu.
      */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.edit,menu)
+        menuInflater.inflate(R.menu.edit, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -148,25 +150,40 @@ class CategoryTransaction : AppCompatActivity() {
             startActivity(intent)
             true
         }
-        R.id.menuDelete ->{
-            // Delete icon clicked, build an alert dialog to get user confirmation
-            val alertDialog = AlertDialog.Builder(this)
+        R.id.menuDelete -> {
+            // Delete icon clicked
+            if (category.categoryID == TRANSFER_CATEGORY_ID) {
+                // Attempting to delete transfer
+                val toast = Toast.makeText(
+                    applicationContext,
+                    "You cannot delete this category",
+                    Toast.LENGTH_SHORT
+                )
+                toast.show()
+            } else {
+                // Build an alert dialog to get user confirmation
+                val alertDialog = AlertDialog.Builder(this)
 
-            alertDialog.setMessage(resources.getString(R.string.alert_message_delete_category))
-                .setCancelable(false)
-                .setPositiveButton(resources.getString(R.string.yes)) { dialog, id -> finish()
-                    // Delete the category
-                    DBManager(this).delete(DBManager(this).dbCategoryTable,
-                        arrayOf(category.categoryID.toString()))
-                }
-                .setNegativeButton(resources.getString(R.string.no)) {
-                    // Do nothing, close box
-                        dialog, _ -> dialog.cancel()
-                }
+                alertDialog.setMessage(resources.getString(R.string.alert_message_delete_category))
+                    .setCancelable(false)
+                    .setPositiveButton(resources.getString(R.string.yes)) { dialog, id ->
+                        finish()
+                        // Delete the category
+                        DBManager(this).delete(
+                            DBManager(this).dbCategoryTable,
+                            arrayOf(category.categoryID.toString())
+                        )
+                    }
+                    .setNegativeButton(resources.getString(R.string.no)) {
+                        // Do nothing, close box
+                            dialog, _ ->
+                        dialog.cancel()
+                    }
 
-            val alert = alertDialog.create()
-            alert.setTitle(resources.getString(R.string.alert_title_delete_category))
-            alert.show()
+                val alert = alertDialog.create()
+                alert.setTitle(resources.getString(R.string.alert_title_delete_category))
+                alert.show()
+            }
             true
         }
         else -> {

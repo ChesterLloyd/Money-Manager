@@ -105,7 +105,8 @@ class IconManager (context: Context) {
             Icon(51, R.drawable.ic_category_transport_subway, categoryNames[51], null),
             Icon(52, R.drawable.ic_category_transport_taxi, categoryNames[52], null),
             Icon(53, R.drawable.ic_category_transport_train, categoryNames[53], null),
-            Icon(54, R.drawable.ic_category_work, categoryNames[54], null))
+            Icon(54, R.drawable.ic_category_work, categoryNames[54], null),
+            Icon(55, R.drawable.ic_transfer, categoryNames[55], null))
     }
 
     /**

@@ -16,6 +16,7 @@ class Transaction {
     var details: String? = null
     var amount: Double = 0.00
     var date: Calendar = Calendar.getInstance()
+    var transferTransactionID: Int = 0
 
     /**
      * Creates a complete [Transaction] when all necessary fields have been provided.
@@ -26,10 +27,13 @@ class Transaction {
      * @param details Optional additional details associated about this transaction.
      * @param date The date that the transaction took place.
      * @param amount The total amount that the transaction is worth.
+     * @param transferTransaction The transaction that is involved when the transaction is a
+     * transfer from one account to another. Thi is optional as it is likely not ll transactions
+     * are transfers.
      */
     constructor(
         transactionID: Int, category: Category, merchant: String, details: String?,
-        date: Calendar, amount: Double
+        date: Calendar, amount: Double, transferTransaction: Transaction?
     ) {
         this.transactionID = transactionID
         this.category = category
@@ -37,6 +41,9 @@ class Transaction {
         this.details = details
         this.date = date
         this.amount = amount
+        if (transferTransaction != null) {
+            this.transferTransactionID = transferTransaction.transactionID
+        }
     }
 
     /**

@@ -3,9 +3,7 @@ package dev.chester_lloyd.moneymanager.ui.accounts
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.AdapterView
 import android.widget.BaseAdapter
 import androidx.fragment.app.Fragment
@@ -42,6 +40,8 @@ class AccountsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setHasOptionsMenu(true);
+
         accountsViewModel = ViewModelProvider(this)[AccountsViewModel::class.java]
         val root = inflater.inflate(R.layout.fragment_accounts, container, false)
 
@@ -96,6 +96,37 @@ class AccountsFragment : Fragment() {
             this.tvNoAccounts.visibility = View.VISIBLE
         } else {
             this.tvNoAccounts.visibility = View.INVISIBLE
+        }
+    }
+
+    /**
+     * An [onCreateOptionsMenu] method that adds the accounts menu to the toolbar. This includes a
+     * transfer funds button.
+     *
+     * @param menu The options menu to place items.
+     * @param inflater The [MenuInflater].
+     */
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.accounts, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    /**
+     * An [onOptionsItemSelected] method that adds functionality when the menu buttons are clicked.
+     *
+     * @param item The menu item that was selected.
+     * @return Return false to allow normal menu processing to proceed, true to consume it here.
+     */
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.menuTransfer -> {
+            // Transfer icon clicked, go to transfer funds page
+            val intent = Intent(context, TransferFunds::class.java)
+            startActivity(intent)
+            true
+        }
+        else -> {
+            // Unknown action (not transfer funds) invoke the superclass to handle it.
+            super.onOptionsItemSelected(item)
         }
     }
 

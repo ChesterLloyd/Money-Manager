@@ -76,6 +76,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
+        const val TRANSFER_CATEGORY_ID = 1
         private const val PREFS_FILENAME = "dev.chester-lloyd.moneymanager.prefs"
         private const val PREFS_CURRENCY_SYMBOL = "currency_symbol"
         private const val PREFS_CURRENCY_GROUP = "currency_group"

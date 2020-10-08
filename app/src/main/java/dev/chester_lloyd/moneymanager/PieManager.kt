@@ -115,7 +115,10 @@ class PieManager(private val context: Context) : DBManager(context) {
             dates.add(cal)
             firstTransaction.add(Calendar.MONTH, 1)
         }
-        dates.add(now)
+        if ((dates[dates.lastIndex].get(Calendar.YEAR) != now.get(Calendar.YEAR)) &&
+            (dates[dates.lastIndex].get(Calendar.MONTH) != now.get(Calendar.MONTH))) {
+            dates.add(now)
+        }
         dates.reverse()
         return dates
     }
