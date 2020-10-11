@@ -68,6 +68,8 @@
     <string name="transfer_destination_account">Destination account</string>
     <string name="transfer_to">%1$s to %2$s</string>
     <string name="transfer_from_to">Transfer from %1$s to %2$s</string>
+    <string name="transfer_same_accounts">Source and destination accounts must be different</string>
+    <string name="transfer_min_accounts">You must have at least 2 accounts to make a transfer</string>
 
     <string name="category_validation_name">Category name cannot be blank</string>
 

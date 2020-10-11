@@ -55,6 +55,19 @@ class TransferFunds : AppCompatActivity() {
         tvSymbol.text = format[0]
         tvSuffix.text = format[3]
 
+        val dbManager = DBManager(this)
+
+        // Get transaction from database, if ID given (to edit)
+        val transactionID = intent.getIntExtra("transactionID", 0)
+
+        if (transactionID > 0) {
+            transactionSource = dbManager.selectTransaction(transactionID)
+            transactionDestination =
+                dbManager.selectTransaction(transactionSource.transferTransactionID)
+            accountSource = dbManager.getAccountByTransaction(transactionSource)!!
+            accountDestination = dbManager.getAccountByTransaction(transactionDestination)!!
+        }
+
         // Setup the date to the current device date
         val etDate = this.etDate
         updateDateInView()
@@ -83,10 +96,28 @@ class TransferFunds : AppCompatActivity() {
             }
         }
 
-        val dbManager = DBManager(this)
-
         // Setup the source and destination icon spinners
         val accounts: ArrayList<Account> = dbManager.selectAccounts("active", null)
+
+        // If we are editing a transaction, make sure to add any deleted accounts that were involved
+        if (transactionID > 0) {
+            var accountSourcePresent = false
+            var accountDestinationPresent = false
+            for (account in 0 until accounts.size) {
+                if (accounts[account].accountID == accountSource.accountID) {
+                    accountSourcePresent = true
+                } else if (accounts[account].accountID == accountDestination.accountID) {
+                    accountDestinationPresent = true
+                }
+            }
+
+            if (!accountSourcePresent) {
+                accounts.add(accountSource)
+            }
+            if (!accountDestinationPresent) {
+                accounts.add(accountDestination)
+            }
+        }
 
         val iconManager = IconManager(this)
         val icons = arrayOfNulls<Icon>(accounts.size)
@@ -168,19 +199,11 @@ class TransferFunds : AppCompatActivity() {
             }
         })
 
-        // Get transaction from database, if ID given (to edit)
-        val transactionID = intent.getIntExtra("transactionID", 0)
-
         if (transactionID > 0) {
             this.supportActionBar?.title = getString(R.string.edit_transaction)
             tvDesc.setText(R.string.text_edit_transaction_desc)
-            transactionSource = dbManager.selectTransaction(transactionID)
-            transactionDestination = dbManager.selectTransaction(transactionSource.transferTransactionID)
             etAmount.setText(CurrencyValidator.getEditTextAmount(transactionSource.amount, format[2]))
             updateDateInView()
-
-            accountSource = dbManager.getAccountByTransaction(transactionSource)!!
-            accountDestination = dbManager.getAccountByTransaction(transactionDestination)!!
 
             for (account in 0 until accounts.size) {
                 if (accounts[account].accountID == accountSource.accountID) {
@@ -193,8 +216,6 @@ class TransferFunds : AppCompatActivity() {
 
         // Save or update the transactions on FAB click
         fabTransferFunds.setOnClickListener {
-
-//            @TODO: Ensure different accounts selected
             if (etAmount.text.toString() == "") {
                 // Transaction amount is empty, show an error
                 Toast.makeText(
@@ -217,6 +238,12 @@ class TransferFunds : AppCompatActivity() {
                 // Transaction date is empty, show an error
                 Toast.makeText(
                     this, R.string.transaction_validation_date,
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else if (accountSource.accountID == accountDestination.accountID) {
+                // Source and destination are the same, show an error
+                Toast.makeText(
+                    this, R.string.transfer_same_accounts,
                     Toast.LENGTH_SHORT
                 ).show()
             } else {

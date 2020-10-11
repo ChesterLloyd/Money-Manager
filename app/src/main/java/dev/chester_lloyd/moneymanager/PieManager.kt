@@ -2,6 +2,7 @@ package dev.chester_lloyd.moneymanager
 
 import android.annotation.SuppressLint
 import android.content.Context
+import dev.chester_lloyd.moneymanager.MainActivity.Companion.TRANSFER_CATEGORY_ID
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import lecho.lib.hellocharts.model.SliceValue
 import java.text.SimpleDateFormat
@@ -45,7 +46,8 @@ class PieManager(private val context: Context) : DBManager(context) {
             selectionArgs = arrayOf(month)
         }
 
-        query += "GROUP BY T.${colCategoryID} ORDER BY total DESC"
+        query += "AND T.${colCategoryID} != $TRANSFER_CATEGORY_ID " +
+                 "GROUP BY T.${colCategoryID} ORDER BY total DESC"
 
         val cursor = sqlDB!!.rawQuery(query, selectionArgs)
         if (cursor.moveToFirst()) {

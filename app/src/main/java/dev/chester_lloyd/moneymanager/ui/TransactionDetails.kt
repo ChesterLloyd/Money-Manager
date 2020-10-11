@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.*
+import dev.chester_lloyd.moneymanager.ui.accounts.TransferFunds
 import dev.chester_lloyd.moneymanager.ui.transactions.AddTransaction
 import kotlinx.android.synthetic.main.activity_transation_details.*
 
@@ -131,8 +132,14 @@ class TransactionDetails : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.menuEdit -> {
             // Edit icon clicked, go to edit page (pass all account details)
-            val intent = Intent(this, AddTransaction::class.java)
+            var intent = Intent(this, AddTransaction::class.java)
             val bundle = Bundle()
+
+            if (transaction.transferTransactionID != 0) {
+                // This is a transfer, show the transfer page
+                intent = Intent(this, TransferFunds::class.java)
+            }
+
             bundle.putInt("transactionID", transaction.transactionID)
             intent.putExtras(bundle)
             startActivity(intent)

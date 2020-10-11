@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
+import dev.chester_lloyd.moneymanager.MainActivity.Companion.TRANSFER_CATEGORY_ID
 import lecho.lib.hellocharts.model.SliceValue
 
 /**
@@ -43,6 +44,7 @@ class TableManager(private val context: Context) : DBManager(context) {
             query += "AND strftime('%m', T.${colDate}) = ? AND strftime('%Y', T.${colDate}) = ? "
             selectionArgs = arrayOf(month, year)
         }
+        query += "AND T.${colCategoryID} != $TRANSFER_CATEGORY_ID "
 
         val cursor = sqlDB!!.rawQuery(query, selectionArgs)
         if (cursor.moveToFirst()) {

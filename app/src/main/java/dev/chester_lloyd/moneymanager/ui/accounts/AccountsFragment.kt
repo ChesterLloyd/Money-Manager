@@ -3,13 +3,16 @@ package dev.chester_lloyd.moneymanager.ui.accounts
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import dev.chester_lloyd.moneymanager.Account
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.ui.ListViewManager
 import kotlinx.android.synthetic.main.fragment_accounts.*
+import java.util.ArrayList
 
 /**
  * A [Fragment] subclass to show a ListView of accounts.
@@ -20,6 +23,7 @@ import kotlinx.android.synthetic.main.fragment_accounts.*
 class AccountsFragment : Fragment() {
 
     private lateinit var accountsViewModel: AccountsViewModel
+    private var listAccounts = ArrayList<Account>()
 
     /**
      * An [onCreateView] method that sets up the View and FAB
@@ -57,7 +61,7 @@ class AccountsFragment : Fragment() {
         val dbManager = DBManager(context!!)
 
         // Get accounts as an array list from database
-        val listAccounts = dbManager.selectAccounts("active", null)
+        listAccounts = dbManager.selectAccounts("active", null)
         dbManager.sqlDB!!.close()
 
         // Pass this to the list view adaptor and populate
@@ -96,9 +100,19 @@ class AccountsFragment : Fragment() {
      */
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.menuTransfer -> {
-            // Transfer icon clicked, go to transfer funds page
-            val intent = Intent(context, TransferFunds::class.java)
-            startActivity(intent)
+            // Transfer icon clicked
+            if (listAccounts.size >= 2) {
+                // Go to transfer funds page
+                val intent = Intent(context, TransferFunds::class.java)
+                startActivity(intent)
+            } else {
+                // Not enough accounts to make a transfer
+                Toast.makeText(
+                    this.context,
+                    getString(R.string.transfer_min_accounts),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
             true
         }
         else -> {
