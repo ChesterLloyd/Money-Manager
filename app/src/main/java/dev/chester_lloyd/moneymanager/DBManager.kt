@@ -197,7 +197,7 @@ open class DBManager(context: Context) {
      */
     fun insertAccount(account: Account): Long {
         if (selectAccounts("active", null).isEmpty()) {
-            // This is the only active account, set aas default
+            // This is the only active account, set as default
             account.default = true
         }
 
@@ -304,6 +304,7 @@ open class DBManager(context: Context) {
 
         return sqlDB!!.update(dbAccountTable, values, selection, selectionArgs)
     }
+    //I love you <3
 
     /**
      * Hides an account that is stored in the database.
@@ -312,10 +313,40 @@ open class DBManager(context: Context) {
      * @return Number of rows updated.
      */
     private fun hideAccount(accountID: Array<String>): Int {
+        val account = selectAccount(accountID[0].toInt())
+        if (account.default) {
+            // Account is default, clear defaults
+            clearDefaultAccount()
+        }
+
         val values = ContentValues()
         values.put(colActive, 0)
         values.put(colDefault, false)
         return sqlDB!!.update(dbAccountTable, values, "$colID = ?", accountID)
+    }
+
+    /**
+     * Gets the [Account] when given a [Transaction]. NOTE: this will only work reliably when a
+     * transaction is paid by only one account. Useful when updating a transfer.
+     *
+     * @return One [Account] linked to the transaction.
+     */
+    fun getAccountByTransaction(transaction: Transaction): Account? {
+        val selectionArgs = arrayOf(transaction.transactionID.toString())
+
+        val query = "SELECT A.${colID} FROM $dbAccountTable A " +
+                "JOIN $dbPaymentsTable P ON P.${colAccountID} = A.${colID} " +
+                "JOIN $dbTransactionTable T ON T.${colID} = P.${colTransactionID} " +
+                "WHERE T.${colID} = ? LIMIT 1"
+
+        val cursor = sqlDB!!.rawQuery(query, selectionArgs)
+
+        if (cursor.moveToFirst()) {
+            val id = cursor.getInt(cursor.getColumnIndex(colID))
+            return selectAccount(id)
+        }
+        cursor.close()
+        return null
     }
 
     /**
@@ -462,7 +493,7 @@ open class DBManager(context: Context) {
         qb.tables = dbTransactionTable
         val projection = arrayOf(
             colID, colCategoryID, colName, colDetails,
-            colDate, colAmount
+            colDate, colAmount, colTransferTransactionID
         )
         val selectionArgs = arrayOf(transactionID.toString())
         var transaction = Transaction()
@@ -477,13 +508,16 @@ open class DBManager(context: Context) {
             val details = cursor.getString(cursor.getColumnIndex(colDetails))
             val date = cursor.getString(cursor.getColumnIndex(colDate))
             val amount = cursor.getDouble(cursor.getColumnIndex(colAmount))
+            val transferID = cursor.getInt(cursor.getColumnIndex(colTransferTransactionID))
 
             val cal = Calendar.getInstance()
             val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
             cal.time = sdf.parse(date)
 
             transaction =
-                Transaction(id, selectCategory(categoryID), merchant, details, cal, amount, null)
+                Transaction(
+                    id, selectCategory(categoryID), merchant, details, cal, amount, transferID
+                )
         }
         cursor.close()
         return transaction
@@ -505,7 +539,8 @@ open class DBManager(context: Context) {
         var query = ""
         if (type == "Categories") {
             query = "SELECT T.${colID}, T.${colCategoryID}, T.${colName}, T.${colDetails}, " +
-                    "T.${colDate}, T.${colAmount} FROM $dbTransactionTable T " +
+                    "T.${colDate}, T.${colAmount}, T.${colTransferTransactionID} " +
+                    "FROM $dbTransactionTable T " +
                     "JOIN $dbCategoryTable C ON C.${colID} = T.${colCategoryID}"
 
             if (id > 0) {
@@ -515,7 +550,8 @@ open class DBManager(context: Context) {
             }
         } else if (type == "Accounts") {
             query = "SELECT T.${colID}, T.${colCategoryID}, T.${colName}, T.${colDetails}, " +
-                    "T.${colDate}, T.${colAmount} FROM $dbTransactionTable T " +
+                    "T.${colDate}, T.${colAmount}, T.${colTransferTransactionID} " +
+                    "FROM $dbTransactionTable T " +
                     "JOIN $dbPaymentsTable P ON P.${colTransactionID} = T.${colID} " +
                     "WHERE P.${colAccountID} = ?"
         }
@@ -533,6 +569,7 @@ open class DBManager(context: Context) {
                 val details = cursor.getString(cursor.getColumnIndex(colDetails))
                 val date = cursor.getString(cursor.getColumnIndex(colDate))
                 val amount = cursor.getDouble(cursor.getColumnIndex(colAmount))
+                val transferID = cursor.getInt(cursor.getColumnIndex(colTransferTransactionID))
 
                 val cal = Calendar.getInstance()
                 val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
@@ -546,7 +583,7 @@ open class DBManager(context: Context) {
                         details,
                         cal,
                         amount,
-                        null
+                        transferID
                     )
                 )
             } while (cursor.moveToNext())
@@ -768,7 +805,11 @@ open class DBManager(context: Context) {
                         "        SELECT T.${colID} AS TID FROM $dbTransactionTable T " +
                         "        JOIN $dbPaymentsTable P ON P.${colTransactionID} = T.${colID} " +
                         "        GROUP BY P.${colTransactionID} " +
-                        "        HAVING COUNT(*) > 1 ) AS TID )"
+                        "        HAVING COUNT(*) > 1 ) AS TID ) " +
+                        "AND T.${colID} NOT IN ( " +
+                        "    SELECT TID FROM ( " +
+                        "        SELECT T.${colID} AS TID FROM $dbTransactionTable T " +
+                        "        WHERE T.${colTransferTransactionID} != 0) AS TID )"
                 var cursor = sqlDB!!.rawQuery(query, selectionArgs)
                 if (cursor.moveToFirst()) {
                     do {
@@ -791,11 +832,14 @@ open class DBManager(context: Context) {
                    These are any that were paid by multiple accounts and this is the last of those
                    accounts to be deleted, so delete all payments and transactions under these
                    accounts
+                   This also includes any transfers where both accounts have been deleted
                 */
+                val selectionArgsDel: Array<String> =
+                    arrayOf(selectionArgs[0], selectionArgs[0], selectionArgs[0])
                 query = "SELECT T.$colID FROM $dbTransactionTable T " +
                         "JOIN $dbPaymentsTable P ON P.$colTransactionID = T.$colID " +
                         "JOIN $dbAccountTable A ON A.$colID = P.$colAccountID " +
-                        "WHERE (A.$colActive = 0 OR A.$colID = ?) AND T.$colID IN ( " +
+                        "WHERE (A.$colActive = 0 OR A.$colID = ?) AND (T.$colID IN ( " +
                         "    SELECT TID FROM ( " +
                         "        SELECT T1.$colID AS TID FROM $dbTransactionTable T1 " +
                         "        JOIN $dbPaymentsTable P ON P.$colTransactionID = T1.$colID " +
@@ -808,8 +852,17 @@ open class DBManager(context: Context) {
                         "            WHERE A.$colActive = 0 AND T.$colID = T1.$colID " +
                         "            GROUP BY P.$colTransactionID " +
                         "            HAVING COUNT(*) > 1  ) ) AS TID ) " +
+                        "OR T.$colID IN ( " +
+                        "    SELECT T1.$colID FROM $dbTransactionTable T1 " +
+                        "    JOIN $dbPaymentsTable P1 ON P1.$colTransactionID = T1.$colID " +
+                        "    JOIN $dbAccountTable A1 ON A1.$colID = P1.$colAccountID " +
+                        "    JOIN $dbTransactionTable T2 ON T1.$colTransferTransactionID = T2.$colID " +
+                        "    JOIN $dbPaymentsTable P2 ON P2.$colTransactionID = T2.$colID " +
+                        "    JOIN $dbAccountTable A2 ON A2.$colID = P2.$colAccountID " +
+                        "    WHERE A1.$colActive = 0 AND A2.$colActive = 0 " +
+                        "    AND (A1.$colID = ? OR A2.$colID = ?) ) ) " +
                         "GROUP BY T.$colID"
-                cursor = sqlDB!!.rawQuery(query, selectionArgs)
+                cursor = sqlDB!!.rawQuery(query, selectionArgsDel)
                 if (cursor.moveToFirst()) {
                     do {
                         val id = cursor.getInt(cursor.getColumnIndex(colID))
@@ -827,8 +880,10 @@ open class DBManager(context: Context) {
             }
             dbCategoryTable -> {
                 // If we are deleting a category, remove all of its transactions first
-                val result = sqlDB!!.delete(dbTransactionTable, "$colCategoryID = ?",
-                    selectionArgs)
+                val result = sqlDB!!.delete(
+                    dbTransactionTable, "$colCategoryID = ?",
+                    selectionArgs
+                )
                 if (result >= 0) {
                     sqlDB!!.delete(dbCategoryTable, "$colID = ?", selectionArgs)
                 }

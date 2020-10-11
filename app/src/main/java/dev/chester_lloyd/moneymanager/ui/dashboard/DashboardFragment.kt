@@ -18,6 +18,7 @@ import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import dev.chester_lloyd.moneymanager.ui.accounts.AccountTransactions
 import dev.chester_lloyd.moneymanager.ui.accounts.AccountsFragment
+import dev.chester_lloyd.moneymanager.ui.accounts.TransferFunds
 import dev.chester_lloyd.moneymanager.ui.transactions.AddTransactionCheckRequirements
 import dev.chester_lloyd.moneymanager.ui.transactions.TransactionsFragment
 import kotlinx.android.synthetic.main.account.view.*
@@ -215,8 +216,14 @@ class DashboardFragment : Fragment() {
                 val clickedTransaction = transactions[item]
 
                 // Setup an intent to send this across to view this transactions details
-                val intent = Intent(context, TransactionDetails::class.java)
+                var intent = Intent(context, TransactionDetails::class.java)
                 val bundle = Bundle()
+
+                if (clickedTransaction.transferTransactionID != 0) {
+                    // This is a transfer, show the transfer page
+                    intent = Intent(context, TransferFunds::class.java)
+                }
+
                 bundle.putInt("transactionID", clickedTransaction.transactionID)
                 intent.putExtras(bundle)
                 startActivity(intent)

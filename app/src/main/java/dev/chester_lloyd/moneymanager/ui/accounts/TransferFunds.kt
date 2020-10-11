@@ -16,7 +16,13 @@ import dev.chester_lloyd.moneymanager.ui.CurrencyValidator
 import dev.chester_lloyd.moneymanager.ui.Icon
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.IconSpinner
+import kotlinx.android.synthetic.main.activity_add_transaction.*
 import kotlinx.android.synthetic.main.activity_transfer_funds.*
+import kotlinx.android.synthetic.main.activity_transfer_funds.etAmount
+import kotlinx.android.synthetic.main.activity_transfer_funds.etDate
+import kotlinx.android.synthetic.main.activity_transfer_funds.tvDesc
+import kotlinx.android.synthetic.main.activity_transfer_funds.tvSuffix
+import kotlinx.android.synthetic.main.activity_transfer_funds.tvSymbol
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -26,6 +32,7 @@ import java.util.*
  * @author Chester Lloyd
  * @since 1.2
  */
+@Suppress("NAME_SHADOWING")
 class TransferFunds : AppCompatActivity() {
 
     private var transferDate: Calendar = Calendar.getInstance()
@@ -161,6 +168,29 @@ class TransferFunds : AppCompatActivity() {
             }
         })
 
+        // Get transaction from database, if ID given (to edit)
+        val transactionID = intent.getIntExtra("transactionID", 0)
+
+        if (transactionID > 0) {
+            this.supportActionBar?.title = getString(R.string.edit_transaction)
+            tvDesc.setText(R.string.text_edit_transaction_desc)
+            transactionSource = dbManager.selectTransaction(transactionID)
+            transactionDestination = dbManager.selectTransaction(transactionSource.transferTransactionID)
+            etAmount.setText(CurrencyValidator.getEditTextAmount(transactionSource.amount, format[2]))
+            updateDateInView()
+
+            accountSource = dbManager.getAccountByTransaction(transactionSource)!!
+            accountDestination = dbManager.getAccountByTransaction(transactionDestination)!!
+
+            for (account in 0 until accounts.size) {
+                if (accounts[account].accountID == accountSource.accountID) {
+                    spSource.setSelection(account)
+                } else if (accounts[account].accountID == accountDestination.accountID) {
+                    spDestination.setSelection(account)
+                }
+            }
+        }
+
         // Save or update the transactions on FAB click
         fabTransferFunds.setOnClickListener {
 
@@ -222,9 +252,9 @@ class TransferFunds : AppCompatActivity() {
                 transactionDestination.amount = (transactionSource.amount * -1)
                 transactionDestination.date = transactionSource.date
 
+                var saveSuccess = false
                 if (transactionSource.transactionID == 0) {
                     // Insert two new transactions into the transactions table for the transfer
-                    var saveSuccess = false
                     val idSource = dbManager.insertTransaction(transactionSource)
                     if (idSource > 0) {
                         transactionSource.transactionID = idSource.toInt()
@@ -281,9 +311,73 @@ class TransferFunds : AppCompatActivity() {
                         ).show()
                     }
                 } else {
-//                    @TODO: Add update statements
-                }
+                    // Update this transfer in the database
+                    val paymentSource = dbManager.selectPayments(
+                        accountSource.accountID,
+                        "account"
+                    )[0]
+                    paymentSource.amount = transactionSource.amount
+                    val paymentDestination = dbManager.selectPayments(
+                        accountDestination.accountID,
+                        "account"
+                    )[0]
+                    paymentDestination.amount = transactionDestination.amount
 
+                    val selectionArgsSource = arrayOf(transactionSource.transactionID.toString())
+                    val idSource = dbManager.updateTransaction(
+                        transactionSource, "ID=?",
+                        selectionArgsSource
+                    )
+                    if (idSource > 0) {
+                        // Update the source payment
+                        println("UPDATING source payment tid ${transactionSource.transactionID} aid ${paymentSource.account.accountID}")
+                        dbManager.updatePayment(
+                            paymentSource,
+                            "TransactionID=? AND AccountID=?",
+                            arrayOf(
+                                transactionSource.transactionID.toString(),
+                                paymentSource.account.accountID.toString()
+                            )
+                        )
+
+                        val selectionArgsDest = arrayOf(transactionDestination.transactionID.toString())
+                        val idDest = dbManager.updateTransaction(
+                            transactionDestination, "ID=?",
+                            selectionArgsDest
+                        )
+                        if (idDest > 0) {
+                            // Update the destination payment
+                            println("UPDATING dest payment tid ${transactionDestination.transactionID} aid ${paymentDestination.account.accountID}")
+                            dbManager.updatePayment(
+                                paymentDestination,
+                                "TransactionID=? AND AccountID=?",
+                                arrayOf(
+                                    transactionDestination.transactionID.toString(),
+                                    paymentDestination.account.accountID.toString()
+                                )
+                            )
+
+                            saveSuccess = true
+                            dbManager.sqlDB!!.close()
+
+                            // Transactions updated in the database, return to previous fragment
+                            Toast.makeText(
+                                this, R.string.transaction_update_success,
+                                Toast.LENGTH_LONG
+                            ).show()
+                            setResult(RESULT_OK)
+                            this.finish()
+                        }
+
+                        if (!saveSuccess) {
+                            // Failed to update, show this error
+                            Toast.makeText(
+                                this, R.string.transaction_update_fail,
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
             }
         }
         dbManager.sqlDB!!.close()

@@ -27,13 +27,12 @@ class Transaction {
      * @param details Optional additional details associated about this transaction.
      * @param date The date that the transaction took place.
      * @param amount The total amount that the transaction is worth.
-     * @param transferTransaction The transaction that is involved when the transaction is a
-     * transfer from one account to another. Thi is optional as it is likely not ll transactions
-     * are transfers.
+     * @param transferTransactionID The transaction ID of the other transaction when this is
+     * involved in a transfer from one account to another.
      */
     constructor(
         transactionID: Int, category: Category, merchant: String, details: String?,
-        date: Calendar, amount: Double, transferTransaction: Transaction?
+        date: Calendar, amount: Double, transferTransactionID: Int
     ) {
         this.transactionID = transactionID
         this.category = category
@@ -41,9 +40,7 @@ class Transaction {
         this.details = details
         this.date = date
         this.amount = amount
-        if (transferTransaction != null) {
-            this.transferTransactionID = transferTransaction.transactionID
-        }
+        this.transferTransactionID = transferTransactionID
     }
 
     /**
