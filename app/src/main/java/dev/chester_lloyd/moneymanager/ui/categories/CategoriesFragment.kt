@@ -1,21 +1,16 @@
 package dev.chester_lloyd.moneymanager.ui.categories
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.BaseAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.DBManager
-import dev.chester_lloyd.moneymanager.Category
-import dev.chester_lloyd.moneymanager.ui.IconManager
-import kotlinx.android.synthetic.main.category.view.*
+import dev.chester_lloyd.moneymanager.ui.ListViewManager
 import kotlinx.android.synthetic.main.fragment_categories.*
 
 /**
@@ -66,100 +61,18 @@ class CategoriesFragment : Fragment() {
         dbManager.sqlDB!!.close()
 
         // Pass this to the list view adaptor and populate
-        val categoriesAdapter = CategoriesAdapter(listCategories)
-        this.lvCategories.adapter = categoriesAdapter
-
-        // When a category in the list is clicked
-        this.lvCategories.onItemClickListener =
-            AdapterView.OnItemClickListener { parent, view, position, id ->
-                // value of item that is clicked
-                val category = lvCategories.getItemAtPosition(position) as Category
-                val intent = Intent(context, CategoryTransaction::class.java)
-
-                val bundle = Bundle()
-                bundle.putInt("categoryID", category.categoryID)
-                bundle.putString("name", category.name)
-                bundle.putInt("icon", category.icon)
-                bundle.putInt("colour", category.colour)
-                intent.putExtras(bundle)
-
-                startActivity(intent)
-            }
+        this.lvCategories.adapter = ListViewManager(
+            listCategories.toTypedArray(),
+            layoutInflater,
+            context!!,
+            "categories"
+        )
 
         // Show no accounts text
         if (listCategories.isEmpty()) {
             this.tvNoCategories.visibility = View.VISIBLE
         } else {
             this.tvNoCategories.visibility = View.INVISIBLE
-        }
-    }
-
-    /**
-     * An inner class that takes an array of [Category] objects and handles all operations of the
-     * ListView.
-     *
-     * @param listCategoriesAdapter An [ArrayList] of [Category] objects
-     * @return [BaseAdapter]
-     */
-    inner class CategoriesAdapter(private var listCategoriesAdapter: ArrayList<Category>) :
-        BaseAdapter() {
-
-        /**
-         * Creates a new row within the list view
-         *
-         * @param position Position of row in the ListView.
-         * @param convertView A View object
-         * @param parent The parent's ViewGroup
-         * @return A View for a row in the ListView.
-         * @suppress InflateParams as the layout is inflating without a Parent
-         * @suppress ViewHolder as there is unconditional layout inflation from view adapter
-         */
-        @SuppressLint("InflateParams", "ViewHolder")
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-            // Adds each category to a new row in a list view
-            val rowView = layoutInflater.inflate(R.layout.category, null)
-            val category = listCategoriesAdapter[position]
-            rowView.tvName.text = category.name
-
-            // Use IconManager to load the icons
-            val iconManager = IconManager(context!!)
-            rowView.ivIcon.setImageResource(
-                iconManager.getIconByID(iconManager.categoryIcons, category.icon).drawable
-            )
-            rowView.ivIcon.setBackgroundResource(
-                iconManager.getIconByID(iconManager.colourIcons, category.colour).drawable
-            )
-
-            return rowView
-        }
-
-        /**
-         * Get the [Category] object at a given [position] in the ListView.
-         *
-         * @param position Position of row in the ListView.
-         * @return An [Category] object of the item at the given position.
-         */
-        override fun getItem(position: Int): Any {
-            return listCategoriesAdapter[position]
-        }
-
-        /**
-         * Get the row ID associated with the specified [position] in the list.
-         *
-         * @param position The position of the item within the list whose row ID we want.
-         * @return The ID of the item at the specified position.
-         */
-        override fun getItemId(position: Int): Long {
-            return position.toLong()
-        }
-
-        /**
-         * Returns number of items in the ListView.
-         *
-         * @return The size of the ListView.
-         */
-        override fun getCount(): Int {
-            return listCategoriesAdapter.size
         }
     }
 }

@@ -1,23 +1,15 @@
 package dev.chester_lloyd.moneymanager.ui
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.BaseAdapter
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.*
-import dev.chester_lloyd.moneymanager.ui.categories.CategoryTransaction
 import dev.chester_lloyd.moneymanager.ui.transactions.AddTransaction
-import kotlinx.android.synthetic.main.account.view.*
 import kotlinx.android.synthetic.main.activity_transation_details.*
-import kotlinx.android.synthetic.main.transaction.view.ivIcon
-import kotlinx.android.synthetic.main.transaction.view.tvName
 
 /**
  * An [AppCompatActivity] subclass to show the payments for a transaction. This also displays
@@ -108,27 +100,13 @@ class TransactionDetails : AppCompatActivity() {
             .selectPayments(transaction.transactionID, "transaction")
 
         // Pass this to the list view adaptor and populate
-        val myPaymentsAdapter = PaymentsAdapter(listPayments)
-        this.lvPayments.adapter = myPaymentsAdapter
+        this.lvPayments.adapter = ListViewManager(
+            listPayments.toTypedArray(),
+            layoutInflater,
+            applicationContext,
+            "transaction details"
+        )
 
-        // When a transaction in the list is clicked
-        this.lvPayments.onItemClickListener =
-            AdapterView.OnItemClickListener { parent, view, position, id ->
-                // Get payment object of item that is clicked
-                val payment = lvPayments.getItemAtPosition(position) as Payment
-
-                // value of item that is clicked
-                val intent = Intent(this, CategoryTransaction::class.java)
-
-                val bundle = Bundle()
-                bundle.putInt("categoryID", payment.transaction.category.categoryID)
-                bundle.putString("name", payment.transaction.category.name)
-                bundle.putInt("icon", payment.transaction.category.icon)
-                bundle.putInt("colour", payment.transaction.category.colour)
-                intent.putExtras(bundle)
-
-                startActivity(intent)
-            }
         dbManager.sqlDB!!.close()
     }
 
@@ -199,78 +177,5 @@ class TransactionDetails : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
-    }
-
-    /**
-     * An inner class that takes an array of [Payment] objects and handles all operations of the
-     * ListView.
-     *
-     * @param listPaymentsAdapter An [ArrayList] of [Payment] objects
-     * @return [BaseAdapter]
-     */
-    inner class PaymentsAdapter(private var listPaymentsAdapter: ArrayList<Payment>) :
-        BaseAdapter() {
-
-        /**
-         * Creates a new row within the list view
-         *
-         * @param position Position of row in the ListView.
-         * @param convertView A View object
-         * @param parent The parent's ViewGroup
-         * @return A View for a row in the ListView.
-         * @suppress InflateParams as the layout is inflating without a Parent
-         * @suppress ViewHolder as there is unconditional layout inflation from view adapter
-         */
-        @SuppressLint("InflateParams", "ViewHolder")
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-            // Adds each payment to a new row in a list view
-            val rowView = layoutInflater.inflate(R.layout.account, null)
-            val payment = listPaymentsAdapter[position]
-
-            val iconManager = IconManager(applicationContext)
-            rowView.ivIcon.setImageResource(
-                iconManager.getIconByID(
-                    iconManager.accountIcons, payment.account.icon
-                ).drawable
-            )
-            rowView.ivIcon.setBackgroundResource(
-                iconManager.getIconByID(
-                    iconManager.colourIcons, payment.account.colour
-                ).drawable
-            )
-
-            rowView.tvName.text = payment.account.name
-            rowView.tvBalance.text = MainActivity.stringBalance(applicationContext, payment.amount)
-            return rowView
-        }
-
-        /**
-         * Get the [Payment] object at a given [position] in the ListView.
-         *
-         * @param position Position of row in the ListView.
-         * @return A [Payment] object of the item at the given position.
-         */
-        override fun getItem(position: Int): Any {
-            return listPaymentsAdapter[position]
-        }
-
-        /**
-         * Get the row ID associated with the specified [position] in the list.
-         *
-         * @param position The position of the item within the list whose row ID we want.
-         * @return The ID of the item at the specified position.
-         */
-        override fun getItemId(position: Int): Long {
-            return position.toLong()
-        }
-
-        /**
-         * Returns number of items in the ListView.
-         *
-         * @return The size of the ListView.
-         */
-        override fun getCount(): Int {
-            return listPaymentsAdapter.size
-        }
     }
 }
