@@ -622,6 +622,7 @@ open class DBManager(context: Context) {
      * @param selectionArgs The arguments used to select the transaction to delete (transaction ID).
      */
     fun deleteTransaction(selectionArgs: Array<String>) {
+        val transaction = selectTransaction(selectionArgs[0].toInt())
         val payments = selectPayments(selectionArgs[0].toInt(), "transaction")
         for (payment in payments.indices) {
             // Get account for the payment and update the balance
@@ -638,6 +639,11 @@ open class DBManager(context: Context) {
 
         // Now delete the transaction
         sqlDB!!.delete(dbTransactionTable, "$colID = ?", arrayOf(selectionArgs[0]))
+
+        if (transaction.transferTransactionID != 0) {
+            // This is a transfer, delete the linked transaction
+            deleteTransaction(arrayOf(transaction.transferTransactionID.toString()))
+        }
     }
 
     /**

@@ -1,11 +1,14 @@
 package dev.chester_lloyd.moneymanager.ui.accounts
 
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Spinner
@@ -340,14 +343,37 @@ class TransferFunds : AppCompatActivity() {
                 } else {
                     // Update this transfer in the database
                     val paymentSource = dbManager.selectPayments(
-                        accountSource.accountID,
-                        "account"
+                        transactionSource.transactionID,
+                        "transaction"
                     )[0]
+                    if (paymentSource.account != accountSource) {
+                        // If different source, reimburse the account
+                        paymentSource.account.balance =
+                            paymentSource.account.balance + paymentSource.amount
+                        dbManager.updateAccount(
+                            paymentSource.account,
+                            "ID = ?",
+                            arrayOf(paymentSource.account.accountID.toString())
+                        )
+                        paymentSource.account = accountSource
+                    }
                     paymentSource.amount = transactionSource.amount
+
                     val paymentDestination = dbManager.selectPayments(
-                        accountDestination.accountID,
-                        "account"
+                        transactionDestination.transactionID,
+                        "transaction"
                     )[0]
+                    if (paymentDestination.account != accountDestination) {
+                        // If different destination, remove the amount from the account
+                        paymentDestination.account.balance =
+                            paymentDestination.account.balance - paymentDestination.amount
+                        dbManager.updateAccount(
+                            paymentDestination.account,
+                            "ID = ?",
+                            arrayOf(paymentDestination.account.accountID.toString())
+                        )
+                        paymentDestination.account = accountDestination
+                    }
                     paymentDestination.amount = transactionDestination.amount
 
                     val selectionArgsSource = arrayOf(transactionSource.transactionID.toString())
@@ -357,7 +383,6 @@ class TransferFunds : AppCompatActivity() {
                     )
                     if (idSource > 0) {
                         // Update the source payment
-                        println("UPDATING source payment tid ${transactionSource.transactionID} aid ${paymentSource.account.accountID}")
                         dbManager.updatePayment(
                             paymentSource,
                             "TransactionID=? AND AccountID=?",
@@ -374,7 +399,6 @@ class TransferFunds : AppCompatActivity() {
                         )
                         if (idDest > 0) {
                             // Update the destination payment
-                            println("UPDATING dest payment tid ${transactionDestination.transactionID} aid ${paymentDestination.account.accountID}")
                             dbManager.updatePayment(
                                 paymentDestination,
                                 "TransactionID=? AND AccountID=?",
@@ -417,6 +441,57 @@ class TransferFunds : AppCompatActivity() {
         val myFormat = "dd/MM/yyyy"
         val sdf = SimpleDateFormat(myFormat, Locale.ENGLISH)
         etDate!!.setText(sdf.format(transferDate.time))
+    }
+
+    /**
+     * An [onCreateOptionsMenu] method that adds the edit menu to the toolbar. This includes an
+     * edit and delete button.
+     *
+     * @param menu The options menu to place items.
+     * @return True to display the menu, or false to not show the menu.
+     */
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        if (transactionSource.transactionID > 0) {
+            // Only show delete menu if we're editing a transfer
+            menuInflater.inflate(R.menu.delete, menu)
+        }
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    /**
+     * An [onOptionsItemSelected] method that adds functionality when the menu buttons are clicked.
+     *
+     * @param item The menu item that was selected.
+     * @return Return false to allow normal menu processing to proceed, true to consume it here.
+     */
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.menuDelete -> {
+            // Delete icon clicked, build an alert dialog to get user confirmation
+            val alertDialog = AlertDialog.Builder(this)
+            alertDialog.setMessage(resources.getString(R.string.alert_message_delete_transaction))
+                .setCancelable(false)
+                .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
+                    finish()
+                    // Delete the transaction
+                    DBManager(this).deleteTransaction(
+                        arrayOf(transactionSource.transactionID.toString())
+                    )
+                }
+                .setNegativeButton(resources.getString(R.string.no)) {
+                    // Do nothing, close box
+                        dialog, _ ->
+                    dialog.cancel()
+                }
+
+            val alert = alertDialog.create()
+            alert.setTitle(resources.getString(R.string.alert_title_delete_transaction))
+            alert.show()
+            true
+        }
+        else -> {
+            // Unknown action (not edit or delete) invoke the superclass to handle it.
+            super.onOptionsItemSelected(item)
+        }
     }
 
     /**
