@@ -346,34 +346,52 @@ class TransferFunds : AppCompatActivity() {
                         transactionSource.transactionID,
                         "transaction"
                     )[0]
-                    if (paymentSource.account != accountSource) {
+                    val originalAccountSourceID = paymentSource.account.accountID
+                    val originalSourceAmount = paymentSource.amount
+                    println("Original src account $originalAccountSourceID")
+                    println("Original payment src of ${paymentSource.amount} from " +
+                            "${paymentSource.account.name} " +
+                            "(balance ${paymentSource.account.balance})")
+
+                    if (originalAccountSourceID != accountSource.accountID) {
+                        println("New src account ${accountSource.accountID}")
                         // If different source, reimburse the account
                         paymentSource.account.balance =
-                            paymentSource.account.balance + paymentSource.amount
+                            paymentSource.account.balance - paymentSource.amount //- a -ve payment
+                        println("Correcting previous src balance to ${paymentSource.account.balance}")
                         dbManager.updateAccount(
                             paymentSource.account,
                             "ID = ?",
                             arrayOf(paymentSource.account.accountID.toString())
                         )
-                        paymentSource.account = accountSource
                     }
+                    paymentSource.account = accountSource
                     paymentSource.amount = transactionSource.amount
 
                     val paymentDestination = dbManager.selectPayments(
                         transactionDestination.transactionID,
                         "transaction"
                     )[0]
-                    if (paymentDestination.account != accountDestination) {
+                    val originalAccountDestinationID = paymentDestination.account.accountID
+                    val originalDestinationAmount = paymentDestination.amount
+                    println("Original dst account $originalAccountDestinationID")
+                    println("Original payment dst of ${paymentDestination.amount} to " +
+                            "${paymentDestination.account.name} " +
+                            "(balance ${paymentDestination.account.balance})")
+
+                    if (originalAccountDestinationID != accountDestination.accountID) {
+                        println("New dst account ${accountDestination.accountID}")
                         // If different destination, remove the amount from the account
                         paymentDestination.account.balance =
                             paymentDestination.account.balance - paymentDestination.amount
+                        println("Correcting previous dst balance to ${paymentDestination.account.balance}")
                         dbManager.updateAccount(
                             paymentDestination.account,
                             "ID = ?",
                             arrayOf(paymentDestination.account.accountID.toString())
                         )
-                        paymentDestination.account = accountDestination
                     }
+                    paymentDestination.account = accountDestination
                     paymentDestination.amount = transactionDestination.amount
 
                     val selectionArgsSource = arrayOf(transactionSource.transactionID.toString())
@@ -383,13 +401,11 @@ class TransferFunds : AppCompatActivity() {
                     )
                     if (idSource > 0) {
                         // Update the source payment
-                        dbManager.updatePayment(
+                        dbManager.updatePaymentTransfer(
+                            originalAccountSourceID,
+                            originalSourceAmount,
                             paymentSource,
-                            "TransactionID=? AND AccountID=?",
-                            arrayOf(
-                                transactionSource.transactionID.toString(),
-                                paymentSource.account.accountID.toString()
-                            )
+                            paymentSource.account.accountID == originalAccountDestinationID
                         )
 
                         val selectionArgsDest = arrayOf(transactionDestination.transactionID.toString())
@@ -399,13 +415,11 @@ class TransferFunds : AppCompatActivity() {
                         )
                         if (idDest > 0) {
                             // Update the destination payment
-                            dbManager.updatePayment(
+                            dbManager.updatePaymentTransfer(
+                                originalAccountDestinationID,
+                                originalDestinationAmount,
                                 paymentDestination,
-                                "TransactionID=? AND AccountID=?",
-                                arrayOf(
-                                    transactionDestination.transactionID.toString(),
-                                    paymentDestination.account.accountID.toString()
-                                )
+                                paymentDestination.account.accountID == originalAccountSourceID
                             )
 
                             saveSuccess = true

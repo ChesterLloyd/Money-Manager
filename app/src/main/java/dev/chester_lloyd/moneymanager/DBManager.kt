@@ -794,6 +794,66 @@ open class DBManager(context: Context) {
     }
 
     /**
+     * Updates a [Payment] object when updating a transfer.
+     *
+     * @param accountID The account ID before changes.
+     * @param initialAmount The amount before changes.
+     * @param newPayment A [Payment] object containing the new data to keep.
+     * @param swap True if the source/destination account becomes the opposite after changes.
+     * @return Number of rows updated.
+     */
+    fun updatePaymentTransfer(
+        accountID: Int,
+        initialAmount: Double,
+        newPayment: Payment,
+        swap: Boolean
+    ): Int {
+        println("Updating payment")
+        println(" - old payment $initialAmount for account $accountID")
+        println(" - new payment ${newPayment.amount} for account ${newPayment.account.accountID} " +
+                "and trans ${newPayment.transaction.transactionID}")
+
+        // Initialise variables
+        val transactionID = newPayment.transaction.transactionID
+        val selection = "TransactionID=? AND AccountID=?"
+        val selectionArgs = arrayOf(
+            transactionID.toString(),
+            accountID.toString()
+        )
+
+        // Get values ready to update the payment
+        val values = ContentValues()
+        values.put(colTransactionID, transactionID)
+        values.put(colAccountID, newPayment.account.accountID)
+        values.put(colAmount, newPayment.amount)
+
+        val result = sqlDB!!.update(dbPaymentsTable, values, selection, selectionArgs)
+        if (result > 0) {
+            // Update the account's balance where this payment was made
+            val account = newPayment.account
+            val oldBal = account.balance
+
+            when {
+                newPayment.account.accountID == accountID -> {
+                    // Same account
+                    account.balance = account.balance - initialAmount + newPayment.amount
+                }
+                swap -> {
+                    // Source is now destination (or vice versa)
+                    account.balance = account.balance + initialAmount + newPayment.amount
+                }
+                else -> {
+                    // Another uninvolved account
+                    account.balance = account.balance + newPayment.amount
+                }
+            }
+            println("new account balance $oldBal -> ${account.balance}")
+            updateAccount(account, "$colID = ?", arrayOf(account.accountID.toString()))
+        }
+        return result
+    }
+
+    /**
      * Generic database delete method.
      *
      * @param table The table to delete a record from.
