@@ -532,7 +532,12 @@ open class DBManager(context: Context) {
      * @param limit Limit the number of accounts returned by an optional limit.
      * @return An [ArrayList] of [Transaction] objects
      */
-    fun selectTransactions(id: Int, type: String, limit: String?): ArrayList<Transaction> {
+    fun selectTransactions(
+        id: Int,
+        type: String,
+        limit: String?,
+        includeSecondTransfer: Boolean = true
+    ): ArrayList<Transaction> {
         var selectionArgs = arrayOf(id.toString())
         val listTransactions = ArrayList<Transaction>()
 
@@ -545,16 +550,27 @@ open class DBManager(context: Context) {
 
             if (id > 0) {
                 query += " WHERE C.${colID} = ? "
+                if (!includeSecondTransfer) query += " AND "
             } else {
                 selectionArgs = emptyArray()
+                if (!includeSecondTransfer) query += " WHERE "
             }
+
         } else if (type == "Accounts") {
             query = "SELECT T.${colID}, T.${colCategoryID}, T.${colName}, T.${colDetails}, " +
                     "T.${colDate}, T.${colAmount}, T.${colTransferTransactionID} " +
                     "FROM $dbTransactionTable T " +
                     "JOIN $dbPaymentsTable P ON P.${colTransactionID} = T.${colID} " +
                     "WHERE P.${colAccountID} = ?"
+
+            if (!includeSecondTransfer) query += " AND "
         }
+
+        // Hide the positive transfers
+        if (!includeSecondTransfer) {
+            query += "NOT (T.${colTransferTransactionID} > 0 AND T.${colAmount} > 0)"
+        }
+
         query += " ORDER BY T.${colDate} DESC"
         if (limit != null) {
             query += " LIMIT $limit"

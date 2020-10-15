@@ -182,10 +182,15 @@ class ListViewManager(
                 // We are adding Transactions to the list
                 val rowView = layoutInflater.inflate(R.layout.transaction, null)
                 val transaction = listObjects[position] as Transaction
-
                 rowView.tvName.text = transaction.merchant
                 rowView.tvDate.text = transaction.getDate(context, "DMY")
                 rowView.tvAmount.text = MainActivity.stringBalance(context, transaction.amount)
+
+                // Show positive amounts for transfers as we're only show the one transaction
+                if (transaction.transferTransactionID > 0) {
+                    rowView.tvAmount.text =
+                        MainActivity.stringBalance(context, (transaction.amount * -1))
+                }
 
                 // Get the transaction's category icon and colour
                 val iconManager = IconManager(context)

@@ -46,8 +46,7 @@ class TransactionTabFragment(private val tab: Int) : Fragment() {
 
         // Get transactions as an array list from database
         val dbManager = DBManager(context!!)
-        val listTransactions = dbManager.selectTransactions(tab,
-            "Categories", null)
+        val listTransactions = dbManager.selectTransactions(tab, "Categories", null, false)
         dbManager.sqlDB!!.close()
 
         // If there are no transactions under this category, show a message
@@ -64,22 +63,6 @@ class TransactionTabFragment(private val tab: Int) : Fragment() {
                 context!!,
                 "transactions"
             )
-
-            // When a transaction in the list is clicked
-            lvTransactions.onItemClickListener =
-                AdapterView.OnItemClickListener { parent, view, position, id ->
-                    // Get account object of item that is clicked
-                    val transaction = lvTransactions.getItemAtPosition(position) as Transaction
-
-                    // Setup an intent to send this across to view the account's transactions
-                    val intent = Intent(context, TransactionDetails::class.java)
-
-                    val bundle = Bundle()
-                    bundle.putInt("transactionID", transaction.transactionID)
-                    intent.putExtras(bundle)
-
-                    startActivity(intent)
-                }
         }
     }
 }

@@ -91,7 +91,7 @@ class DashboardFragment : Fragment() {
             }
 
             // Get transactions as an array list from database and add them to the recent list
-            val listTransactions = dbManager.selectTransactions(0, "Categories", "3")
+            val listTransactions = dbManager.selectTransactions(0, "Categories", "3", false)
             addTransactions(listTransactions)
             dbManager.sqlDB!!.close()
 
@@ -134,8 +134,6 @@ class DashboardFragment : Fragment() {
 
             // When an account is clicked
             rowView.setOnClickListener {
-                val clickedAccount = accounts[item]
-
                 // Setup an intent to send this across to view the account's transactions
                 val intent = Intent(context, AccountTransactions::class.java)
                 val bundle = Bundle()
@@ -195,6 +193,12 @@ class DashboardFragment : Fragment() {
             rowView.tvDate.text = transaction.getDate(context!!, "DMY")
             rowView.tvAmount.text = MainActivity.stringBalance(context!!, transaction.amount)
 
+            // Show positive amounts for transfers as we're only show the one transaction
+            if (transaction.transferTransactionID > 0) {
+                rowView.tvAmount.text =
+                    MainActivity.stringBalance(context!!, (transaction.amount * -1))
+            }
+
             // Get the transaction's category icon and colour
             val iconManager = IconManager(context!!)
             rowView.ivIcon.setImageResource(
@@ -232,7 +236,7 @@ class DashboardFragment : Fragment() {
 
         // If there are more than 3 transactions, show a view more button
         val dbManager = DBManager(context!!)
-        if (dbManager.selectTransactions(0, "Categories", null).size > 3) {
+        if (dbManager.selectTransactions(0, "Categories", null, false).size > 3) {
             val buTransactions = Button(context)
             buTransactions.text = getString(R.string.view_more)
             buTransactions.setTextColor(ContextCompat.getColor(context!!, R.color.buttonLink))
