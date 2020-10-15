@@ -725,24 +725,20 @@ open class DBManager(context: Context) {
         val selectionArgs = arrayOf(id.toString())
         val listPayments = ArrayList<Payment>()
 
-        // Assume this is fetching by an account ID
         var query = "SELECT P.${colID}, P.${colTransactionID}, " +
                 "P.${colAccountID}, P.${colAmount} FROM $dbPaymentsTable P " +
-                "JOIN $dbAccountTable A ON A.${colID} = P.${colAccountID} " +
-                "WHERE P.${colAccountID} = ? " +
-                "ORDER BY A.${colName} ASC"
-        var cursor = sqlDB!!.rawQuery(query, selectionArgs)
+                "JOIN $dbTransactionTable T ON T.${colID} = P.${colTransactionID} " +
+                "JOIN $dbAccountTable A ON A.${colID} = P.${colAccountID} "
 
-        if (type == "transaction") {
-            // Get by transaction ID instead
-            query = "SELECT P.${colID}, P.${colTransactionID}, " +
-                    "P.${colAccountID}, P.${colAmount} FROM $dbPaymentsTable P " +
-                    "JOIN $dbTransactionTable T ON T.${colID} = P.${colTransactionID} " +
-                    "JOIN $dbAccountTable A ON A.${colID} = P.${colAccountID} " +
-                    "WHERE T.${colID} = ? " +
-                    "ORDER BY A.${colName} ASC"
-            cursor = sqlDB!!.rawQuery(query, selectionArgs)
+        query += if (type == "transaction") {
+            // Get by transaction ID
+            "WHERE T.${colID} = ? ORDER BY A.${colName} ASC"
+        } else {
+            // Get by account ID
+            "WHERE P.${colAccountID} = ? ORDER BY T.${colDate} DESC"
         }
+
+        val cursor = sqlDB!!.rawQuery(query, selectionArgs)
 
         if (cursor.moveToFirst()) {
             do {
