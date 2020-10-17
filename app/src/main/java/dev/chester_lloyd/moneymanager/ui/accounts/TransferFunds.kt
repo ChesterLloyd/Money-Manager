@@ -125,6 +125,7 @@ class TransferFunds : AppCompatActivity() {
         val iconManager = IconManager(this)
         val icons = arrayOfNulls<Icon>(accounts.size)
         val backgrounds = arrayOfNulls<Icon>(accounts.size)
+        val balances = arrayOfNulls<String>(accounts.size)
 
         for (account in 0 until accounts.size) {
             icons[account] = Icon(
@@ -146,15 +147,17 @@ class TransferFunds : AppCompatActivity() {
                 "",
                 null
             )
+
+            balances[account] = MainActivity.stringBalance(this, accounts[account].balance)
         }
 
         val sourceSpinner = findViewById<Spinner>(R.id.spSource)
         sourceSpinner.adapter = IconSpinner(
-            applicationContext, icons.requireNoNulls(), backgrounds.requireNoNulls(), "icon"
+            applicationContext, icons.requireNoNulls(), backgrounds.requireNoNulls(), balances.requireNoNulls(), "account"
         )
         val destinationSpinner = findViewById<Spinner>(R.id.spDestination)
         destinationSpinner.adapter = IconSpinner(
-            applicationContext, icons.requireNoNulls(), backgrounds.requireNoNulls(), "icon"
+            applicationContext, icons.requireNoNulls(), backgrounds.requireNoNulls(), balances.requireNoNulls(), "account"
         )
 
         // Add selected account to transaction source/destination object

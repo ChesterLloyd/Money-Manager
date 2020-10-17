@@ -110,7 +110,7 @@ class AddTransaction : AppCompatActivity() {
         val categorySpinner = findViewById<Spinner>(R.id.spCategory)
         categorySpinner.adapter = IconSpinner(
             applicationContext,
-            icons.requireNoNulls(), backgrounds.requireNoNulls(), "icon"
+            icons.requireNoNulls(), backgrounds.requireNoNulls(), null, "icon"
         )
 
         // Add selected category to transaction object

@@ -37,14 +37,14 @@ class AddCategory : AppCompatActivity() {
         val iconSpinner = findViewById<Spinner>(R.id.spIcon)
         iconSpinner.adapter = IconSpinner(
             applicationContext,
-            iconManager.categoryIcons, null, "icon"
+            iconManager.categoryIcons, null, null, "icon"
         )
 
         // Set up the category color spinner
         val colourSpinner = findViewById<Spinner>(R.id.spColour)
         colourSpinner.adapter = IconSpinner(
             applicationContext,
-            null, iconManager.colourIcons, "colour"
+            null, iconManager.colourIcons, null, "colour"
         )
 
         val category = Category()

@@ -27,7 +27,9 @@ class IconSpinner (
     context: Context,
     private var icons: Array<Icon>?,
     private var backgrounds: Array<Icon>?,
-    private var spinnerType: String) : BaseAdapter() {
+    private var balances: Array<String>?,
+    private var spinnerType: String
+) : BaseAdapter() {
 
     private var inflter: LayoutInflater = LayoutInflater.from(context)
 
@@ -76,26 +78,44 @@ class IconSpinner (
     override fun getView(position: Int, view: View?, viewGroup: ViewGroup): View {
         val view: View?
 
-        if (spinnerType == "icon") {
-            // If we are adding icons to the spinner
-            view = inflter.inflate(R.layout.spinner_icon, null)
-            val icon = view.findViewById(R.id.ivAccountIcon) as ImageView
-            val names = view.findViewById(R.id.tvIconName) as TextView
+        when (spinnerType) {
+            "icon" -> {
+                // If we are adding icons to the spinner
+                view = inflter.inflate(R.layout.spinner_icon, null)
+                val icon = view.findViewById(R.id.ivAccountIcon) as ImageView
+                val names = view.findViewById(R.id.tvIconName) as TextView
 
-            icon.setImageResource(icons!![position].drawable)
-            if (backgrounds != null) {
-                icon.setBackgroundResource(backgrounds!![position].drawable)
+                icon.setImageResource(icons!![position].drawable)
+                if (backgrounds != null) {
+                    icon.setBackgroundResource(backgrounds!![position].drawable)
+                }
+                names.text = icons!![position].text
             }
-            names.text = icons!![position].text
-        } else {
-            // If we are adding anything else, i.e. colours
-            view = inflter.inflate(R.layout.spinner_colour, null)
-            val colour = view.findViewById(R.id.ivAccountColour) as ImageView
-            val names = view.findViewById(R.id.tvColourName) as TextView
-            //colour.setBackgroundColor(Color.rgb(200,83,81))
-            colour.setBackgroundResource(backgrounds!![position].drawable)
+            "colour" -> {
+                // If we are adding anything else, i.e. colours
+                view = inflter.inflate(R.layout.spinner_colour, null)
+                val colour = view.findViewById(R.id.ivAccountColour) as ImageView
+                val names = view.findViewById(R.id.tvColourName) as TextView
+                //colour.setBackgroundColor(Color.rgb(200,83,81))
+                colour.setBackgroundResource(backgrounds!![position].drawable)
 
-            names.text = backgrounds!![position].text
+                names.text = backgrounds!![position].text
+            }
+            "account" -> {
+                // If we are adding accounts (with the balance)
+                view = inflter.inflate(R.layout.account, null)
+                val icon = view.findViewById(R.id.ivIcon) as ImageView
+                val names = view.findViewById(R.id.tvName) as TextView
+                val balance = view.findViewById(R.id.tvBalance) as TextView
+
+                icon.setImageResource(icons!![position].drawable)
+                icon.setBackgroundResource(backgrounds!![position].drawable)
+                names.text = icons!![position].text
+                balance.text = balances!![position]
+            }
+            else -> {
+                view = inflter.inflate(R.layout.spinner_colour, null)
+            }
         }
         return view
     }

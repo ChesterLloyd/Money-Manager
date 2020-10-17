@@ -53,14 +53,14 @@ class AddAccount : AppCompatActivity() {
         val iconSpinner = findViewById<Spinner>(R.id.spIcon)
         iconSpinner.adapter = IconSpinner(
             applicationContext,
-            iconManager.accountIcons, null, "icon"
+            iconManager.accountIcons, null, null, "icon"
         )
 
         // Set up the account color spinner
         val colourSpinner = findViewById<Spinner>(R.id.spColour)
         colourSpinner.adapter = IconSpinner(
             applicationContext,
-            null, iconManager.colourIcons, "colour"
+            null, iconManager.colourIcons, null, "colour"
         )
 
         // Validate the balance field
