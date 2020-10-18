@@ -58,6 +58,10 @@ class TransferFunds : AppCompatActivity() {
         tvSymbol.text = format[0]
         tvSuffix.text = format[3]
 
+        // Setup the date to the current device date
+        val etDate = this.etDate
+        updateDateInView()
+
         val dbManager = DBManager(this)
 
         // Get transaction from database, if ID given (to edit)
@@ -69,11 +73,10 @@ class TransferFunds : AppCompatActivity() {
                 dbManager.selectTransaction(transactionSource.transferTransactionID)
             accountSource = dbManager.getAccountByTransaction(transactionSource)!!
             accountDestination = dbManager.getAccountByTransaction(transactionDestination)!!
-        }
 
-        // Setup the date to the current device date
-        val etDate = this.etDate
-        updateDateInView()
+            transferDate = transactionSource.date
+            updateDateInView()
+        }
 
         // Create a date picker, set values for class date value
         val dateSetListener =
@@ -269,6 +272,7 @@ class TransferFunds : AppCompatActivity() {
                     accountDestination.name
                 )
                 transactionSource.amount = (amountValidator.getBalance(format[2]) * -1)
+                transactionSource.date = transferDate
 
                 // Update destination transaction with selected details
                 transactionDestination.category = transactionSource.category
