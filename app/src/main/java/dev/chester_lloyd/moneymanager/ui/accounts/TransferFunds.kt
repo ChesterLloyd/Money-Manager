@@ -272,16 +272,8 @@ class TransferFunds : AppCompatActivity() {
 
                 // Update destination transaction with selected details
                 transactionDestination.category = transactionSource.category
-                transactionDestination.merchant = this.resources.getString(
-                    R.string.transfer_to,
-                    accountDestination.name,
-                    accountSource.name
-                )
-                transactionDestination.details = this.resources.getString(
-                    R.string.transfer_from_to,
-                    accountDestination.name,
-                    accountSource.name
-                )
+                transactionDestination.merchant = transactionSource.merchant
+                transactionDestination.details = transactionSource.details
                 transactionDestination.amount = (transactionSource.amount * -1)
                 transactionDestination.date = transactionSource.date
 

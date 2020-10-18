@@ -115,6 +115,7 @@
                 android:paddingLeft="16dp"
                 android:paddingTop="24dp"
                 android:paddingRight="16dp"
+                android:paddingBottom="4dp"
                 android:text="@string/account_set_default" />
 
             <TextView
