@@ -78,12 +78,25 @@
                     android:layout_weight="1"
                     android:textSize="24sp" />
 
-                <Button
-                    android:id="@+id/buUpdatePin"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/settings_set_pin_button" />
+                    android:orientation="vertical">
+
+                    <Button
+                        android:id="@+id/buUpdatePin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_set_pin_button" />
+
+                    <Button
+                        android:id="@+id/buRemovePin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_remove_pin_button" />
+                </LinearLayout>
+
             </LinearLayout>
 
         </LinearLayout>

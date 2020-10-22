@@ -52,6 +52,15 @@ class SettingsFragment : Fragment() {
             startActivity(pinIntent)
         }
 
+        val buRemovePin: Button = root.findViewById(R.id.buRemovePin)
+        buRemovePin.setOnClickListener {
+            val pinIntent = Intent(context, PinCodeActivity::class.java)
+            val pinBundle = Bundle()
+            pinBundle.putString("from", "settings-remove")
+            pinIntent.putExtras(pinBundle)
+            startActivity(pinIntent)
+        }
+
         return root
     }
 
@@ -77,9 +86,11 @@ class SettingsFragment : Fragment() {
         if (isPinSet(requireContext())) {
             tvPinStatus.text = this.resources.getText(R.string.settings_pin_set)
             buUpdatePin.text = this.resources.getText(R.string.settings_update_pin_button)
+            buRemovePin.visibility = View.VISIBLE
         } else {
             tvPinStatus.text = this.resources.getText(R.string.settings_pin_unset)
             buUpdatePin.text = this.resources.getText(R.string.settings_set_pin_button)
+            buRemovePin.visibility = View.GONE
         }
     }
 }

@@ -34,13 +34,16 @@ class PinCodeActivity : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         from = this.intent.getStringExtra("from")!!
-        updatePin = from == "settings" || from == "update1"
+        updatePin = from == "settings" || from == "settings-remove" || from == "update1"
 
         super.onCreate(savedInstanceState)
 
         if (updatePin) {
             // Setup toolbar name and show a back button
             this.supportActionBar?.title = getString(R.string.settings_update_pin_button)
+            if (from == "settings-remove") {
+                this.supportActionBar?.title = getString(R.string.settings_remove_pin_button)
+            }
             this.supportActionBar?.setDisplayShowHomeEnabled(true)
             this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         } else {
@@ -53,12 +56,18 @@ class PinCodeActivity : AppCompatActivity() {
         }
         setContentView(R.layout.activity_pin_code)
 
-        if (from == "home") {
-            tvInstructions.text = ""
-        } else if (from == "update1") {
-            // We are confirming our new PIN - set first PIN and instructions
-            pin1 = this.intent.getStringExtra("pin1")!!
-            tvInstructions.text = getText(R.string.settings_confirm_pin)
+        when (from) {
+            "home" -> {
+                tvInstructions.text = ""
+            }
+            "update1" -> {
+                // We are confirming our new PIN - set first PIN and instructions
+                pin1 = this.intent.getStringExtra("pin1")!!
+                tvInstructions.text = getText(R.string.settings_confirm_pin)
+            }
+            "settings-remove" -> {
+                tvInstructions.text = getText(R.string.settings_confirm_pin)
+            }
         }
 
         // Setup PIN code elements
@@ -76,37 +85,56 @@ class PinCodeActivity : AppCompatActivity() {
     private val mPinLockListener: PinLockListener = object : PinLockListener {
         override fun onComplete(pin: String) {
             // PIN entered
-            if (from == "home") {
-                if (isPinCorrect(applicationContext, pin)) {
-                    setResult(RESULT_OK)
-                    finish()
-                } else {
-                    tvInstructions.text = getText(R.string.settings_pin_incorrect)
-                    rlPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
-                }
-            } else if (from == "update1") {
-                // We are confirming our new PIN - check if it matches the second PIN
-                if (pin1 == pin) {
-                    // PINs match, update it and go back to settings
-                    tvInstructions.text = getText(R.string.settings_pin_set)
-                    updatePin(applicationContext, pin)
-                    Handler().postDelayed({
+            when (from) {
+                "home" -> {
+                    if (isPinCorrect(applicationContext, pin)) {
                         setResult(RESULT_OK)
                         finish()
-                    }, 1_500)
-                } else {
-                    // Second PIN did not match - show warning
-                    tvInstructions.text = getText(R.string.settings_pin_set_failed)
-                    rlPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
+                    } else {
+                        tvInstructions.text = getText(R.string.settings_pin_incorrect)
+                        rlPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
+                    }
                 }
-            } else {
-                // Round 2, confirm the first PIN
-                val pinIntent = Intent(applicationContext, PinCodeActivity::class.java)
-                val pinBundle = Bundle()
-                pinBundle.putString("from", "update1")
-                pinBundle.putString("pin1", pin)
-                pinIntent.putExtras(pinBundle)
-                startActivityForResult(pinIntent, 0)
+                "update1" -> {
+                    // We are confirming our new PIN - check if it matches the second PIN
+                    if (pin1 == pin) {
+                        // PINs match, update it and go back to settings
+                        tvInstructions.text = getText(R.string.settings_pin_set)
+                        updatePin(applicationContext, pin)
+                        Handler().postDelayed({
+                            setResult(RESULT_OK)
+                            finish()
+                        }, 1_500)
+                    } else {
+                        // Second PIN did not match - show warning
+                        tvInstructions.text = getText(R.string.settings_pin_set_failed)
+                        rlPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
+                    }
+                }
+                "settings-remove" -> {
+                    if (isPinCorrect(applicationContext, pin)) {
+                        // PIN is correct, remove it and go back to settings
+                        tvInstructions.text = getText(R.string.settings_pin_removed)
+                        updatePin(applicationContext, "x")
+                        Handler().postDelayed({
+                            setResult(RESULT_OK)
+                            finish()
+                        }, 1_500)
+                    } else {
+                        // PIN did not match - show warning
+                        tvInstructions.text = getText(R.string.settings_pin_incorrect)
+                        rlPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
+                    }
+                }
+                else -> {
+                    // Round 2, confirm the first PIN
+                    val pinIntent = Intent(applicationContext, PinCodeActivity::class.java)
+                    val pinBundle = Bundle()
+                    pinBundle.putString("from", "update1")
+                    pinBundle.putString("pin1", pin)
+                    pinIntent.putExtras(pinBundle)
+                    startActivityForResult(pinIntent, 0)
+                }
             }
         }
 
@@ -116,11 +144,14 @@ class PinCodeActivity : AppCompatActivity() {
 
         override fun onPinChange(pinLength: Int, intermediatePin: String) {
             // PIN after a key press
-            if (from == "update1") {
-                // Reset instruction and background in case user retypes numbers
+            if (from == "home") {
+                tvInstructions.text = ""
+            } else if (from == "update1" || from == "settings-remove") {
                 tvInstructions.text = getText(R.string.settings_confirm_pin)
-                rlPinCode.setBackgroundColor(resources.getColor(R.color.colorPrimaryDark))
             }
+
+            // Reset background in case user retypes numbers
+            rlPinCode.setBackgroundColor(resources.getColor(R.color.colorPrimaryDark))
         }
     }
 
