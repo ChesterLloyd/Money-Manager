@@ -12,6 +12,7 @@ import com.andrognito.pinlockview.IndicatorDots
 import com.andrognito.pinlockview.PinLockListener
 import com.andrognito.pinlockview.PinLockView
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.isPinCorrect
+import dev.chester_lloyd.moneymanager.MainActivity.Companion.isPinSet
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.updatePin
 import dev.chester_lloyd.moneymanager.R
 import kotlinx.android.synthetic.main.activity_pin_code.*
@@ -25,6 +26,7 @@ import kotlinx.android.synthetic.main.activity_pin_code.*
 class PinCodeActivity : AppCompatActivity() {
 
     private var mIndicatorDots: IndicatorDots? = null
+    private var newPin = false
     private var updatePin = false
     private var from = ""
     private var pin1 = "x"
@@ -34,6 +36,7 @@ class PinCodeActivity : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         from = this.intent.getStringExtra("from")!!
+        newPin = from == "settings" && !isPinSet(applicationContext)
         updatePin = from == "settings" || from == "settings-remove" ||
                 from == "update" || from == "update1"
 
@@ -41,9 +44,17 @@ class PinCodeActivity : AppCompatActivity() {
 
         if (updatePin) {
             // Setup toolbar name and show a back button
-            this.supportActionBar?.title = getString(R.string.settings_update_pin_button)
-            if (from == "settings-remove") {
-                this.supportActionBar?.title = getString(R.string.settings_remove_pin_button)
+            when {
+                newPin -> {
+                    this.supportActionBar?.title = getString(R.string.settings_set_pin_button)
+                    from = "new"
+                }
+                from == "settings-remove" -> {
+                    this.supportActionBar?.title = getString(R.string.settings_remove_pin_button)
+                }
+                else -> {
+                    this.supportActionBar?.title = getString(R.string.settings_update_pin_button)
+                }
             }
             this.supportActionBar?.setDisplayShowHomeEnabled(true)
             this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -97,7 +108,7 @@ class PinCodeActivity : AppCompatActivity() {
                         finish()
                     } else {
                         tvInstructions.text = getText(R.string.settings_pin_incorrect)
-                        rlPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
+                        clPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
                     }
                 }
                 "settings" -> {
@@ -111,7 +122,7 @@ class PinCodeActivity : AppCompatActivity() {
                     } else {
                         // PIN did not match - show warning
                         tvInstructions.text = getText(R.string.settings_pin_incorrect)
-                        rlPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
+                        clPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
                     }
                 }
                 "update1" -> {
@@ -127,7 +138,7 @@ class PinCodeActivity : AppCompatActivity() {
                     } else {
                         // Second PIN did not match - show warning
                         tvInstructions.text = getText(R.string.settings_pin_set_failed)
-                        rlPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
+                        clPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
                     }
                 }
                 "settings-remove" -> {
@@ -142,7 +153,7 @@ class PinCodeActivity : AppCompatActivity() {
                     } else {
                         // PIN did not match - show warning
                         tvInstructions.text = getText(R.string.settings_pin_incorrect)
-                        rlPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
+                        clPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
                     }
                 }
                 else -> {
@@ -170,7 +181,7 @@ class PinCodeActivity : AppCompatActivity() {
             }
 
             // Reset background in case user retypes numbers
-            rlPinCode.setBackgroundColor(resources.getColor(R.color.colorPrimaryDark))
+            clPinCode.setBackgroundColor(resources.getColor(R.color.colorPrimaryDark))
         }
     }
 

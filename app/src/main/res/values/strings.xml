@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Money Manager</string>
+    <string name="app_icon">Money Manager icon</string>
     <string name="nav_header_title">Money Manager</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
