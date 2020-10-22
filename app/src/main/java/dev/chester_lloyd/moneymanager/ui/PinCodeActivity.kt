@@ -34,7 +34,8 @@ class PinCodeActivity : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         from = this.intent.getStringExtra("from")!!
-        updatePin = from == "settings" || from == "settings-remove" || from == "update1"
+        updatePin = from == "settings" || from == "settings-remove" ||
+                from == "update" || from == "update1"
 
         super.onCreate(savedInstanceState)
 
@@ -59,6 +60,10 @@ class PinCodeActivity : AppCompatActivity() {
         when (from) {
             "home" -> {
                 tvInstructions.text = ""
+            }
+            "settings" -> {
+                // We are confirming our PIN prior to update
+                tvInstructions.text = getText(R.string.settings_confirm_pin)
             }
             "update1" -> {
                 // We are confirming our new PIN - set first PIN and instructions
@@ -91,6 +96,20 @@ class PinCodeActivity : AppCompatActivity() {
                         setResult(RESULT_OK)
                         finish()
                     } else {
+                        tvInstructions.text = getText(R.string.settings_pin_incorrect)
+                        rlPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
+                    }
+                }
+                "settings" -> {
+                    if (isPinCorrect(applicationContext, pin)) {
+                        // PIN is correct, let's get ready to update
+                        val pinIntent = Intent(applicationContext, PinCodeActivity::class.java)
+                        val pinBundle = Bundle()
+                        pinBundle.putString("from", "update")
+                        pinIntent.putExtras(pinBundle)
+                        startActivityForResult(pinIntent, 0)
+                    } else {
+                        // PIN did not match - show warning
                         tvInstructions.text = getText(R.string.settings_pin_incorrect)
                         rlPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
                     }
@@ -146,7 +165,7 @@ class PinCodeActivity : AppCompatActivity() {
             // PIN after a key press
             if (from == "home") {
                 tvInstructions.text = ""
-            } else if (from == "update1" || from == "settings-remove") {
+            } else if (from == "settings" || from == "update1" || from == "settings-remove") {
                 tvInstructions.text = getText(R.string.settings_confirm_pin)
             }
 
@@ -166,6 +185,7 @@ class PinCodeActivity : AppCompatActivity() {
     ) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK) {
+            setResult(RESULT_OK) // Could be closing the confirmation prior to update
             this.finish()
         }
     }
