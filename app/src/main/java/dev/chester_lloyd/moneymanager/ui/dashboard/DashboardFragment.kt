@@ -14,7 +14,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.chester_lloyd.moneymanager.*
+import dev.chester_lloyd.moneymanager.MainActivity.Companion.isPinSet
 import dev.chester_lloyd.moneymanager.ui.IconManager
+import dev.chester_lloyd.moneymanager.ui.PinCodeActivity
 import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import dev.chester_lloyd.moneymanager.ui.accounts.AccountTransactions
 import dev.chester_lloyd.moneymanager.ui.accounts.AccountsFragment
@@ -48,6 +50,13 @@ class DashboardFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        if (isPinSet(requireContext())) {
+            val pinIntent = Intent(requireContext(), PinCodeActivity::class.java)
+            val pinBundle = Bundle()
+            pinBundle.putString("from", "home")
+            pinIntent.putExtras(pinBundle)
+            startActivityForResult(pinIntent, 0)
+        }
         dashboardViewModel = ViewModelProvider(this)[DashboardViewModel::class.java]
         val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
         dashboardViewModel.text.observe(viewLifecycleOwner, Observer {
@@ -69,17 +78,17 @@ class DashboardFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        val format = MainActivity.getCurrencyFormat(context!!)
+        val format = MainActivity.getCurrencyFormat(requireContext())
         if (format[0] == "" && format[3] == "") {
             // The app has not been set up, load setup page
             startActivity(Intent(context, SetupApp::class.java))
         } else {
             // Update page title and set active drawer item
-            activity!!.toolbar.title = getString(R.string.menu_dashboard)
-            activity!!.nav_view.setCheckedItem(R.id.nav_home)
+            requireActivity().toolbar.title = getString(R.string.menu_dashboard)
+            requireActivity().nav_view.setCheckedItem(R.id.nav_home)
 
             // Get accounts as an array list from database and add them to the list
-            val dbManager = DBManager(context!!)
+            val dbManager = DBManager(requireContext())
             val listAccounts = dbManager.selectAccounts("active", "3")
             addAccounts(listAccounts)
 
@@ -118,10 +127,10 @@ class DashboardFragment : Fragment() {
             val rowView = layoutInflater.inflate(R.layout.account, null)
             val account = accounts[item]
             rowView.tvName.text = account.name
-            rowView.tvBalance.text = MainActivity.stringBalance(context!!, account.balance)
+            rowView.tvBalance.text = MainActivity.stringBalance(requireContext(), account.balance)
 
             // Get the account's icon and colour
-            val iconManager = IconManager(context!!)
+            val iconManager = IconManager(requireContext())
             rowView.ivIcon.setImageResource(
                 iconManager.getIconByID(iconManager.accountIcons, account.icon).drawable
             )
@@ -149,11 +158,11 @@ class DashboardFragment : Fragment() {
         }
 
         // If there are more than 3 accounts, show a view more button
-        val dbManager = DBManager(context!!)
+        val dbManager = DBManager(requireContext())
         if (dbManager.selectAccounts("active", null).size > 3) {
             val buAccounts = Button(context)
             buAccounts.text = getString(R.string.view_more)
-            buAccounts.setTextColor(ContextCompat.getColor(context!!, R.color.buttonLink))
+            buAccounts.setTextColor(ContextCompat.getColor(requireContext(), R.color.buttonLink))
             buAccounts.setBackgroundResource(0)
             buAccounts.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
@@ -167,8 +176,8 @@ class DashboardFragment : Fragment() {
                     .addToBackStack(null)
                     .commit()
                 // Update page title and set active drawer item
-                activity!!.toolbar.title = getString(R.string.menu_accounts)
-                activity!!.nav_view.setCheckedItem(R.id.nav_accounts)
+                requireActivity().toolbar.title = getString(R.string.menu_accounts)
+                requireActivity().nav_view.setCheckedItem(R.id.nav_accounts)
             }
             // Add button to the page
             llAccounts.addView(buAccounts)
@@ -190,17 +199,17 @@ class DashboardFragment : Fragment() {
             val rowView = layoutInflater.inflate(R.layout.transaction, null)
             val transaction = transactions[item]
             rowView.tvName.text = transaction.merchant
-            rowView.tvDate.text = transaction.getDate(context!!, "DMY")
-            rowView.tvAmount.text = MainActivity.stringBalance(context!!, transaction.amount)
+            rowView.tvDate.text = transaction.getDate(requireContext(), "DMY")
+            rowView.tvAmount.text = MainActivity.stringBalance(requireContext(), transaction.amount)
 
             // Show positive amounts for transfers as we're only show the one transaction
             if (transaction.transferTransactionID > 0) {
                 rowView.tvAmount.text =
-                    MainActivity.stringBalance(context!!, (transaction.amount * -1))
+                    MainActivity.stringBalance(requireContext(), (transaction.amount * -1))
             }
 
             // Get the transaction's category icon and colour
-            val iconManager = IconManager(context!!)
+            val iconManager = IconManager(requireContext())
             rowView.ivIcon.setImageResource(
                 iconManager.getIconByID(
                     iconManager.categoryIcons, transaction.category.icon
@@ -235,11 +244,11 @@ class DashboardFragment : Fragment() {
         }
 
         // If there are more than 3 transactions, show a view more button
-        val dbManager = DBManager(context!!)
+        val dbManager = DBManager(requireContext())
         if (dbManager.selectTransactions(0, "Categories", null, false).size > 3) {
             val buTransactions = Button(context)
             buTransactions.text = getString(R.string.view_more)
-            buTransactions.setTextColor(ContextCompat.getColor(context!!, R.color.buttonLink))
+            buTransactions.setTextColor(ContextCompat.getColor(requireContext(), R.color.buttonLink))
             buTransactions.setBackgroundResource(0)
             buTransactions.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
@@ -253,8 +262,8 @@ class DashboardFragment : Fragment() {
                     .addToBackStack(null)
                     .commit()
                 // Update page title and set active drawer item
-                activity!!.toolbar.title = getString(R.string.menu_transactions)
-                activity!!.nav_view.setCheckedItem(R.id.nav_transactions)
+                requireActivity().toolbar.title = getString(R.string.menu_transactions)
+                requireActivity().nav_view.setCheckedItem(R.id.nav_transactions)
             }
 
             // Add button to the page

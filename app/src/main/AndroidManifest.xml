@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.accounts.TransferFunds"></activity>
+        <activity android:name=".ui.PinCodeActivity" />
+        <activity android:name=".ui.accounts.TransferFunds" />
         <activity android:name=".ui.dashboard.SetupApp" />
         <activity android:name=".ui.TransactionDetails" />
         <activity android:name=".ui.transactions.AddTransaction" />

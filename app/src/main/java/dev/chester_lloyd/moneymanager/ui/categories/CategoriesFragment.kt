@@ -54,7 +54,7 @@ class CategoriesFragment : Fragment() {
      */
     override fun onResume() {
         super.onResume()
-        val dbManager = DBManager(context!!)
+        val dbManager = DBManager(requireContext())
 
         // Get categories as an array list from database
         val listCategories = dbManager.selectCategories()
@@ -64,7 +64,7 @@ class CategoriesFragment : Fragment() {
         this.lvCategories.adapter = ListViewManager(
             listCategories.toTypedArray(),
             layoutInflater,
-            context!!,
+            requireContext(),
             "categories"
         )
 

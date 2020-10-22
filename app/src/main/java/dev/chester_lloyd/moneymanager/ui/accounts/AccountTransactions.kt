@@ -38,7 +38,7 @@ class AccountTransactions : AppCompatActivity() {
 
         account = Account(
             intent.getIntExtra("accountID", 0),
-            intent.getStringExtra("name"),
+            intent.getStringExtra("name")!!,
             intent.getDoubleExtra("balance", 0.0),
             intent.getIntExtra("icon", 0),
             intent.getIntExtra("colour", 0),

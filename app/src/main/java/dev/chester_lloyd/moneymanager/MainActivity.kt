@@ -82,6 +82,7 @@ class MainActivity : AppCompatActivity() {
         private const val PREFS_CURRENCY_GROUP = "currency_group"
         private const val PREFS_CURRENCY_DECIMAL = "currency_decimal"
         private const val PREFS_CURRENCY_SUFFIX = "currency_suffix"
+        private const val PREFS_PIN_CODE = "pin_code"
 
         /**
          * A method that updates a collection of shared preferences that stores the currency format.
@@ -164,6 +165,42 @@ class MainActivity : AppCompatActivity() {
 
             // Put it all together and return
             return "${start}${format[2]}${decimalPart}${format[3]}"
+        }
+
+        /**
+         * A method that updates the user's PIN.
+         *
+         * @param context Context.
+         * @param pin The new PIN to set.
+         */
+        fun updatePin(context: Context, pin: String) {
+            val editPrefs = context.getSharedPreferences(PREFS_FILENAME, 0)
+                .edit()
+            editPrefs.putString(PREFS_PIN_CODE, pin)
+                .apply()
+        }
+
+        /**
+         * Returns a [Boolean] whether the PIN has been set.
+         *
+         * @param context Context.
+         * @return True if the PIN has been set.
+         */
+        fun isPinSet(context: Context): Boolean {
+            val prefs: SharedPreferences = context.getSharedPreferences(PREFS_FILENAME, 0)
+            return "x" != prefs.getString(PREFS_PIN_CODE, "x")!!
+        }
+
+        /**
+         * Returns a [Boolean] whether the PIN provided is the same as the PIN set.
+         *
+         * @param context Context.
+         * @param pin The PIN entered that we want to verify.
+         * @return True if the PIN provided is correct.
+         */
+        fun isPinCorrect(context: Context, pin: String): Boolean {
+            val prefs: SharedPreferences = context.getSharedPreferences(PREFS_FILENAME, 0)
+            return pin == prefs.getString(PREFS_PIN_CODE, "x")!!
         }
     }
 }

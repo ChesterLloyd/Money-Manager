@@ -225,4 +225,12 @@
 
     <string name="settings_currency">Currency settings</string>
     <string name="settings_currency_button">Change format</string>
+    <string name="settings_security">Security settings</string>
+    <string name="settings_set_pin_button">Set a new PIN</string>
+    <string name="settings_update_pin_button">Change PIN</string>
+    <string name="settings_pin_set">PIN set</string>
+    <string name="settings_pin_set_failed">No match</string>
+    <string name="settings_pin_unset">No PIN set</string>
+    <string name="settings_confirm_pin">Confirm PIN</string>
+    <string name="settings_pin_incorrect">Incorrect PIN</string>
 </resources>

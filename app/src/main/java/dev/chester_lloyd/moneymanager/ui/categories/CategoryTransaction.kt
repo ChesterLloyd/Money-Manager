@@ -38,7 +38,7 @@ class CategoryTransaction : AppCompatActivity() {
 
         category = Category(
             intent.getIntExtra("categoryID", 0),
-            intent.getStringExtra("name"),
+            intent.getStringExtra("name")!!,
             intent.getIntExtra("icon", 0),
             intent.getIntExtra("colour", 0)
         )

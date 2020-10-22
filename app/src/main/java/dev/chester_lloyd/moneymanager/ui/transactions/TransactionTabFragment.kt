@@ -1,17 +1,13 @@
 package dev.chester_lloyd.moneymanager.ui.transactions
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import dev.chester_lloyd.moneymanager.R
-import dev.chester_lloyd.moneymanager.Transaction
 import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.ui.ListViewManager
-import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import kotlinx.android.synthetic.main.fragment_transaction_tab.*
 
 /**
@@ -45,7 +41,7 @@ class TransactionTabFragment(private val tab: Int) : Fragment() {
         super.onResume()
 
         // Get transactions as an array list from database
-        val dbManager = DBManager(context!!)
+        val dbManager = DBManager(requireContext())
         val listTransactions = dbManager.selectTransactions(tab, "Categories", null, false)
         dbManager.sqlDB!!.close()
 
@@ -60,7 +56,7 @@ class TransactionTabFragment(private val tab: Int) : Fragment() {
             lvTransactions.adapter = ListViewManager(
                 listTransactions.toTypedArray(),
                 layoutInflater,
-                context!!,
+                requireContext(),
                 "transactions"
             )
         }

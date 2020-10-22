@@ -46,7 +46,7 @@ class TransactionsFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_transactions, container, false)
 
         // Get all categories from the database (Add an all one too)
-        val dbManager = DBManager(context!!)
+        val dbManager = DBManager(requireContext())
         categories.add(Category(0, "All", 0, 0))
         categories.addAll(dbManager.selectCategories())
         dbManager.sqlDB!!.close()

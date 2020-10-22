@@ -58,7 +58,7 @@ class AccountsFragment : Fragment() {
      */
     override fun onResume() {
         super.onResume()
-        val dbManager = DBManager(context!!)
+        val dbManager = DBManager(requireContext())
 
         // Get accounts as an array list from database
         listAccounts = dbManager.selectAccounts("active", null)
@@ -68,7 +68,7 @@ class AccountsFragment : Fragment() {
         this.lvAccounts.adapter = ListViewManager(
             listAccounts.toTypedArray(),
             layoutInflater,
-            context!!,
+            requireContext(),
             "categories"
         )
 

@@ -57,13 +57,13 @@ class MonthlySummaryTabFragment(private val tab: Int) : Fragment() {
         // Clear views when coming back to a tab
         llCharts.removeAllViews()
 
-        val pieManager = PieManager(context!!)
+        val pieManager = PieManager(requireContext())
         val dates = pieManager.getAllMonths()
 
         if (tab == 0 || tab == 1) {
             // Get width of display so we know how large to make things
             val displayMetrics = DisplayMetrics()
-            activity!!.windowManager.defaultDisplay.getMetrics(displayMetrics)
+            requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
             val width = displayMetrics.widthPixels
             val xdpi = displayMetrics.xdpi
             val density = displayMetrics.density
@@ -124,10 +124,10 @@ class MonthlySummaryTabFragment(private val tab: Int) : Fragment() {
             }
         } else {
             // Make the summary table
-            val tableManager = TableManager(context!!)
+            val tableManager = TableManager(requireContext())
             val summaryTable = tableManager.createTable()
 
-            tableManager.addTableRow(summaryTable, arrayListOf("", "Income", "Expenses"), true, activity!!)
+            tableManager.addTableRow(summaryTable, arrayListOf("", "Income", "Expenses"), true, requireActivity())
 
             // For every month in the database, make a row for it
             for ((count, date) in dates.indices.withIndex()) {
@@ -138,20 +138,20 @@ class MonthlySummaryTabFragment(private val tab: Int) : Fragment() {
                 // Add year row
                 if (count == 0) {
                     // Current year
-                    tableManager.addTableRow(summaryTable, arrayListOf(year, "", ""), false, activity!!)
+                    tableManager.addTableRow(summaryTable, arrayListOf(year, "", ""), false, requireActivity())
                 } else if (month == "12") {
                     // Previous years
-                    tableManager.addTableRow(summaryTable, arrayListOf(year, "", ""), false, activity!!)
+                    tableManager.addTableRow(summaryTable, arrayListOf(year, "", ""), false, requireActivity())
                 }
 
-                val monthTotalIn = stringBalance(context!!, tableManager.transactionTotal(month, year, "in"), false)
-                val monthTotalOut = stringBalance(context!!, tableManager.transactionTotal(month, year, "out"), false)
+                val monthTotalIn = stringBalance(requireContext(), tableManager.transactionTotal(month, year, "in"), false)
+                val monthTotalOut = stringBalance(requireContext(), tableManager.transactionTotal(month, year, "out"), false)
 
                 tableManager.addTableRow(summaryTable, arrayListOf(
                     SimpleDateFormat("MMMM").format(dates[date].time),
                     monthTotalIn,
                     monthTotalOut
-                ), false, activity!!)
+                ), false, requireActivity())
             }
 
             llCharts.addView(summaryTable)

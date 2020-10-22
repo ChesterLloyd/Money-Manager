@@ -11,7 +11,9 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import dev.chester_lloyd.moneymanager.MainActivity
+import dev.chester_lloyd.moneymanager.MainActivity.Companion.isPinSet
 import dev.chester_lloyd.moneymanager.R
+import dev.chester_lloyd.moneymanager.ui.PinCodeActivity
 import dev.chester_lloyd.moneymanager.ui.dashboard.SetupApp
 import kotlinx.android.synthetic.main.fragment_settings.*
 
@@ -41,6 +43,15 @@ class SettingsFragment : Fragment() {
             startActivity(Intent(context, SetupApp::class.java))
         }
 
+        val buUpdatePin: Button = root.findViewById(R.id.buUpdatePin)
+        buUpdatePin.setOnClickListener {
+            val pinIntent = Intent(context, PinCodeActivity::class.java)
+            val pinBundle = Bundle()
+            pinBundle.putString("from", "settings")
+            pinIntent.putExtras(pinBundle)
+            startActivity(pinIntent)
+        }
+
         return root
     }
 
@@ -51,7 +62,8 @@ class SettingsFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        val format = MainActivity.getCurrencyFormat(context!!)
+        // Update currency preview
+        val format = MainActivity.getCurrencyFormat(requireContext())
         val colourStr = resources.getString(R.color.colorPrimary)
         val colour = "#${colourStr.subSequence(3, colourStr.length)}"
         tvCurrencyFormat.text = Html.fromHtml(
@@ -60,5 +72,14 @@ class SettingsFragment : Fragment() {
                     "<font color='$colour'>${format[2]}</font>50" +
                     "<font color='$colour'>${format[3]}</font>"
         )
+
+        // Update PIN status
+        if (isPinSet(requireContext())) {
+            tvPinStatus.text = this.resources.getText(R.string.settings_pin_set)
+            buUpdatePin.text = this.resources.getText(R.string.settings_update_pin_button)
+        } else {
+            tvPinStatus.text = this.resources.getText(R.string.settings_pin_unset)
+            buUpdatePin.text = this.resources.getText(R.string.settings_set_pin_button)
+        }
     }
 }
