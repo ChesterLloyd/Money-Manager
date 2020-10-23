@@ -43,20 +43,11 @@ class SettingsFragment : Fragment() {
             startActivity(Intent(context, SetupApp::class.java))
         }
 
-        val buUpdatePin: Button = root.findViewById(R.id.buUpdatePin)
-        buUpdatePin.setOnClickListener {
-            val pinIntent = Intent(context, PinCodeActivity::class.java)
-            val pinBundle = Bundle()
-            pinBundle.putString("from", "settings")
-            pinIntent.putExtras(pinBundle)
-            startActivity(pinIntent)
-        }
-
         val buRemovePin: Button = root.findViewById(R.id.buRemovePin)
         buRemovePin.setOnClickListener {
             val pinIntent = Intent(context, PinCodeActivity::class.java)
             val pinBundle = Bundle()
-            pinBundle.putString("from", "settings-remove")
+            pinBundle.putString("journey", "remove")
             pinIntent.putExtras(pinBundle)
             startActivity(pinIntent)
         }
@@ -86,10 +77,24 @@ class SettingsFragment : Fragment() {
         if (isPinSet(requireContext())) {
             tvPinStatus.text = this.resources.getText(R.string.settings_pin_set)
             buUpdatePin.text = this.resources.getText(R.string.settings_update_pin_button)
+            buUpdatePin.setOnClickListener {
+                val pinIntent = Intent(context, PinCodeActivity::class.java)
+                val pinBundle = Bundle()
+                pinBundle.putString("journey", "update")
+                pinIntent.putExtras(pinBundle)
+                startActivity(pinIntent)
+            }
             buRemovePin.visibility = View.VISIBLE
         } else {
             tvPinStatus.text = this.resources.getText(R.string.settings_pin_unset)
             buUpdatePin.text = this.resources.getText(R.string.settings_set_pin_button)
+            buUpdatePin.setOnClickListener {
+                val pinIntent = Intent(context, PinCodeActivity::class.java)
+                val pinBundle = Bundle()
+                pinBundle.putString("journey", "new")
+                pinIntent.putExtras(pinBundle)
+                startActivity(pinIntent)
+            }
             buRemovePin.visibility = View.GONE
         }
     }

@@ -53,7 +53,7 @@ class DashboardFragment : Fragment() {
         if (isPinSet(requireContext())) {
             val pinIntent = Intent(requireContext(), PinCodeActivity::class.java)
             val pinBundle = Bundle()
-            pinBundle.putString("from", "home")
+            pinBundle.putString("journey", "authenticate")
             pinIntent.putExtras(pinBundle)
             startActivityForResult(pinIntent, 0)
         }

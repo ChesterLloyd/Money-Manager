@@ -27,33 +27,35 @@ class PinCodeActivity : AppCompatActivity() {
 
     private var mIndicatorDots: IndicatorDots? = null
     private var newPin = false
-    private var updatePin = false
-    private var from = ""
+    private var journey = ""
+    private var new = false
+    private var update = false
+    private var remove = false
     private var pin1 = "x"
 
     /**
      * An [onCreate] method that sets up the PIN code elements.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
-        from = this.intent.getStringExtra("from")!!
-        newPin = from == "settings" && !isPinSet(applicationContext)
-        updatePin = from == "settings" || from == "settings-remove" ||
-                from == "update" || from == "update1"
+        journey = this.intent.getStringExtra("journey")!!
+        newPin = !isPinSet(applicationContext)
+        new = journey == "new" || journey == "new-2"
+        update = journey == "update" || journey == "update-2" || journey == "update-3"
+        remove = journey == "remove"
 
         super.onCreate(savedInstanceState)
 
-        if (updatePin) {
+        if (new || update || remove) {
             // Setup toolbar name and show a back button
             when {
-                newPin -> {
+                new -> {
                     this.supportActionBar?.title = getString(R.string.settings_set_pin_button)
-                    from = "new"
                 }
-                from == "settings-remove" -> {
-                    this.supportActionBar?.title = getString(R.string.settings_remove_pin_button)
-                }
-                else -> {
+                update -> {
                     this.supportActionBar?.title = getString(R.string.settings_update_pin_button)
+                }
+                remove -> {
+                    this.supportActionBar?.title = getString(R.string.settings_remove_pin_button)
                 }
             }
             this.supportActionBar?.setDisplayShowHomeEnabled(true)
@@ -68,20 +70,16 @@ class PinCodeActivity : AppCompatActivity() {
         }
         setContentView(R.layout.activity_pin_code)
 
-        when (from) {
-            "home" -> {
+        when (journey) {
+            "authenticate" -> {
                 tvInstructions.text = ""
             }
-            "settings" -> {
-                // We are confirming our PIN prior to update
-                tvInstructions.text = getText(R.string.settings_confirm_pin)
-            }
-            "update1" -> {
+            "new-2", "update-3" -> {
                 // We are confirming our new PIN - set first PIN and instructions
                 pin1 = this.intent.getStringExtra("pin1")!!
                 tvInstructions.text = getText(R.string.settings_confirm_pin)
             }
-            "settings-remove" -> {
+            "update", "remove" -> {
                 tvInstructions.text = getText(R.string.settings_confirm_pin)
             }
         }
@@ -101,8 +99,8 @@ class PinCodeActivity : AppCompatActivity() {
     private val mPinLockListener: PinLockListener = object : PinLockListener {
         override fun onComplete(pin: String) {
             // PIN entered
-            when (from) {
-                "home" -> {
+            when (journey) {
+                "authenticate" -> {
                     if (isPinCorrect(applicationContext, pin)) {
                         setResult(RESULT_OK)
                         finish()
@@ -111,12 +109,21 @@ class PinCodeActivity : AppCompatActivity() {
                         clPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
                     }
                 }
-                "settings" -> {
+                "new" -> {
+                    // Round 2, confirm the first PIN
+                    val pinIntent = Intent(applicationContext, PinCodeActivity::class.java)
+                    val pinBundle = Bundle()
+                    pinBundle.putString("journey", "new-2")
+                    pinBundle.putString("pin1", pin)
+                    pinIntent.putExtras(pinBundle)
+                    startActivityForResult(pinIntent, 0)
+                }
+                "update" -> {
                     if (isPinCorrect(applicationContext, pin)) {
                         // PIN is correct, let's get ready to update
                         val pinIntent = Intent(applicationContext, PinCodeActivity::class.java)
                         val pinBundle = Bundle()
-                        pinBundle.putString("from", "update")
+                        pinBundle.putString("journey", "update-2")
                         pinIntent.putExtras(pinBundle)
                         startActivityForResult(pinIntent, 0)
                     } else {
@@ -125,7 +132,16 @@ class PinCodeActivity : AppCompatActivity() {
                         clPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
                     }
                 }
-                "update1" -> {
+                "update-2" -> {
+                    // Round 2, confirm the first PIN
+                    val pinIntent = Intent(applicationContext, PinCodeActivity::class.java)
+                    val pinBundle = Bundle()
+                    pinBundle.putString("journey", "update-3")
+                    pinBundle.putString("pin1", pin)
+                    pinIntent.putExtras(pinBundle)
+                    startActivityForResult(pinIntent, 0)
+                }
+                "update-3", "new-2" -> {
                     // We are confirming our new PIN - check if it matches the second PIN
                     if (pin1 == pin) {
                         // PINs match, update it and go back to settings
@@ -141,7 +157,7 @@ class PinCodeActivity : AppCompatActivity() {
                         clPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
                     }
                 }
-                "settings-remove" -> {
+                "remove" -> {
                     if (isPinCorrect(applicationContext, pin)) {
                         // PIN is correct, remove it and go back to settings
                         tvInstructions.text = getText(R.string.settings_pin_removed)
@@ -156,15 +172,6 @@ class PinCodeActivity : AppCompatActivity() {
                         clPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
                     }
                 }
-                else -> {
-                    // Round 2, confirm the first PIN
-                    val pinIntent = Intent(applicationContext, PinCodeActivity::class.java)
-                    val pinBundle = Bundle()
-                    pinBundle.putString("from", "update1")
-                    pinBundle.putString("pin1", pin)
-                    pinIntent.putExtras(pinBundle)
-                    startActivityForResult(pinIntent, 0)
-                }
             }
         }
 
@@ -174,10 +181,16 @@ class PinCodeActivity : AppCompatActivity() {
 
         override fun onPinChange(pinLength: Int, intermediatePin: String) {
             // PIN after a key press
-            if (from == "home") {
-                tvInstructions.text = ""
-            } else if (from == "settings" || from == "update1" || from == "settings-remove") {
-                tvInstructions.text = getText(R.string.settings_confirm_pin)
+            when (journey) {
+                "authenticate" -> {
+                    tvInstructions.text = ""
+                }
+                "update", "update-3", "remove" -> {
+                    tvInstructions.text = getText(R.string.settings_confirm_pin)
+                }
+                "update-2" -> {
+                    tvInstructions.text = getText(R.string.settings_set_pin_button)
+                }
             }
 
             // Reset background in case user retypes numbers
@@ -215,10 +228,10 @@ class PinCodeActivity : AppCompatActivity() {
 
     /**
      * An [onBackPressed] method that informs the calling activity that we have closed this activity
-     * by toolbar or device back button. This is only allowed when updating the PIN.
+     * by toolbar or device back button. This is only allowed when not in the authentication journey.
      */
     override fun onBackPressed() {
-        if (updatePin) {
+        if (journey != "authenticate") {
             setResult(RESULT_OK)
             super.onBackPressed()
         }
