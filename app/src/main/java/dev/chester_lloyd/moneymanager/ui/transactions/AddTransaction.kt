@@ -36,6 +36,7 @@ class AddTransaction : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MainActivity.hideInMultitasking(window, applicationContext)
         setContentView(R.layout.activity_add_transaction)
 
         // Setup toolbar name and show a back button
@@ -461,6 +462,22 @@ class AddTransaction : AppCompatActivity() {
         val myFormat = "dd/MM/yyyy"
         val sdf = SimpleDateFormat(myFormat, Locale.ENGLISH)
         etDate!!.setText(sdf.format(transaction.date.time))
+    }
+
+    /**
+     * An [onResume] method that launches the PIN code lock if enabled.
+     */
+    override fun onResume() {
+        super.onResume()
+        MainActivity.launchPinLock(this, applicationContext)
+    }
+
+    /**
+     * An [onTrimMemory] method that sets the authenticated variable to false, as the app has been
+     * sent to the background.
+     */
+    override fun onTrimMemory(level: Int) {
+        MainActivity.authenticated = false
     }
 
     /**

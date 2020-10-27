@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import com.andrognito.pinlockview.IndicatorDots
 import com.andrognito.pinlockview.PinLockListener
 import com.andrognito.pinlockview.PinLockView
+import dev.chester_lloyd.moneymanager.MainActivity
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.isPinCorrect
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.isPinSet
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.updatePin
@@ -147,6 +148,7 @@ class PinCodeActivity : AppCompatActivity() {
                         // PINs match, update it and go back to settings
                         tvInstructions.text = getText(R.string.settings_pin_set)
                         updatePin(applicationContext, pin)
+                        MainActivity.authenticated = true // Don't ask for PIN after this
                         Handler().postDelayed({
                             setResult(RESULT_OK)
                             finish()

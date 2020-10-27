@@ -46,6 +46,7 @@ class TransferFunds : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MainActivity.hideInMultitasking(window, applicationContext)
         setContentView(R.layout.activity_transfer_funds)
 
         // Setup toolbar name and show a back button
@@ -505,6 +506,22 @@ class TransferFunds : AppCompatActivity() {
             // Unknown action (not edit or delete) invoke the superclass to handle it.
             super.onOptionsItemSelected(item)
         }
+    }
+
+    /**
+     * An [onResume] method that launches the PIN code lock if enabled.
+     */
+    override fun onResume() {
+        super.onResume()
+        MainActivity.launchPinLock(this, applicationContext)
+    }
+
+    /**
+     * An [onTrimMemory] method that sets the authenticated variable to false, as the app has been
+     * sent to the background.
+     */
+    override fun onTrimMemory(level: Int) {
+        MainActivity.authenticated = false
     }
 
     /**

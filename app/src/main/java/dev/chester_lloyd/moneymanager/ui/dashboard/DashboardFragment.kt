@@ -14,9 +14,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.chester_lloyd.moneymanager.*
-import dev.chester_lloyd.moneymanager.MainActivity.Companion.isPinSet
 import dev.chester_lloyd.moneymanager.ui.IconManager
-import dev.chester_lloyd.moneymanager.ui.PinCodeActivity
 import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import dev.chester_lloyd.moneymanager.ui.accounts.AccountTransactions
 import dev.chester_lloyd.moneymanager.ui.accounts.AccountsFragment
@@ -50,13 +48,6 @@ class DashboardFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        if (isPinSet(requireContext())) {
-            val pinIntent = Intent(requireContext(), PinCodeActivity::class.java)
-            val pinBundle = Bundle()
-            pinBundle.putString("journey", "authenticate")
-            pinIntent.putExtras(pinBundle)
-            startActivityForResult(pinIntent, 0)
-        }
         dashboardViewModel = ViewModelProvider(this)[DashboardViewModel::class.java]
         val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
         dashboardViewModel.text.observe(viewLifecycleOwner, Observer {
