@@ -99,6 +99,37 @@
 
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/tvDatabaseSettings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="48dp"
+                android:text="@string/settings_database"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/buExportDatabase"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_export_database_button" />
+
+                <Button
+                    android:id="@+id/buImportDatabase"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_import_database_button" />
+
+            </LinearLayout>
+
         </LinearLayout>
 
     </ScrollView>

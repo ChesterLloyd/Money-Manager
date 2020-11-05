@@ -1,12 +1,20 @@
 package dev.chester_lloyd.moneymanager
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
+import android.content.pm.PackageManager
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.database.sqlite.SQLiteQueryBuilder
+import android.net.Uri
+import android.os.Environment
 import android.widget.Toast
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.lang.String.format
+import java.nio.channels.FileChannel
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.*
@@ -972,6 +980,81 @@ open class DBManager(context: Context) {
                     selectionArgs
                 )
             }
+        }
+    }
+
+    /**
+     * Exports the main database to a file on the device's external storage.
+     *
+     * @param context The context.
+     */
+    @SuppressLint("SimpleDateFormat")
+    fun exportDB(context: Context) {
+        try {
+            // Set up the path destination
+            val destinationDirectory =
+                File("${Environment.getExternalStorageDirectory()}/${dbName}")
+            if (!destinationDirectory.exists()) {
+                destinationDirectory.mkdir()
+            }
+            var version = "-NA-"
+            try {
+                val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+                version = "-${packageInfo.versionName}-"
+            } catch (e: PackageManager.NameNotFoundException) {
+            }
+            val sdf = SimpleDateFormat("yyyy-M-dd-k-mm-ss")
+            val destinationFile = File(
+                "$destinationDirectory",
+                "${sdf.format(Date())}-Money-Manager${version}Export.db"
+            )
+
+            val source: FileChannel = FileInputStream(File(sqlDB!!.path)).channel
+            val destination: FileChannel = FileOutputStream(destinationFile).channel
+            destination.transferFrom(source, 0, source.size())
+            source.close()
+            destination.close()
+            Toast.makeText(
+                context,
+                context.resources.getString(
+                    R.string.settings_export_database_success,
+                    destinationFile.toString()
+                ),
+                Toast.LENGTH_LONG
+            )
+                .show()
+        } catch (e: Exception) {
+            Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show()
+        }
+    }
+
+    /**
+     * Imports a database export (.db) file from the device's external storage and replaces the
+     * main database.
+     *
+     * @param context The context.
+     * @param uri The URI of the file to import.
+     */
+    fun importDB(context: Context, uri: Uri) {
+        try {
+            val uriPath = (uri.path!!).split(':')
+            val importDB = File("${Environment.getExternalStorageDirectory()}/${uriPath[1]}")
+
+            if (Environment.getExternalStorageDirectory().canWrite()) {
+                val source = FileInputStream(importDB).channel
+                val destination = FileOutputStream(File(sqlDB!!.path)).channel
+                destination.transferFrom(source, 0, source.size())
+                source.close()
+                destination.close()
+                Toast.makeText(
+                    context,
+                    R.string.settings_import_database_success,
+                    Toast.LENGTH_LONG
+                )
+                    .show()
+            }
+        } catch (e: java.lang.Exception) {
+            Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show()
         }
     }
 }

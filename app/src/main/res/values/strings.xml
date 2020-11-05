@@ -236,4 +236,12 @@
     <string name="settings_pin_unset">No PIN set</string>
     <string name="settings_confirm_pin">Confirm PIN</string>
     <string name="settings_pin_incorrect">Incorrect PIN</string>
+    <string name="settings_database">Database settings</string>
+    <string name="settings_export_database_button">Export database</string>
+    <string name="settings_import_database_button">Import database</string>
+    <string name="alert_message_import_database">This will overwrite your current database. Are you sure you want to continue?</string>
+    <string name="settings_import_database_success">Imported database successfully</string>
+    <string name="settings_export_database_success">Exported database to\n\n%1$s</string>
+    <string name="no_file_manager">No file manager found</string>
+    <string name="error_selecting_file">Error selecting file</string>
 </resources>

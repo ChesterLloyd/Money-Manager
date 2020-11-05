@@ -5,22 +5,21 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.Menu
+import android.view.Window
+import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import android.view.Menu
-import android.view.Window
-import android.view.WindowManager
-import androidx.core.app.ActivityCompat.startActivityForResult
 import dev.chester_lloyd.moneymanager.ui.PinCodeActivity
 import java.text.DecimalFormat
-import kotlin.collections.ArrayList
 
 /**
  * An [AppCompatActivity] subclass for the main activity.
@@ -114,6 +113,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
 
+        const val WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 123
+        const val FILE_SELECT_CODE = 111
         const val TRANSFER_CATEGORY_ID = 1
         private const val PREFS_FILENAME = "dev.chester-lloyd.moneymanager.prefs"
         private const val PREFS_CURRENCY_SYMBOL = "currency_symbol"
