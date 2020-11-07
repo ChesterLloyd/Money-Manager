@@ -9,9 +9,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.Html
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Button
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -39,13 +37,20 @@ class SettingsFragment : Fragment() {
     private lateinit var settingsViewModel: SettingsViewModel
 
     /**
-     * An [onCreateView] method that sets up the buttons and view
+     * An [onCreateView] method that sets up the View, settings options and FAB
+     *
+     * @param inflater The LayoutInflater object.
+     * @param container The parent view.
+     * @param savedInstanceState Fragment is being re-constructed from a previous saved state.
+     * @return The View for the fragment's UI, or null.
      */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setHasOptionsMenu(true)
+
         settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
         val root = inflater.inflate(R.layout.fragment_settings, container, false)
 
@@ -116,6 +121,37 @@ class SettingsFragment : Fragment() {
                 startActivity(pinIntent)
             }
             buRemovePin.visibility = View.GONE
+        }
+    }
+
+    /**
+     * An [onCreateOptionsMenu] method that adds the settings menu to the toolbar. This includes a
+     * button to load the about page.
+     *
+     * @param menu The options menu to place items.
+     * @param inflater The [MenuInflater].
+     */
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.settings, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    /**
+     * An [onOptionsItemSelected] method that adds functionality when the menu buttons are clicked.
+     *
+     * @param item The menu item that was selected.
+     * @return Return false to allow normal menu processing to proceed, true to consume it here.
+     */
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.menuAbout -> {
+            // About icon clicked
+            val intent = Intent(context, About::class.java)
+            startActivity(intent)
+            true
+        }
+        else -> {
+            // Unknown action (not about page) invoke the superclass to handle it.
+            super.onOptionsItemSelected(item)
         }
     }
 

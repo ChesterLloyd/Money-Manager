@@ -4,6 +4,10 @@
     <string name="nav_header_title">Money Manager</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="author">Chester Lloyd</string>
+    <string name="author_email">apps@chester-lloyd.dev</string>
+    <string name="github_url">https://github.com/ChesterLloyd/</string>
+    <string name="project_url">https://chester-lloyd.dev/</string>
 
     <string name="menu_dashboard">Dashboard</string>
     <string name="menu_accounts">Accounts</string>
@@ -244,4 +248,12 @@
     <string name="settings_export_database_success">Exported database to\n\n%1$s</string>
     <string name="no_file_manager">No file manager found</string>
     <string name="error_selecting_file">Error selecting file</string>
+
+    <string name="about">About</string>
+    <string name="about_profile_image">Profile photo of the author</string>
+    <string name="about_author">Developer from the UK doing side projects such as web and Android apps. I am a Computer Science graduate from the University of Newcastle.</string>
+    <string name="email_icon">Email button</string>
+    <string name="email_title">Send me an email</string>
+    <string name="website_icon">Website button</string>
+    <string name="github_icon">GitHub button</string>
 </resources>
