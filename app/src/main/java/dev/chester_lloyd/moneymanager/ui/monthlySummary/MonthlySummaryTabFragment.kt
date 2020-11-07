@@ -1,5 +1,6 @@
 package dev.chester_lloyd.moneymanager.ui.monthlySummary
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.TypedValue
@@ -45,6 +46,7 @@ class MonthlySummaryTabFragment(private val tab: Int) : Fragment() {
      * An [onResume] method that creates a pie chart per month that there exists a transaction and
      * a table for the summary tab.
      */
+    @SuppressLint("SimpleDateFormat", "SetTextI18n")
     override fun onResume() {
         super.onResume()
 

@@ -266,7 +266,8 @@
             app:backgroundTint="@color/fabComplete"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_check" />
+            app:srcCompat="@drawable/ic_check"
+            android:contentDescription="@string/fab_add_transaction" />
     </LinearLayout>
 
 </RelativeLayout>

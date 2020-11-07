@@ -1,6 +1,5 @@
 package dev.chester_lloyd.moneymanager
 
-import android.content.Context
 import java.util.*
 
 /**
@@ -48,25 +47,5 @@ class Transaction {
      */
     constructor() {
         this.transactionID = 0
-    }
-
-    /**
-     * Gets the [date] as a formatted [String].
-     *
-     * @param context Context.
-     * @param format The format the date should take.
-     * @return The [amount] with a currency symbol.
-     */
-    fun getDate(context: Context, format: String): String {
-        return if (format == "DMY") {
-            context.resources.getString(
-                R.string.date_DMY,
-                date.get(Calendar.DAY_OF_MONTH).toString(),
-                (date.get(Calendar.MONTH) + 1).toString(),
-                date.get(Calendar.YEAR).toString()
-            )
-        } else {
-            date.toString()
-        }
     }
 }

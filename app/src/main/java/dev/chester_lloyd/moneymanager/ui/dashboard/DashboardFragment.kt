@@ -190,7 +190,7 @@ class DashboardFragment : Fragment() {
             val rowView = layoutInflater.inflate(R.layout.transaction, null)
             val transaction = transactions[item]
             rowView.tvName.text = transaction.merchant
-            rowView.tvDate.text = transaction.getDate(requireContext(), "DMY")
+            rowView.tvDate.text = MainActivity.getFormattedDate(requireContext(), transaction.date)
             rowView.tvAmount.text = MainActivity.stringBalance(requireContext(), transaction.amount)
 
             // Show positive amounts for transfers as we're only show the one transaction

@@ -18,7 +18,6 @@
     <string name="title_activity_main">Money Manager</string>
 
     <string name="name">Name</string>
-    <string name="date_DMY">%1$s/%2$s/%3$s</string>
     <string name="balance">Balance</string>
     <string name="balance_text">£%1$.2f</string>
     <string name="current_balance">Current balance</string>
@@ -33,6 +32,7 @@
     <string name="text_edit_account_desc">Edit this account.</string>
     <string name="button_add_account">Add account</string>
     <string name="edit_account">Edit account</string>
+    <string name="fab_add_account">Add or update an account</string>
     <string name="account_icon">Account icon</string>
     <string-array name="account_names">
         <item>Bank</item>
@@ -67,6 +67,7 @@
     <string name="account_validation_balance_invalid">Account balance is invalid</string>
 
     <string name="transfer">Transfer</string>
+    <string name="fab_transfer_funds">Save or update this transfer of funds transaction</string>
     <string name="transfer_funds">Transfer funds</string>
     <string name="text_transfer_desc">Transfer any amount from one of your accounts to another.</string>
     <string name="transfer_source_account">Source account</string>
@@ -120,6 +121,7 @@
     <string name="text_edit_category_desc">Edit this category.</string>
     <string name="button_add_category">Add category</string>
     <string name="edit_category">Edit category</string>
+    <string name="fab_add_category">Add or update a category</string>
     <string name="category_icon">Category icon</string>
     <string-array name="category_names">
         <item>Bar</item>
@@ -193,6 +195,7 @@
     <string name="text_edit_transaction_desc">Edit this transaction.</string>
     <string name="button_add_transaction">Add transaction</string>
     <string name="edit_transaction">Edit transaction</string>
+    <string name="fab_add_transaction">Add or update a transaction</string>
     <string name="transaction_merchant">Merchant</string>
     <string name="transaction_amount">Amount</string>
     <string name="transaction_date">Date</string>
@@ -219,6 +222,7 @@
     <string name="transactions_disabled_message">View all transactions unavailable</string>
 
     <string name="setup_currency">Setup currency</string>
+    <string name="fab_currency_format">Save the currency format</string>
     <string name="settings_currency_format">Update the settings below to customise the currency format</string>
     <string name="settings_currency_symbol">Currency symbol</string>
     <string name="settings_currency_group">Digit grouping symbol</string>
@@ -230,6 +234,14 @@
 
     <string name="settings_currency">Currency settings</string>
     <string name="settings_currency_button">Change format</string>
+    <string name="settings_date">Date settings</string>
+    <string-array name="settings_date_formats">
+        <item>D/M/YYYY</item>
+        <item>DD/MM/YYYY</item>
+        <item>M/D/YYYY</item>
+        <item>MM/DD/YYYY</item>
+    </string-array>
+    <string name="settings_update_date_format">Update date format</string>
     <string name="settings_security">Security settings</string>
     <string name="settings_set_pin_button">Set a new PIN</string>
     <string name="settings_update_pin_button">Change PIN</string>

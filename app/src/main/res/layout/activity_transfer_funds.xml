@@ -170,6 +170,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_check"
-        android:focusable="true" />
+        android:focusable="true"
+        android:contentDescription="@string/fab_transfer_funds" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

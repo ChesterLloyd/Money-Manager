@@ -115,7 +115,7 @@ class ListViewManager(
                 var rowView = layoutInflater.inflate(R.layout.transaction, null)
                 val payment = listObjects[position] as Payment
                 rowView.tvName.text = payment.transaction.merchant
-                rowView.tvDate.text = payment.transaction.getDate(context, "DMY")
+                rowView.tvDate.text = MainActivity.getFormattedDate(context, payment.transaction.date)
                 rowView.tvAmount.text = MainActivity.stringBalance(context, payment.amount)
 
                 // Use IconManager to load the icons
@@ -183,7 +183,7 @@ class ListViewManager(
                 val rowView = layoutInflater.inflate(R.layout.transaction, null)
                 val transaction = listObjects[position] as Transaction
                 rowView.tvName.text = transaction.merchant
-                rowView.tvDate.text = transaction.getDate(context, "DMY")
+                rowView.tvDate.text = MainActivity.getFormattedDate(context, transaction.date)
                 rowView.tvAmount.text = MainActivity.stringBalance(context, transaction.amount)
 
                 // Show positive amounts for transfers as we're only show the one transaction

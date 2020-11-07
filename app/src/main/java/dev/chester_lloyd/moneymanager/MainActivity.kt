@@ -1,5 +1,6 @@
 package dev.chester_lloyd.moneymanager
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -19,7 +20,10 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import dev.chester_lloyd.moneymanager.ui.PinCodeActivity
+import java.text.DateFormat
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * An [AppCompatActivity] subclass for the main activity.
@@ -121,6 +125,7 @@ class MainActivity : AppCompatActivity() {
         private const val PREFS_CURRENCY_GROUP = "currency_group"
         private const val PREFS_CURRENCY_DECIMAL = "currency_decimal"
         private const val PREFS_CURRENCY_SUFFIX = "currency_suffix"
+        private const val PREFS_DATE_FORMAT = "date_format"
         private const val PREFS_PIN_CODE = "pin_code"
         var authenticated = false
 
@@ -205,6 +210,70 @@ class MainActivity : AppCompatActivity() {
 
             // Put it all together and return
             return "${start}${format[2]}${decimalPart}${format[3]}"
+        }
+
+        /**
+         * A method that updates the date format used in the app.
+         *
+         * @param context Context.
+         * @param format The new date format to use.
+         */
+        fun updateDateFormat(context: Context, format: String) {
+            val editPrefs = context.getSharedPreferences(PREFS_FILENAME, 0)
+                .edit()
+            editPrefs.putString(PREFS_DATE_FORMAT, format)
+                .apply()
+        }
+
+        /**
+         * Returns the selected date format.
+         *
+         * @param context Context.
+         */
+        fun getDateFormat(context: Context): String {
+            val prefs: SharedPreferences? = context.getSharedPreferences(PREFS_FILENAME, 0)
+            return prefs!!.getString(
+                PREFS_DATE_FORMAT,
+                context.resources.getStringArray(R.array.settings_date_formats)[0]
+            ) as String
+        }
+
+        /**
+         * Returns the given Calendar as a formatted [String] according to the user's date format
+         * preferences.
+         *
+         * @param context Context.
+         * @return The formatted date.
+         */
+        @SuppressLint("SimpleDateFormat")
+        fun getFormattedDate(context: Context, date: Calendar): String {
+            val prefs: SharedPreferences? = context.getSharedPreferences(PREFS_FILENAME, 0)
+
+            // Default is first format in the array
+            val format = prefs!!.getString(
+                PREFS_DATE_FORMAT,
+                context.resources.getStringArray(R.array.settings_date_formats)[0]
+            )
+
+            val dateFormat: DateFormat
+            when (format) {
+                "D/M/YYYY" -> {
+                    dateFormat = SimpleDateFormat("d/M/yyyy")
+                }
+                "DD/MM/YYYY" -> {
+                    dateFormat = SimpleDateFormat("dd/MM/yyyy")
+                }
+                "M/D/YYYY" -> {
+                    dateFormat = SimpleDateFormat("M/d/yyyy")
+                }
+                "MM/DD/YYYY" -> {
+                    dateFormat = SimpleDateFormat("MM/dd/yyyy")
+                }
+                else -> {
+                    dateFormat = SimpleDateFormat("dd/MM/yyyy")
+                }
+            }
+            return dateFormat.format(date.time)
         }
 
         /**

@@ -1,8 +1,10 @@
 package dev.chester_lloyd.moneymanager.ui.settings
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.R
 import kotlinx.android.synthetic.main.activity_about.*
@@ -74,6 +76,14 @@ class About : AppCompatActivity() {
             )
 
             startActivity(githubIntent)
+        }
+
+        // Set version number
+        try {
+            val packageInfo = applicationContext.packageManager.getPackageInfo(applicationContext.packageName, 0)
+            tvVersion.text = packageInfo.versionName
+        } catch (e: PackageManager.NameNotFoundException) {
+            tvVersion.visibility = View.GONE
         }
     }
 

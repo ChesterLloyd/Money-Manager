@@ -95,6 +95,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_add"
-        android:focusable="true" />
+        android:focusable="true"
+        android:contentDescription="@string/button_add_transaction" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -54,6 +54,37 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/tvDateSettings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/settings_date"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="24dp"
+                android:orientation="vertical">
+
+                <Spinner
+                    android:id="@+id/spDateFormat"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <Button
+                    android:id="@+id/buUpdateDateFormat"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_update_date_format" />
+
+            </LinearLayout>
+
+            <TextView
                 android:id="@+id/tvSecuritySettings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
