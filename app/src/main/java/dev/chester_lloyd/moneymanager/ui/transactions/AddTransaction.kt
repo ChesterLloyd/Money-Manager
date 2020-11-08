@@ -28,6 +28,9 @@ import kotlin.collections.ArrayList
 class AddTransaction : AppCompatActivity() {
 
     var transaction = Transaction()
+    var recurringTransaction = RecurringTransaction()
+    private var isRecurring = false
+    private var hasEndDate = false
     private var income = false
 
     /**
@@ -48,6 +51,9 @@ class AddTransaction : AppCompatActivity() {
         val format = MainActivity.getCurrencyFormat(this)
         tvSymbol.text = format[0]
         tvSuffix.text = format[3]
+
+        // Get transaction from database, if ID given (to edit)
+        val transactionID = intent.getIntExtra("transactionID", 0)
 
         // Listen for when income switch is changed
         swIncome.setOnCheckedChangeListener { _, isChecked ->
@@ -79,6 +85,88 @@ class AddTransaction : AppCompatActivity() {
                     transaction.date.get(Calendar.DAY_OF_MONTH)
                 ).show()
                 etDate.clearFocus()
+            }
+        }
+
+        if (transactionID == 0) {
+            // Only show recurring settings for new transactions
+            swRecurringPayment.visibility = View.VISIBLE
+
+            // Listen for when recurring transactions switch is changed
+            swRecurringPayment.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    llFrequency.visibility = View.VISIBLE
+                } else {
+                    llFrequency.visibility = View.GONE
+                }
+                isRecurring = isChecked
+            }
+
+            // Set up the frequency period spinner
+            val frequencyPeriods =
+                applicationContext.resources.getStringArray(R.array.transaction_frequency_periods)
+            val spFrequencyPeriod: Spinner = this.findViewById(R.id.spFrequencyPeriod)
+            ArrayAdapter.createFromResource(
+                applicationContext,
+                R.array.transaction_frequency_periods,
+                android.R.layout.simple_spinner_item
+            ).also { adapter ->
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                spFrequencyPeriod.adapter = adapter
+            }
+            spFrequencyPeriod.setSelection(0)
+
+            // Update the recurring payment when this value changes
+            spFrequencyPeriod.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
+
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    recurringTransaction.frequencyPeriod = frequencyPeriods[position]
+                }
+            }
+
+            // Listen for when set end date switch is changed
+            swFrequencySetEndDate.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    llFrequencyEnds.visibility = View.VISIBLE
+                } else {
+                    llFrequencyEnds.visibility = View.GONE
+                }
+                hasEndDate = isChecked
+            }
+
+            // Create a date picker, set values for class date value
+            val sdfFreq = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+            etFrequencyEndDate!!.setText(sdfFreq.format(recurringTransaction.end.time))
+
+            val frequencyDateEndListener =
+                DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                    recurringTransaction.end.set(Calendar.YEAR, year)
+                    recurringTransaction.end.set(Calendar.MONTH, monthOfYear)
+                    recurringTransaction.end.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                    etFrequencyEndDate!!.setText(sdfFreq.format(recurringTransaction.end.time))
+                }
+
+            // When the date edit text has focus (clicked), open the date picker
+            etFrequencyEndDate.onFocusChangeListener = View.OnFocusChangeListener { _, gainFocus ->
+                if (gainFocus) {
+                    DatePickerDialog(
+                        this@AddTransaction,
+                        frequencyDateEndListener,
+                        // set to point to tomorrow's date
+                        recurringTransaction.end.get(Calendar.YEAR),
+                        recurringTransaction.end.get(Calendar.MONTH),
+                        recurringTransaction.end.get(Calendar.DAY_OF_MONTH)
+                    ).show()
+                    etFrequencyEndDate.clearFocus()
+                }
             }
         }
 
@@ -214,9 +302,6 @@ class AddTransaction : AppCompatActivity() {
             llAccounts.addView(llAccountRow)
         }
 
-        // Get transaction from database, if ID given (to edit)
-        val transactionID = intent.getIntExtra("transactionID", 0)
-
         if (transactionID > 0) {
             this.supportActionBar?.title = getString(R.string.edit_transaction)
             tvDesc.setText(R.string.text_edit_transaction_desc)
@@ -342,6 +427,13 @@ class AddTransaction : AppCompatActivity() {
                     this, R.string.transaction_validation_date,
                     Toast.LENGTH_SHORT
                 ).show()
+            } else if (isRecurring && !recurringTransaction.validateWithTransaction(
+                    applicationContext,
+                    transaction,
+                    etFrequencyUnit.text.toString().toInt()
+                )
+            ) {
+                // Validate frequency options
             } else {
                 // All data has been filled out, start saving
                 transaction.amount = amountValidator.getBalance(format[2])
@@ -399,11 +491,33 @@ class AddTransaction : AppCompatActivity() {
                                     dbManager.insertPayment(payments[payment])
                                 }
                             }
+
                             // Transaction saved to database, return to previous fragment
-                            Toast.makeText(
-                                this, R.string.transaction_insert_success,
-                                Toast.LENGTH_LONG
-                            ).show()
+                            var message =
+                                applicationContext.resources.getString(R.string.transaction_insert_success)
+                            if (isRecurring) {
+                                // Remove unit if unit not plural
+                                var frequencyString =
+                                    "${recurringTransaction.frequencyUnit} ${recurringTransaction.frequencyPeriod}"
+                                if (recurringTransaction.frequencyUnit == 1) {
+                                    frequencyString = recurringTransaction.frequencyPeriod.trimEnd('s')
+                                }
+                                message = applicationContext.resources.getString(
+                                    R.string.transaction_recurring_insert_success,
+                                    frequencyString
+                                )
+
+                                // Add the recurring transaction to the database
+                                recurringTransaction.transactionID = transaction.transactionID
+                                recurringTransaction.start = transaction.date
+                                if (!hasEndDate) {
+                                    // Add 1000 years as no end date set
+                                    recurringTransaction.end.add(Calendar.YEAR, 1000)
+                                }
+                                dbManager.insertRecurringTransaction(recurringTransaction)
+                            }
+
+                            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
                             setResult(RESULT_OK)
                             this.finish()
                         } else {

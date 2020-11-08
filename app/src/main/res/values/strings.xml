@@ -86,6 +86,11 @@
     <string name="transaction_validation_date">Transaction date cannot be blank</string>
     <string name="transaction_validation_payments">Account payments do not make up the transaction amount</string>
 
+    <string name="transaction_recurring_validation_unit">Frequency must be at least 1</string>
+    <string name="transaction_recurring_validation_period">Please select a frequency period</string>
+    <string name="transaction_recurring_validation_end_before">Recurring end date must be after the transaction date</string>
+    <string name="transaction_recurring_insert_success">Transaction set to recur every %1$s</string>
+
     <string name="account_insert_success">Account saved</string>
     <string name="account_insert_fail">Could not save this account</string>
     <string name="account_update_success">Account updated</string>
@@ -199,6 +204,17 @@
     <string name="transaction_merchant">Merchant</string>
     <string name="transaction_amount">Amount</string>
     <string name="transaction_date">Date</string>
+    <string name="transaction_recurring_transaction">Recurring transaction</string>
+    <string name="transaction_repeats_every">Repeats every</string>d
+    <string name="transaction_frequency_unit_hint">How often this transaction should repeat</string>
+    <string-array name="transaction_frequency_periods">
+        <item>days</item>
+        <item>weeks</item>
+        <item>months</item>
+        <item>years</item>
+    </string-array>
+    <string name="transaction_frequency_set_end_date">Set end date</string>
+    <string name="transaction_frequency_ends_on">Ends on</string>
     <string name="transaction_category">Category</string>
     <string name="transaction_payments">Payments</string>
     <string name="transaction_details">Transaction details</string>

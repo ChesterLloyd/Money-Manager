@@ -123,7 +123,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/etDetails" />
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/swIncome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -155,6 +155,118 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/swIncome" />
 
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/swRecurringPayment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="32dp"
+                android:text="@string/transaction_recurring_transaction"
+                android:textSize="18sp"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/etDate"
+                tools:visibility="visible" />
+
+            <LinearLayout
+                android:id="@+id/llFrequency"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/swRecurringPayment"
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/tvFrequencyRepeatsEvery"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:text="@string/transaction_repeats_every"
+                    android:textSize="18sp" />
+
+                <LinearLayout
+                    android:id="@+id/llFrequencyDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp">
+
+                    <EditText
+                        android:id="@+id/etFrequencyUnit"
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:autofillHints="@string/transaction_frequency_unit_hint"
+                        android:ems="10"
+                        android:gravity="center"
+                        android:inputType="number"
+                        android:maxLength="3"
+                        android:text="1" />
+
+                    <Spinner
+                        android:id="@+id/spFrequencyPeriod"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:layout_weight="1"
+                        android:paddingBottom="10dp" />
+
+                </LinearLayout>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/swFrequencySetEndDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:paddingLeft="16dp"
+                    android:paddingTop="6dp"
+                    android:paddingRight="16dp"
+                    android:text="@string/transaction_frequency_set_end_date"
+                    android:textSize="18sp" />
+
+                <LinearLayout
+                    android:id="@+id/llFrequencyEnds"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <TextView
+                        android:id="@+id/tvFrequencyEndsOn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="16dp"
+                        android:paddingTop="16dp"
+                        android:paddingRight="16dp"
+                        android:text="@string/transaction_frequency_ends_on"
+                        android:textSize="18sp" />
+
+                    <EditText
+                        android:id="@+id/etFrequencyEndDate"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginLeft="12dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginRight="16dp"
+                        android:ems="10"
+                        android:hint="@string/transaction_date"
+                        android:importantForAutofill="no"
+                        android:inputType="date" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/tvCategory"
                 android:layout_width="0dp"
@@ -169,7 +281,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etDate" />
+                app:layout_constraintTop_toBottomOf="@+id/llFrequency" />
 
             <Spinner
                 android:id="@+id/spCategory"
@@ -192,7 +304,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="32dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
                 android:text="@string/transaction_payments"
@@ -203,7 +315,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/spCategory" />
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/swMultiplePaymentMethods"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

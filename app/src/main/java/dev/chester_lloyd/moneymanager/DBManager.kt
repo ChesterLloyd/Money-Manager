@@ -33,6 +33,7 @@ open class DBManager(context: Context) {
     val dbAccountTable = "Accounts"
     val dbCategoryTable = "Categories"
     val dbTransactionTable = "Transactions"
+    val dbRecurringTransactionTable = "RecurringTransactions"
     val dbPaymentsTable = "Payments"
     internal val colID = "ID"
     private val colName = "Name"
@@ -48,6 +49,10 @@ open class DBManager(context: Context) {
     private val colDetails = "Details"
     private val colDefault = "TheDefault"
     private val colTransferTransactionID = "TransferTransactionID"
+    private val colStart = "RecurringStart"
+    private val colEnd = "RecurringEnd"
+    private val colFrequencyUnit = "FrequencyUnit"
+    private val colFrequencyPeriod = "FrequencyPeriod"
     val dbVersion = 1
 
     internal var sqlDB: SQLiteDatabase? = null
@@ -102,6 +107,17 @@ open class DBManager(context: Context) {
                         "$colAmount FLOAT, " +
                         "$colTransferTransactionID INTEGER, " +
                         "FOREIGN KEY(${colCategoryID}) REFERENCES ${dbCategoryTable}(${colID}) );"
+            )
+            // Create Recurring Transactions table if it does not exist
+            db.execSQL(
+                "CREATE TABLE IF NOT EXISTS $dbRecurringTransactionTable (" +
+                        "$colID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "$colTransactionID INTEGER, " +
+                        "$colStart DATETIME, " +
+                        "$colEnd DATETIME, " +
+                        "$colFrequencyUnit INTEGER, " +
+                        "$colFrequencyPeriod VARCHAR(10), " +
+                        "FOREIGN KEY(${colTransactionID}) REFERENCES ${dbTransactionTable}(${colID}) );"
             )
             // Create Payments table if it does not exist
             db.execSQL(
@@ -668,6 +684,23 @@ open class DBManager(context: Context) {
             // This is a transfer, delete the linked transaction
             deleteTransaction(arrayOf(transaction.transferTransactionID.toString()))
         }
+    }
+
+    /**
+     * Inserts a [RecurringTransaction] object into the database.
+     *
+     * @param recurringTransaction The [RecurringTransaction] to insert.
+     * @return The ID that the transaction has been saved as.
+     */
+    fun insertRecurringTransaction(recurringTransaction: RecurringTransaction): Long {
+        val values = ContentValues()
+        values.put(colTransactionID, recurringTransaction.transactionID)
+        values.put(colStart, Timestamp(recurringTransaction.start.timeInMillis).toString())
+        values.put(colEnd, Timestamp(recurringTransaction.end.timeInMillis).toString())
+        values.put(colFrequencyUnit, recurringTransaction.frequencyUnit)
+        values.put(colFrequencyPeriod, recurringTransaction.frequencyPeriod)
+
+        return sqlDB!!.insert(dbRecurringTransactionTable, "", values)
     }
 
     /**
