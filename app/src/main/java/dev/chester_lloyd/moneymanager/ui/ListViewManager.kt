@@ -223,6 +223,35 @@ class ListViewManager(
                 return rowView
             }
 
+            is RecurringTransaction -> {
+                // We are adding Recurring Transactions to the list
+                val rowView = layoutInflater.inflate(R.layout.transaction, null)
+                val recurringTransaction = listObjects[position] as RecurringTransaction
+                rowView.tvName.text = recurringTransaction.transaction.merchant
+                rowView.tvDate.text = context.resources.getString(
+                    R.string.transaction_recurring_every,
+                    recurringTransaction.getFrequencyString()
+                )
+                rowView.tvAmount.text = MainActivity.stringBalance(
+                    context,
+                    recurringTransaction.transaction.amount
+                )
+
+                // Get the recurring transaction's category icon and colour
+                val iconManager = IconManager(context)
+                rowView.ivIcon.setImageResource(
+                    iconManager.getIconByID(
+                        iconManager.categoryIcons, recurringTransaction.transaction.category.icon
+                    ).drawable
+                )
+                rowView.ivIcon.setBackgroundResource(
+                    iconManager.getIconByID(
+                        iconManager.colourIcons, recurringTransaction.transaction.category.colour
+                    ).drawable
+                )
+                return rowView
+            }
+
             else -> return null
         }
     }

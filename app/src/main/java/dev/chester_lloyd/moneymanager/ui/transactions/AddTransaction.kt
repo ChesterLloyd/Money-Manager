@@ -496,19 +496,13 @@ class AddTransaction : AppCompatActivity() {
                             var message =
                                 applicationContext.resources.getString(R.string.transaction_insert_success)
                             if (isRecurring) {
-                                // Remove unit if unit not plural
-                                var frequencyString =
-                                    "${recurringTransaction.frequencyUnit} ${recurringTransaction.frequencyPeriod}"
-                                if (recurringTransaction.frequencyUnit == 1) {
-                                    frequencyString = recurringTransaction.frequencyPeriod.trimEnd('s')
-                                }
                                 message = applicationContext.resources.getString(
                                     R.string.transaction_recurring_insert_success,
-                                    frequencyString
+                                    recurringTransaction.getFrequencyString()
                                 )
 
                                 // Add the recurring transaction to the database
-                                recurringTransaction.transactionID = transaction.transactionID
+                                recurringTransaction.transaction = transaction
                                 recurringTransaction.start = transaction.date
                                 if (!hasEndDate) {
                                     // Add 1000 years as no end date set

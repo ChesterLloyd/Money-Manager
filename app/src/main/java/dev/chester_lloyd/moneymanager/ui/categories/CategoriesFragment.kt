@@ -68,7 +68,7 @@ class CategoriesFragment : Fragment() {
             "categories"
         )
 
-        // Show no accounts text
+        // Show no categories text
         if (listCategories.isEmpty()) {
             this.tvNoCategories.visibility = View.VISIBLE
         } else {

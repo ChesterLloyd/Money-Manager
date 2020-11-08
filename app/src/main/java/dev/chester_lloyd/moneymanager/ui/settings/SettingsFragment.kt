@@ -228,6 +228,7 @@ class SettingsFragment : Fragment() {
                     // Export to a file
                     val dbManager = DBManager(requireContext())
                     dbManager.exportDB(requireContext())
+                    dbManager.sqlDB!!.close()
                 }
                 "import" -> {
                     // Open the file manager
@@ -279,6 +280,7 @@ class SettingsFragment : Fragment() {
                     // Import the file
                     val dbManager = DBManager(requireContext())
                     dbManager.importDB(requireContext(), selectedFile!!)
+                    dbManager.sqlDB!!.close()
                 }
                 .setNegativeButton(resources.getString(R.string.no)) { dialog, _ ->
                     // Do nothing, close box

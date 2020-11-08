@@ -17,6 +17,10 @@
             android:icon="@drawable/ic_menu_transactions"
             android:title="@string/menu_transactions" />
         <item
+            android:id="@+id/nav_recurring_transactions"
+            android:icon="@drawable/ic_menu_recurring_transactions"
+            android:title="@string/menu_recurring_transactions" />
+        <item
             android:id="@+id/nav_categories"
             android:icon="@drawable/ic_menu_categories"
             android:title="@string/menu_categories" />

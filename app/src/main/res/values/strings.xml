@@ -12,6 +12,7 @@
     <string name="menu_dashboard">Dashboard</string>
     <string name="menu_accounts">Accounts</string>
     <string name="menu_transactions">Transactions</string>
+    <string name="menu_recurring_transactions">Recurring Transactions</string>
     <string name="menu_categories">Categories</string>
     <string name="menu_monthly_summary">Monthly Summary</string>
     <string name="menu_settings">Settings</string>
@@ -90,6 +91,9 @@
     <string name="transaction_recurring_validation_period">Please select a frequency period</string>
     <string name="transaction_recurring_validation_end_before">Recurring end date must be after the transaction date</string>
     <string name="transaction_recurring_insert_success">Transaction set to recur every %1$s</string>
+    <string name="transaction_recurring_every">Every %1$s</string>
+
+    <string name="no_recurring_transactions">You do not have any recurring transactions. Set one up by adding or modifying a transaction then toggling the "recurring transaction" slider.</string>
 
     <string name="account_insert_success">Account saved</string>
     <string name="account_insert_fail">Could not save this account</string>

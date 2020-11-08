@@ -694,13 +694,60 @@ open class DBManager(context: Context) {
      */
     fun insertRecurringTransaction(recurringTransaction: RecurringTransaction): Long {
         val values = ContentValues()
-        values.put(colTransactionID, recurringTransaction.transactionID)
+        values.put(colTransactionID, recurringTransaction.transaction.transactionID)
         values.put(colStart, Timestamp(recurringTransaction.start.timeInMillis).toString())
         values.put(colEnd, Timestamp(recurringTransaction.end.timeInMillis).toString())
         values.put(colFrequencyUnit, recurringTransaction.frequencyUnit)
         values.put(colFrequencyPeriod, recurringTransaction.frequencyPeriod)
 
         return sqlDB!!.insert(dbRecurringTransactionTable, "", values)
+    }
+
+    /**
+     * Gets an [ArrayList] of every [RecurringTransaction] object in the database ordered by the
+     * related transaction's name.
+     *
+     * @return An [ArrayList] of [RecurringTransaction] objects
+     */
+    fun selectRecurringTransactions(): ArrayList<RecurringTransaction> {
+        val listRecurringTransactions = ArrayList<RecurringTransaction>()
+
+        val query = "SELECT RT.${colID}, RT.${colTransactionID}, RT.${colStart}, RT.${colEnd}, " +
+                "RT.${colFrequencyUnit}, RT.${colFrequencyPeriod} " +
+                "FROM $dbRecurringTransactionTable RT " +
+                "JOIN $dbTransactionTable T ON T.${colID} = RT.${colTransactionID} " +
+                "ORDER BY T.${colName}"
+
+        val cursor = sqlDB!!.rawQuery(query, emptyArray())
+        if (cursor.moveToFirst()) {
+            do {
+                val recurringTransactionID = cursor.getInt(cursor.getColumnIndex(colID))
+                val transactionID = cursor.getInt(cursor.getColumnIndex(colTransactionID))
+                val start = cursor.getString(cursor.getColumnIndex(colStart))
+                val end = cursor.getString(cursor.getColumnIndex(colEnd))
+                val frequencyUnit = cursor.getInt(cursor.getColumnIndex(colFrequencyUnit))
+                val frequencyPeriod = cursor.getString(cursor.getColumnIndex(colFrequencyPeriod))
+
+                val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
+                val calStart = Calendar.getInstance()
+                calStart.time = sdf.parse(start)
+                val calEnd = Calendar.getInstance()
+                calEnd.time = sdf.parse(end)
+
+                listRecurringTransactions.add(
+                    RecurringTransaction(
+                        recurringTransactionID,
+                        selectTransaction(transactionID),
+                        calStart,
+                        calEnd,
+                        frequencyUnit,
+                        frequencyPeriod
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return listRecurringTransactions
     }
 
     /**

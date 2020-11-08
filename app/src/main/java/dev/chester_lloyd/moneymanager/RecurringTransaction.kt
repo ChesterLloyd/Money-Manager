@@ -12,7 +12,7 @@ import java.util.*
  */
 class RecurringTransaction {
     var recurringTransactionID: Int = 0
-    var transactionID: Int = 0
+    var transaction = Transaction()
     var start: Calendar = Calendar.getInstance()
     var end: Calendar = Calendar.getInstance()
     var frequencyUnit: Int = 0
@@ -22,7 +22,7 @@ class RecurringTransaction {
      * Creates a complete [RecurringTransaction] when all necessary fields have been provided.
      *
      * @param recurringTransactionID The ID of the recurring transaction.
-     * @param transactionID The ID of the transaction that is set to recur.
+     * @param transaction The [Transaction] that is set to recur.
      * @param start The date that the transaction starts to recur (date of first transaction in the
      * set).
      * @param end The date that the transaction stops recurring (date of last transaction in the
@@ -34,14 +34,14 @@ class RecurringTransaction {
      */
     constructor(
         recurringTransactionID: Int,
-        transactionID: Int,
+        transaction: Transaction,
         start: Calendar,
         end: Calendar,
         frequencyUnit: Int,
         frequencyPeriod: String
     ) {
         this.recurringTransactionID = recurringTransactionID
-        this.transactionID = transactionID
+        this.transaction = transaction
         this.start = start
         this.end = end
         this.frequencyUnit = frequencyUnit
@@ -62,6 +62,22 @@ class RecurringTransaction {
      */
     private fun setEndDate() {
         this.end.add(Calendar.DATE, 1)
+    }
+
+    /**
+     * Returns the frequency as a string using the [frequencyUnit] and [frequencyPeriod] variables.
+     * This takes into account stripping the 's' for non plural units.
+     *
+     * e.g "1 week" or "2 weeks"
+     *
+     * @return String
+     */
+    fun getFrequencyString(): String {
+        var frequencyString = "${this.frequencyUnit} ${this.frequencyPeriod}"
+        if (this.frequencyUnit == 1) {
+            frequencyString = this.frequencyPeriod.trimEnd('s')
+        }
+        return frequencyString
     }
 
     /**
