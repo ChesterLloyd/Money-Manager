@@ -502,7 +502,7 @@ class AddTransaction : AppCompatActivity() {
                                 )
 
                                 // Add the recurring transaction to the database
-                                recurringTransaction.transaction = transaction
+                                recurringTransaction.transactions = arrayListOf(transaction)
                                 recurringTransaction.start = transaction.date
                                 if (!hasEndDate) {
                                     // Add 1000 years as no end date set

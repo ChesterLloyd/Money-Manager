@@ -42,7 +42,7 @@ class TransactionTabFragment(private val tab: Int) : Fragment() {
 
         // Get transactions as an array list from database
         val dbManager = DBManager(requireContext())
-        val listTransactions = dbManager.selectTransactions(tab, "Categories", null, false)
+        val listTransactions = dbManager.selectTransactions(tab.toString(), "Categories", null, false)
         dbManager.sqlDB!!.close()
 
         // If there are no transactions under this category, show a message

@@ -33,6 +33,7 @@ open class DBManager(context: Context) {
     val dbAccountTable = "Accounts"
     val dbCategoryTable = "Categories"
     val dbTransactionTable = "Transactions"
+    val dbRecursTable = "Recurs"
     val dbRecurringTransactionTable = "RecurringTransactions"
     val dbPaymentsTable = "Payments"
     internal val colID = "ID"
@@ -49,6 +50,7 @@ open class DBManager(context: Context) {
     private val colDetails = "Details"
     private val colDefault = "TheDefault"
     private val colTransferTransactionID = "TransferTransactionID"
+    private val colRecurringTransactionID = "RecurringTransactionID"
     private val colStart = "RecurringStart"
     private val colEnd = "RecurringEnd"
     private val colFrequencyUnit = "FrequencyUnit"
@@ -108,16 +110,23 @@ open class DBManager(context: Context) {
                         "$colTransferTransactionID INTEGER, " +
                         "FOREIGN KEY(${colCategoryID}) REFERENCES ${dbCategoryTable}(${colID}) );"
             )
+            // Create Recurs table if it does not exist
+            db.execSQL(
+                "CREATE TABLE IF NOT EXISTS $dbRecursTable (" +
+                        "$colRecurringTransactionID INTEGER, " +
+                        "$colTransactionID INTEGER, " +
+                        "PRIMARY KEY($colRecurringTransactionID, $colTransactionID), " +
+                        "FOREIGN KEY(${colRecurringTransactionID}) REFERENCES ${dbRecurringTransactionTable}(${colID}), " +
+                        "FOREIGN KEY(${colTransactionID}) REFERENCES ${dbTransactionTable}(${colID}) );"
+            )
             // Create Recurring Transactions table if it does not exist
             db.execSQL(
                 "CREATE TABLE IF NOT EXISTS $dbRecurringTransactionTable (" +
                         "$colID INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        "$colTransactionID INTEGER, " +
                         "$colStart DATETIME, " +
                         "$colEnd DATETIME, " +
                         "$colFrequencyUnit INTEGER, " +
-                        "$colFrequencyPeriod VARCHAR(10), " +
-                        "FOREIGN KEY(${colTransactionID}) REFERENCES ${dbTransactionTable}(${colID}) );"
+                        "$colFrequencyPeriod VARCHAR(10) );"
             )
             // Create Payments table if it does not exist
             db.execSQL(
@@ -536,7 +545,7 @@ open class DBManager(context: Context) {
 
             val cal = Calendar.getInstance()
             val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
-            cal.time = sdf.parse(date)
+            cal.time = sdf.parse(date)!!
 
             transaction =
                 Transaction(
@@ -551,18 +560,18 @@ open class DBManager(context: Context) {
      * Gets an [ArrayList] of [Transaction] objects from the database based on its category ID or
      * account ID with an optional specified limit.
      *
-     * @param id The category ID or account ID of the [Transaction]
+     * @param ids The category ID, account ID or a list of IDs of the [Transaction]
      * @param type Get [Transaction] objects based on categories or accounts.
      * @param limit Limit the number of accounts returned by an optional limit.
      * @return An [ArrayList] of [Transaction] objects
      */
     fun selectTransactions(
-        id: Int,
+        ids: String,
         type: String,
         limit: String?,
         includeSecondTransfer: Boolean = true
     ): ArrayList<Transaction> {
-        var selectionArgs = arrayOf(id.toString())
+        var selectionArgs = arrayOf(ids)
         val listTransactions = ArrayList<Transaction>()
 
         var query = ""
@@ -572,7 +581,7 @@ open class DBManager(context: Context) {
                     "FROM $dbTransactionTable T " +
                     "JOIN $dbCategoryTable C ON C.${colID} = T.${colCategoryID}"
 
-            if (id > 0) {
+            if (ids.toInt() > 0) {
                 query += " WHERE C.${colID} = ? "
                 if (!includeSecondTransfer) query += " AND "
             } else {
@@ -586,6 +595,14 @@ open class DBManager(context: Context) {
                     "FROM $dbTransactionTable T " +
                     "JOIN $dbPaymentsTable P ON P.${colTransactionID} = T.${colID} " +
                     "WHERE P.${colAccountID} = ?"
+
+            if (!includeSecondTransfer) query += " AND "
+
+        } else if (type == "Recurring Transactions") {
+            query = "SELECT T.${colID}, T.${colCategoryID}, T.${colName}, T.${colDetails}, " +
+                    "T.${colDate}, T.${colAmount}, T.${colTransferTransactionID} " +
+                    "FROM $dbTransactionTable T " +
+                    "WHERE T.${colID} IN (?)"
 
             if (!includeSecondTransfer) query += " AND "
         }
@@ -613,7 +630,7 @@ open class DBManager(context: Context) {
 
                 val cal = Calendar.getInstance()
                 val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
-                cal.time = sdf.parse(date)
+                cal.time = sdf.parse(date)!!
 
                 listTransactions.add(
                     Transaction(
@@ -677,6 +694,9 @@ open class DBManager(context: Context) {
             )
         }
 
+        // Delete from Recurs table if present
+        sqlDB!!.delete(dbRecursTable, "$colTransactionID = ?", arrayOf(selectionArgs[0]))
+
         // Now delete the transaction
         sqlDB!!.delete(dbTransactionTable, "$colID = ?", arrayOf(selectionArgs[0]))
 
@@ -693,14 +713,19 @@ open class DBManager(context: Context) {
      * @return The ID that the transaction has been saved as.
      */
     fun insertRecurringTransaction(recurringTransaction: RecurringTransaction): Long {
+        // Insert the RecurringPayment
         val values = ContentValues()
-        values.put(colTransactionID, recurringTransaction.transaction.transactionID)
         values.put(colStart, Timestamp(recurringTransaction.start.timeInMillis).toString())
         values.put(colEnd, Timestamp(recurringTransaction.end.timeInMillis).toString())
         values.put(colFrequencyUnit, recurringTransaction.frequencyUnit)
         values.put(colFrequencyPeriod, recurringTransaction.frequencyPeriod)
+        val recurringTransactionID = sqlDB!!.insert(dbRecurringTransactionTable, "", values)
 
-        return sqlDB!!.insert(dbRecurringTransactionTable, "", values)
+        // Insert the Recurs pivot record
+        val recursValues = ContentValues()
+        recursValues.put(colRecurringTransactionID, recurringTransactionID)
+        recursValues.put(colTransactionID, recurringTransaction.transactions[0].transactionID)
+        return sqlDB!!.insert(dbRecursTable, "", recursValues)
     }
 
     /**
@@ -712,17 +737,34 @@ open class DBManager(context: Context) {
     fun selectRecurringTransactions(): ArrayList<RecurringTransaction> {
         val listRecurringTransactions = ArrayList<RecurringTransaction>()
 
-        val query = "SELECT RT.${colID}, RT.${colTransactionID}, RT.${colStart}, RT.${colEnd}, " +
-                "RT.${colFrequencyUnit}, RT.${colFrequencyPeriod} " +
+        // Get array of related transactions
+        val colTransactionIDs = "colTransactionIDs"
+        val query = "SELECT RT.${colID}, RT.${colStart}, RT.${colEnd}, RT.${colFrequencyUnit}, " +
+                "RT.${colFrequencyPeriod}, GROUP_CONCAT(R.${colTransactionID}, ', ') AS $colTransactionIDs " +
                 "FROM $dbRecurringTransactionTable RT " +
-                "JOIN $dbTransactionTable T ON T.${colID} = RT.${colTransactionID} " +
+                "JOIN $dbRecursTable R ON R.${colRecurringTransactionID} = RT.${colID} " +
+                "JOIN $dbTransactionTable T ON T.${colID} = R.${colTransactionID} " +
+                "GROUP BY RT.${colID} " +
                 "ORDER BY T.${colName}"
 
         val cursor = sqlDB!!.rawQuery(query, emptyArray())
         if (cursor.moveToFirst()) {
             do {
                 val recurringTransactionID = cursor.getInt(cursor.getColumnIndex(colID))
-                val transactionID = cursor.getInt(cursor.getColumnIndex(colTransactionID))
+                if(recurringTransactionID == 0) {
+                    // Exit if no results to show
+                    break
+                }
+                val transactionIDsString = cursor.getString(cursor.getColumnIndex(colTransactionIDs))
+                var transactions = arrayListOf<Transaction>()
+                if (transactionIDsString != null) {
+                    transactions = selectTransactions(
+                        transactionIDsString,
+                        "Recurring Transactions",
+                        null,
+                        false
+                    )
+                }
                 val start = cursor.getString(cursor.getColumnIndex(colStart))
                 val end = cursor.getString(cursor.getColumnIndex(colEnd))
                 val frequencyUnit = cursor.getInt(cursor.getColumnIndex(colFrequencyUnit))
@@ -730,14 +772,14 @@ open class DBManager(context: Context) {
 
                 val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
                 val calStart = Calendar.getInstance()
-                calStart.time = sdf.parse(start)
+                calStart.time = sdf.parse(start)!!
                 val calEnd = Calendar.getInstance()
-                calEnd.time = sdf.parse(end)
+                calEnd.time = sdf.parse(end)!!
 
                 listRecurringTransactions.add(
                     RecurringTransaction(
                         recurringTransactionID,
-                        selectTransaction(transactionID),
+                        transactions,
                         calStart,
                         calEnd,
                         frequencyUnit,

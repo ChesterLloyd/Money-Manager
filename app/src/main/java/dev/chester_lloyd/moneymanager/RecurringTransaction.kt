@@ -12,7 +12,7 @@ import java.util.*
  */
 class RecurringTransaction {
     var recurringTransactionID: Int = 0
-    var transaction = Transaction()
+    var transactions = arrayListOf<Transaction>()
     var start: Calendar = Calendar.getInstance()
     var end: Calendar = Calendar.getInstance()
     var frequencyUnit: Int = 0
@@ -22,7 +22,7 @@ class RecurringTransaction {
      * Creates a complete [RecurringTransaction] when all necessary fields have been provided.
      *
      * @param recurringTransactionID The ID of the recurring transaction.
-     * @param transaction The [Transaction] that is set to recur.
+     * @param transactions An [ArrayList] of [Transaction]s involved in this recurring transaction.
      * @param start The date that the transaction starts to recur (date of first transaction in the
      * set).
      * @param end The date that the transaction stops recurring (date of last transaction in the
@@ -34,14 +34,14 @@ class RecurringTransaction {
      */
     constructor(
         recurringTransactionID: Int,
-        transaction: Transaction,
+        transactions: ArrayList<Transaction>,
         start: Calendar,
         end: Calendar,
         frequencyUnit: Int,
         frequencyPeriod: String
     ) {
         this.recurringTransactionID = recurringTransactionID
-        this.transaction = transaction
+        this.transactions = transactions
         this.start = start
         this.end = end
         this.frequencyUnit = frequencyUnit

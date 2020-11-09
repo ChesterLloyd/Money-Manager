@@ -91,7 +91,7 @@ class DashboardFragment : Fragment() {
             }
 
             // Get transactions as an array list from database and add them to the recent list
-            val listTransactions = dbManager.selectTransactions(0, "Categories", "3", false)
+            val listTransactions = dbManager.selectTransactions(0.toString(), "Categories", "3", false)
             addTransactions(listTransactions)
             dbManager.sqlDB!!.close()
 
@@ -236,7 +236,7 @@ class DashboardFragment : Fragment() {
 
         // If there are more than 3 transactions, show a view more button
         val dbManager = DBManager(requireContext())
-        if (dbManager.selectTransactions(0, "Categories", null, false).size > 3) {
+        if (dbManager.selectTransactions(0.toString(), "Categories", null, false).size > 3) {
             val buTransactions = Button(context)
             buTransactions.text = getString(R.string.view_more)
             buTransactions.setTextColor(ContextCompat.getColor(requireContext(), R.color.buttonLink))
