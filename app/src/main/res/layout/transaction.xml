@@ -48,10 +48,6 @@
             android:id="@+id/tvDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="5dp"
-            android:paddingLeft="0dp"
-            android:paddingEnd="15dp"
-            android:paddingRight="16dp"
             android:text="@string/transaction_date"
             android:textSize="14sp" />
     </LinearLayout>

@@ -86,6 +86,9 @@ class RecurringTransaction {
      * @return The date of the next transaction in the user specified date format.
      */
     fun getFormattedNextDueDate(context: Context): String {
+        // Get date of last transaction - we base next one on this
+        val latestTransactionDate = transactions[transactions.lastIndex].date
+
         // Get the time for the end of today
         val endOfToday = Calendar.getInstance()
         endOfToday.set(
@@ -97,7 +100,8 @@ class RecurringTransaction {
             59
         )
 
-        val nextDue = start
+        val nextDue = Calendar.getInstance()
+        nextDue.time = latestTransactionDate.time
         while (nextDue.timeInMillis <= endOfToday.timeInMillis) {
             when (frequencyPeriod) {
                 "days" -> nextDue.add(Calendar.DATE, frequencyUnit)
