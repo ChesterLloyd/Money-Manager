@@ -65,6 +65,52 @@ class RecurringTransaction {
     }
 
     /**
+     * Returns the date this transaction is to stop recurring.
+     *
+     * @param context The context.
+     * @return The date the transactions will stop occurring in the user specified date format.
+     */
+    fun getFormattedEndDate(context: Context): String {
+        val now = Calendar.getInstance()
+        if (end.get(Calendar.YEAR) > (now.get(Calendar.YEAR) + NO_END_DATE_YEARS_THRESHOLD)) {
+            return context.getString(R.string.indefinitely)
+        }
+
+        return MainActivity.getFormattedDate(context, end)
+    }
+
+    /**
+     * Returns the date this transaction is set to recur based on the start date and frequency set
+     *
+     * @param context The context.
+     * @return The date of the next transaction in the user specified date format.
+     */
+    fun getFormattedNextDueDate(context: Context): String {
+        // Get the time for the end of today
+        val endOfToday = Calendar.getInstance()
+        endOfToday.set(
+            endOfToday.get(Calendar.YEAR),
+            endOfToday.get(Calendar.MONTH),
+            endOfToday.get(Calendar.DATE),
+            23,
+            59,
+            59
+        )
+
+        val nextDue = start
+        while (nextDue.timeInMillis <= endOfToday.timeInMillis) {
+            when (frequencyPeriod) {
+                "days" -> nextDue.add(Calendar.DATE, frequencyUnit)
+                "weeks" -> nextDue.add(Calendar.DATE, (7 * frequencyUnit))
+                "months" -> nextDue.add(Calendar.MONTH, frequencyUnit)
+                "years" -> nextDue.add(Calendar.YEAR, frequencyUnit)
+            }
+        }
+
+        return MainActivity.getFormattedDate(context, nextDue)
+    }
+
+    /**
      * Returns the frequency as a string using the [frequencyUnit] and [frequencyPeriod] variables.
      * This takes into account stripping the 's' for non plural units.
      *
@@ -121,5 +167,10 @@ class RecurringTransaction {
             }
         }
         return false
+    }
+
+    companion object {
+        const val NO_END_DATE_YEARS = 1000
+        const val NO_END_DATE_YEARS_THRESHOLD = 800
     }
 }

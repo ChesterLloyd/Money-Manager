@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.*
+import dev.chester_lloyd.moneymanager.RecurringTransaction.Companion.NO_END_DATE_YEARS
 import dev.chester_lloyd.moneymanager.ui.CurrencyValidator
 import dev.chester_lloyd.moneymanager.ui.Icon
 import dev.chester_lloyd.moneymanager.ui.IconManager
@@ -506,7 +507,7 @@ class AddTransaction : AppCompatActivity() {
                                 recurringTransaction.start = transaction.date
                                 if (!hasEndDate) {
                                     // Add 1000 years as no end date set
-                                    recurringTransaction.end.add(Calendar.YEAR, 1000)
+                                    recurringTransaction.end.add(Calendar.YEAR, NO_END_DATE_YEARS)
                                 }
                                 dbManager.insertRecurringTransaction(recurringTransaction)
                             }

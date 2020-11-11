@@ -94,6 +94,12 @@
     <string name="transaction_recurring_every">Every %1$s</string>
 
     <string name="no_recurring_transactions">You do not have any recurring transactions. Set one up by adding or modifying a transaction then toggling the "recurring transaction" slider.</string>
+    <string name="manage_recurring_transaction">Manage recurring transaction</string>
+    <string name="frequency">Frequency</string>
+    <string name="frequency_repeats_every">Repeats every %1$s</string>
+    <string name="next_due">Next due</string>
+    <string name="until">Until</string>
+    <string name="indefinitely">Indefinitely</string>
 
     <string name="account_insert_success">Account saved</string>
     <string name="account_insert_fail">Could not save this account</string>

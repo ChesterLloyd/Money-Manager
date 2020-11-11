@@ -602,8 +602,9 @@ open class DBManager(context: Context) {
             query = "SELECT T.${colID}, T.${colCategoryID}, T.${colName}, T.${colDetails}, " +
                     "T.${colDate}, T.${colAmount}, T.${colTransferTransactionID} " +
                     "FROM $dbTransactionTable T " +
-                    "WHERE T.${colID} IN (?)"
+                    "WHERE T.${colID} IN (${ids})"
 
+            selectionArgs = emptyArray()
             if (!includeSecondTransfer) query += " AND "
         }
 
@@ -707,10 +708,11 @@ open class DBManager(context: Context) {
     }
 
     /**
-     * Inserts a [RecurringTransaction] object into the database.
+     * Inserts a [RecurringTransaction] object into the database along with a record in the Recurs
+     * pivot table.
      *
      * @param recurringTransaction The [RecurringTransaction] to insert.
-     * @return The ID that the transaction has been saved as.
+     * @return The ID that the recurring transaction record has been saved as.
      */
     fun insertRecurringTransaction(recurringTransaction: RecurringTransaction): Long {
         // Insert the RecurringPayment
@@ -722,10 +724,36 @@ open class DBManager(context: Context) {
         val recurringTransactionID = sqlDB!!.insert(dbRecurringTransactionTable, "", values)
 
         // Insert the Recurs pivot record
+        insertRecursRecord(
+            recurringTransactionID.toInt(),
+            recurringTransaction.transactions[0].transactionID
+        )
+
+        return recurringTransactionID
+    }
+
+    /**
+     * Inserts into the Recurs pivot table.
+     *
+     * @param recurringTransactionID The ID of the [RecurringTransaction].
+     * @param transactionID The ID of the [Transaction].
+     * @return The ID that the record has been saved as.
+     */
+    fun insertRecursRecord(recurringTransactionID: Int, transactionID: Int): Long {
         val recursValues = ContentValues()
         recursValues.put(colRecurringTransactionID, recurringTransactionID)
-        recursValues.put(colTransactionID, recurringTransaction.transactions[0].transactionID)
+        recursValues.put(colTransactionID, transactionID)
         return sqlDB!!.insert(dbRecursTable, "", recursValues)
+    }
+
+    /**
+     * Gets a single [RecurringTransaction] from the database based on its ID.
+     *
+     * @param recurringTransactionID The ID of the [RecurringTransaction] to read.
+     * @return The [RecurringTransaction] object with the specified ID, else null if not found.
+     */
+    fun selectRecurringTransaction(recurringTransactionID: Int): RecurringTransaction {
+        return selectRecurringTransactions(recurringTransactionID)[0]
     }
 
     /**
@@ -734,20 +762,27 @@ open class DBManager(context: Context) {
      *
      * @return An [ArrayList] of [RecurringTransaction] objects
      */
-    fun selectRecurringTransactions(): ArrayList<RecurringTransaction> {
+    fun selectRecurringTransactions(recurringTransactionID: Int?): ArrayList<RecurringTransaction> {
         val listRecurringTransactions = ArrayList<RecurringTransaction>()
+        var selectionArgs = emptyArray<String>()
 
         // Get array of related transactions
         val colTransactionIDs = "colTransactionIDs"
-        val query = "SELECT RT.${colID}, RT.${colStart}, RT.${colEnd}, RT.${colFrequencyUnit}, " +
+        var query = "SELECT RT.${colID}, RT.${colStart}, RT.${colEnd}, RT.${colFrequencyUnit}, " +
                 "RT.${colFrequencyPeriod}, GROUP_CONCAT(R.${colTransactionID}, ', ') AS $colTransactionIDs " +
                 "FROM $dbRecurringTransactionTable RT " +
                 "JOIN $dbRecursTable R ON R.${colRecurringTransactionID} = RT.${colID} " +
-                "JOIN $dbTransactionTable T ON T.${colID} = R.${colTransactionID} " +
-                "GROUP BY RT.${colID} " +
+                "JOIN $dbTransactionTable T ON T.${colID} = R.${colTransactionID} "
+
+        if (recurringTransactionID != null) {
+            selectionArgs = arrayOf(recurringTransactionID.toString())
+            query += "WHERE RT.${colID} = ? "
+        }
+
+        query += "GROUP BY RT.${colID} " +
                 "ORDER BY T.${colName}"
 
-        val cursor = sqlDB!!.rawQuery(query, emptyArray())
+        val cursor = sqlDB!!.rawQuery(query, selectionArgs)
         if (cursor.moveToFirst()) {
             do {
                 val recurringTransactionID = cursor.getInt(cursor.getColumnIndex(colID))

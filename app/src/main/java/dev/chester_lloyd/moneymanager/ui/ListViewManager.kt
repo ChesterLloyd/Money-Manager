@@ -207,7 +207,7 @@ class ListViewManager(
 
                 // When a transactions is clicked
                 rowView.setOnClickListener {
-                    // Setup an intent to send this across to view this transactions details
+                    // Setup an intent to send this across to view this transaction's details
                     var intent = Intent(context, TransactionDetails::class.java)
                     val bundle = Bundle()
 
@@ -249,6 +249,16 @@ class ListViewManager(
                         iconManager.colourIcons, recurringTransaction.transactions[0].category.colour
                     ).drawable
                 )
+
+                // When a recurring transaction is clicked
+                rowView.setOnClickListener {
+                    // Setup an intent to send this across to view this transaction's details
+                    val intent = Intent(context, RecurringTransactionDetails::class.java)
+                    val bundle = Bundle()
+                    bundle.putInt("recurringTransactionID", recurringTransaction.recurringTransactionID)
+                    intent.putExtras(bundle)
+                    context.startActivity(intent)
+                }
                 return rowView
             }
 
