@@ -18,12 +18,15 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.android.material.navigation.NavigationView
 import dev.chester_lloyd.moneymanager.ui.PinCodeActivity
 import java.text.DateFormat
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * An [AppCompatActivity] subclass for the main activity.
@@ -59,6 +62,26 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        // Start daily worker - responsible for adding recurring transactions
+        val currentDate = Calendar.getInstance()
+
+        // Set Execution around 06:00:00 AM
+        morningWorkerDate.set(Calendar.HOUR_OF_DAY, 6)
+        morningWorkerDate.set(Calendar.MINUTE, 0)
+        morningWorkerDate.set(Calendar.SECOND, 0)
+
+        if (morningWorkerDate.before(currentDate)) {
+            // Task is about to be executed, add 1 day to set it to execute tomorrow too
+            morningWorkerDate.add(Calendar.HOUR_OF_DAY, 24)
+        }
+
+        val timeDiff = morningWorkerDate.timeInMillis - currentDate.timeInMillis
+        val dailyWorkRequest = OneTimeWorkRequestBuilder<MorningWorker>()
+            .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+            .build()
+        WorkManager.getInstance(this)
+            .enqueue(dailyWorkRequest)
     }
 
     /**
@@ -129,6 +152,7 @@ class MainActivity : AppCompatActivity() {
         private const val PREFS_DATE_FORMAT = "date_format"
         private const val PREFS_PIN_CODE = "pin_code"
         var authenticated = false
+        var morningWorkerDate: Calendar = Calendar.getInstance()
 
         /**
          * A method that updates a collection of shared preferences that stores the currency format.
@@ -337,6 +361,42 @@ class MainActivity : AppCompatActivity() {
                     WindowManager.LayoutParams.FLAG_SECURE
                 )
             }
+        }
+
+        /**
+         * Creates two [Calendar]s where the first is the minimum value for the today and the second
+         * is the maximum value.
+         *
+         * @return An [ArrayList] containing two [Calendar] objects.
+         */
+        fun getTimesToday(): ArrayList<Calendar> {
+            val times = ArrayList<Calendar>()
+
+            // Get min time a task could be due today
+            val todayMorning = Calendar.getInstance()
+            todayMorning.set(
+                Calendar.getInstance().get(Calendar.YEAR),
+                Calendar.getInstance().get(Calendar.MONTH),
+                Calendar.getInstance().get(Calendar.DAY_OF_MONTH),
+                0,
+                0,
+                0
+            )
+
+            // Get max time a task could be due today
+            val todayNight = Calendar.getInstance()
+            todayNight.set(
+                Calendar.getInstance().get(Calendar.YEAR),
+                Calendar.getInstance().get(Calendar.MONTH),
+                Calendar.getInstance().get(Calendar.DAY_OF_MONTH),
+                23,
+                59,
+                59
+            )
+
+            times.add(todayMorning)
+            times.add(todayNight)
+            return times
         }
     }
 }
