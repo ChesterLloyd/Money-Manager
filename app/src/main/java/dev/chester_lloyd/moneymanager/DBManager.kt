@@ -53,6 +53,7 @@ open class DBManager(context: Context) {
     private val colRecurringTransactionID = "RecurringTransactionID"
     private val colStart = "RecurringStart"
     private val colEnd = "RecurringEnd"
+    private val colNext = "RecurringNext"
     private val colFrequencyUnit = "FrequencyUnit"
     private val colFrequencyPeriod = "FrequencyPeriod"
     val dbVersion = 1
@@ -129,6 +130,7 @@ open class DBManager(context: Context) {
                         "$colAmount FLOAT, " +
                         "$colStart DATETIME, " +
                         "$colEnd DATETIME, " +
+                        "$colNext DATETIME, " +
                         "$colFrequencyUnit INTEGER, " +
                         "$colFrequencyPeriod VARCHAR(10) );"
             )
@@ -727,6 +729,7 @@ open class DBManager(context: Context) {
         values.put(colAmount, recurringTransaction.amount)
         values.put(colStart, Timestamp(recurringTransaction.start.timeInMillis).toString())
         values.put(colEnd, Timestamp(recurringTransaction.end.timeInMillis).toString())
+        values.put(colNext, Timestamp(recurringTransaction.next.timeInMillis).toString())
         values.put(colFrequencyUnit, recurringTransaction.frequencyUnit)
         values.put(colFrequencyPeriod, recurringTransaction.frequencyPeriod)
         val recurringTransactionID = sqlDB!!.insert(dbRecurringTransactionTable, "", values)
@@ -770,7 +773,6 @@ open class DBManager(context: Context) {
      *
      * @param recurringTransactionID Optional [RecurringTransaction] ID to filter by.
      * @param accountID Optional [Account] ID to filter by.
-     *
      * @return An [ArrayList] of [RecurringTransaction] objects
      */
     fun selectRecurringTransactions(recurringTransactionID: Int?, accountID: Int?): ArrayList<RecurringTransaction> {
@@ -780,12 +782,12 @@ open class DBManager(context: Context) {
         // Get array of related transactions
         val colTransactionIDs = "colTransactionIDs"
         var query = "SELECT RT.${colID}, RT.${colAccountID}, RT.${colCategoryID}, RT.${colName}, " +
-                "RT.${colAmount}, RT.${colStart}, RT.${colEnd}, RT.${colFrequencyUnit}, " +
-                "RT.${colFrequencyPeriod}, " +
+                "RT.${colAmount}, RT.${colStart}, RT.${colEnd}, RT.${colNext}, " +
+                "RT.${colFrequencyUnit}, RT.${colFrequencyPeriod}, " +
                 "GROUP_CONCAT(R.${colTransactionID}, ', ') AS $colTransactionIDs " +
                 "FROM $dbRecurringTransactionTable RT " +
-                "JOIN $dbRecursTable R ON R.${colRecurringTransactionID} = RT.${colID} " +
-                "JOIN $dbTransactionTable T ON T.${colID} = R.${colTransactionID} "
+                "LEFT OUTER JOIN $dbRecursTable R ON R.${colRecurringTransactionID} = RT.${colID} " +
+                "LEFT OUTER JOIN $dbTransactionTable T ON T.${colID} = R.${colTransactionID} "
 
         if (recurringTransactionID != null) {
             selectionArgs = arrayOf(recurringTransactionID.toString())
@@ -796,16 +798,12 @@ open class DBManager(context: Context) {
         }
 
         query += "GROUP BY RT.${colID} " +
-                "ORDER BY T.${colName}"
+                "ORDER BY RT.${colName}"
 
         val cursor = sqlDB!!.rawQuery(query, selectionArgs)
         if (cursor.moveToFirst()) {
             do {
                 val recurringTransactionID = cursor.getInt(cursor.getColumnIndex(colID))
-                if(recurringTransactionID == 0) {
-                    // Exit if no results to show
-                    break
-                }
                 val transactionIDsString = cursor.getString(cursor.getColumnIndex(colTransactionIDs))
                 var transactions = arrayListOf<Transaction>()
                 if (transactionIDsString != null) {
@@ -822,6 +820,7 @@ open class DBManager(context: Context) {
                 val amount = cursor.getDouble(cursor.getColumnIndex(colAmount))
                 val start = cursor.getString(cursor.getColumnIndex(colStart))
                 val end = cursor.getString(cursor.getColumnIndex(colEnd))
+                val next = cursor.getString(cursor.getColumnIndex(colNext))
                 val frequencyUnit = cursor.getInt(cursor.getColumnIndex(colFrequencyUnit))
                 val frequencyPeriod = cursor.getString(cursor.getColumnIndex(colFrequencyPeriod))
 
@@ -830,6 +829,8 @@ open class DBManager(context: Context) {
                 calStart.time = sdf.parse(start)!!
                 val calEnd = Calendar.getInstance()
                 calEnd.time = sdf.parse(end)!!
+                val calNext = Calendar.getInstance()
+                calNext.time = sdf.parse(next)!!
 
                 listRecurringTransactions.add(
                     RecurringTransaction(
@@ -841,6 +842,7 @@ open class DBManager(context: Context) {
                         amount,
                         calStart,
                         calEnd,
+                        calNext,
                         frequencyUnit,
                         frequencyPeriod
                     )
@@ -871,6 +873,7 @@ open class DBManager(context: Context) {
         values.put(colAmount, recurringTransaction.amount)
         values.put(colStart, Timestamp(recurringTransaction.start.timeInMillis).toString())
         values.put(colEnd, Timestamp(recurringTransaction.end.timeInMillis).toString())
+        values.put(colNext, Timestamp(recurringTransaction.next.timeInMillis).toString())
         values.put(colFrequencyUnit, recurringTransaction.frequencyUnit)
         values.put(colFrequencyPeriod, recurringTransaction.frequencyPeriod)
 

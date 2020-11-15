@@ -19,6 +19,7 @@ class RecurringTransaction {
     var amount: Double = 0.00
     var start: Calendar = Calendar.getInstance()
     var end: Calendar = Calendar.getInstance()
+    var next: Calendar = Calendar.getInstance()
     var frequencyUnit: Int = 0
     var frequencyPeriod: String = ""
 
@@ -35,6 +36,7 @@ class RecurringTransaction {
      * set).
      * @param end The date that the transaction stops recurring (date of last transaction in the
      * set).
+     * @param next The date that the next transaction should be added.
      * @param frequencyUnit The integer value of how often the transaction repeats. e.g if it
      * repeats every 30 days, this would be "30".
      * @param frequencyPeriod The string value of how often the transaction repeats. e.g if it
@@ -49,6 +51,7 @@ class RecurringTransaction {
         amount: Double,
         start: Calendar,
         end: Calendar,
+        next: Calendar,
         frequencyUnit: Int,
         frequencyPeriod: String
     ) {
@@ -60,6 +63,7 @@ class RecurringTransaction {
         this.amount = amount
         this.start = start
         this.end = end
+        this.next = next
         this.frequencyUnit = frequencyUnit
         this.frequencyPeriod = frequencyPeriod
         setEndDate()
@@ -96,15 +100,28 @@ class RecurringTransaction {
     }
 
     /**
-     * Returns the date this transaction is set to recur based on the start date and frequency set
+     * Sets the next date.
+     */
+    fun setNextDueDate() {
+        this.next.time = findNextDueDate().time
+    }
+
+    /**
+     * Returns the date this transaction is set to recur.
      *
      * @param context The context.
      * @return The date of the next transaction in the user specified date format.
      */
     fun getFormattedNextDueDate(context: Context): String {
-        // Get date of last transaction - we base next one on this
-        val latestTransactionDate = transactions[transactions.lastIndex].date
+        return MainActivity.getFormattedDate(context, next)
+    }
 
+    /**
+     * Returns the date this transaction is set to recur based on the existing next date.
+     *
+     * @return The date of the next transaction.
+     */
+    private fun findNextDueDate(): Calendar {
         // Get the time for the end of today
         val endOfToday = Calendar.getInstance()
         endOfToday.set(
@@ -117,7 +134,7 @@ class RecurringTransaction {
         )
 
         val nextDue = Calendar.getInstance()
-        nextDue.time = latestTransactionDate.time
+        nextDue.time = next.time
         while (nextDue.timeInMillis <= endOfToday.timeInMillis) {
             when (frequencyPeriod) {
                 "days" -> nextDue.add(Calendar.DATE, frequencyUnit)
@@ -127,7 +144,7 @@ class RecurringTransaction {
             }
         }
 
-        return MainActivity.getFormattedDate(context, nextDue)
+        return nextDue
     }
 
     /**

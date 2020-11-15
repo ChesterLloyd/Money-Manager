@@ -531,6 +531,7 @@ class AddTransaction : AppCompatActivity() {
                                     // Add 1000 years as no end date set
                                     recurringTransaction.end.add(Calendar.YEAR, NO_END_DATE_YEARS)
                                 }
+                                recurringTransaction.setNextDueDate()
                                 dbManager.insertRecurringTransaction(recurringTransaction)
                             }
 
