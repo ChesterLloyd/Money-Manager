@@ -123,6 +123,9 @@ open class DBManager(context: Context) {
             db.execSQL(
                 "CREATE TABLE IF NOT EXISTS $dbRecurringTransactionTable (" +
                         "$colID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "$colCategoryID INTEGER, " +
+                        "$colName VARCHAR(30), " +
+                        "$colAmount FLOAT, " +
                         "$colStart DATETIME, " +
                         "$colEnd DATETIME, " +
                         "$colFrequencyUnit INTEGER, " +
@@ -717,13 +720,16 @@ open class DBManager(context: Context) {
     fun insertRecurringTransaction(recurringTransaction: RecurringTransaction): Long {
         // Insert the RecurringPayment
         val values = ContentValues()
+        values.put(colCategoryID, recurringTransaction.category.categoryID)
+        values.put(colName, recurringTransaction.name)
+        values.put(colAmount, recurringTransaction.amount)
         values.put(colStart, Timestamp(recurringTransaction.start.timeInMillis).toString())
         values.put(colEnd, Timestamp(recurringTransaction.end.timeInMillis).toString())
         values.put(colFrequencyUnit, recurringTransaction.frequencyUnit)
         values.put(colFrequencyPeriod, recurringTransaction.frequencyPeriod)
         val recurringTransactionID = sqlDB!!.insert(dbRecurringTransactionTable, "", values)
 
-        // Insert the Recurs pivot record
+        // Insert into the Recurs pivot record, there should only be 1 transaction at this point
         insertRecursRecord(
             recurringTransactionID.toInt(),
             recurringTransaction.transactions[0].transactionID
@@ -768,8 +774,9 @@ open class DBManager(context: Context) {
 
         // Get array of related transactions
         val colTransactionIDs = "colTransactionIDs"
-        var query = "SELECT RT.${colID}, RT.${colStart}, RT.${colEnd}, RT.${colFrequencyUnit}, " +
-                "RT.${colFrequencyPeriod}, GROUP_CONCAT(R.${colTransactionID}, ', ') AS $colTransactionIDs " +
+        var query = "SELECT RT.${colID}, RT.${colCategoryID}, RT.${colName}, RT.${colAmount}, " +
+                "RT.${colStart}, RT.${colEnd}, RT.${colFrequencyUnit}, RT.${colFrequencyPeriod}, " +
+                "GROUP_CONCAT(R.${colTransactionID}, ', ') AS $colTransactionIDs " +
                 "FROM $dbRecurringTransactionTable RT " +
                 "JOIN $dbRecursTable R ON R.${colRecurringTransactionID} = RT.${colID} " +
                 "JOIN $dbTransactionTable T ON T.${colID} = R.${colTransactionID} "
@@ -800,6 +807,9 @@ open class DBManager(context: Context) {
                         false
                     )
                 }
+                val categoryID = cursor.getInt(cursor.getColumnIndex(colCategoryID))
+                val name = cursor.getString(cursor.getColumnIndex(colName))
+                val amount = cursor.getDouble(cursor.getColumnIndex(colAmount))
                 val start = cursor.getString(cursor.getColumnIndex(colStart))
                 val end = cursor.getString(cursor.getColumnIndex(colEnd))
                 val frequencyUnit = cursor.getInt(cursor.getColumnIndex(colFrequencyUnit))
@@ -815,6 +825,9 @@ open class DBManager(context: Context) {
                     RecurringTransaction(
                         recurringTransactionID,
                         transactions,
+                        selectCategory(categoryID),
+                        name,
+                        amount,
                         calStart,
                         calEnd,
                         frequencyUnit,
@@ -825,6 +838,31 @@ open class DBManager(context: Context) {
         }
         cursor.close()
         return listRecurringTransactions
+    }
+
+    /**
+     * Updates a [RecurringTransaction] object stored in the database.
+     *
+     * @param recurringTransaction A [RecurringTransaction] object to update.
+     * @param selection Query representing the account to update.
+     * @param selectionArgs The [selection] arguments.
+     * @return Number of rows updated.
+     */
+    fun updateRecurringTransaction(
+        recurringTransaction: RecurringTransaction,
+        selection: String,
+        selectionArgs: Array<String>
+    ): Int {
+        val values = ContentValues()
+        values.put(colCategoryID, recurringTransaction.category.categoryID)
+        values.put(colName, recurringTransaction.name)
+        values.put(colAmount, recurringTransaction.amount)
+        values.put(colStart, Timestamp(recurringTransaction.start.timeInMillis).toString())
+        values.put(colEnd, Timestamp(recurringTransaction.end.timeInMillis).toString())
+        values.put(colFrequencyUnit, recurringTransaction.frequencyUnit)
+        values.put(colFrequencyPeriod, recurringTransaction.frequencyPeriod)
+
+        return sqlDB!!.update(dbRecurringTransactionTable, values, selection, selectionArgs)
     }
 
     /**

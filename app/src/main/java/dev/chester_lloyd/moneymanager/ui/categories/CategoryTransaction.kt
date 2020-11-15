@@ -158,7 +158,7 @@ class CategoryTransaction : AppCompatActivity() {
                             arrayOf(category.categoryID.toString())
                         )
                     }
-                    .setNegativeButton(resources.getString(R.string.no)) {
+                    .setNegativeButton(resources.getString(R.string.no_cancel)) {
                         // Do nothing, close box
                             dialog, _ ->
                         dialog.cancel()

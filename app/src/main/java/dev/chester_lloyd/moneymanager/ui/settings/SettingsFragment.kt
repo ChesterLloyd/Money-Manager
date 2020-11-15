@@ -282,7 +282,7 @@ class SettingsFragment : Fragment() {
                     dbManager.importDB(requireContext(), selectedFile!!)
                     dbManager.sqlDB!!.close()
                 }
-                .setNegativeButton(resources.getString(R.string.no)) { dialog, _ ->
+                .setNegativeButton(resources.getString(R.string.no_cancel)) { dialog, _ ->
                     // Do nothing, close box
                     dialog.cancel()
                 }

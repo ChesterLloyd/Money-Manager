@@ -1,6 +1,9 @@
 package dev.chester_lloyd.moneymanager.ui.recurring_transactions
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.*
 import dev.chester_lloyd.moneymanager.ui.IconManager
@@ -50,19 +53,19 @@ class RecurringTransactionDetails : AppCompatActivity() {
         }
 
         // Update top transaction with info
-        tvName.text = recurringTransaction.transactions[0].merchant
+        tvName.text = recurringTransaction.name
         tvAmount.text =
-            MainActivity.stringBalance(this, recurringTransaction.transactions[0].amount)
+            MainActivity.stringBalance(this, recurringTransaction.amount)
 
         val iconManager = IconManager(this)
         ivIcon.setImageResource(
             iconManager.getIconByID(
-                iconManager.categoryIcons, recurringTransaction.transactions[0].category.icon
+                iconManager.categoryIcons, recurringTransaction.category.icon
             ).drawable
         )
         ivIcon.setBackgroundResource(
             iconManager.getIconByID(
-                iconManager.colourIcons, recurringTransaction.transactions[0].category.colour
+                iconManager.colourIcons, recurringTransaction.category.colour
             ).drawable
         )
 
@@ -81,6 +84,42 @@ class RecurringTransactionDetails : AppCompatActivity() {
             this,
             "recurring transaction"
         )
+    }
+
+    /**
+     * An [onCreateOptionsMenu] method that adds the edit menu to the toolbar. This includes an
+     * edit and delete button.
+     *
+     * @param menu The options menu to place items.
+     * @return True to display the menu, or false to not show the menu.
+     */
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.edit, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    /**
+     * An [onOptionsItemSelected] method that adds functionality when the menu buttons are clicked.
+     *
+     * @param item The menu item that was selected.
+     * @return Return false to allow normal menu processing to proceed, true to consume it here.
+     */
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.menuEdit -> {
+            // Edit icon clicked, go to edit page (pass all recurring transaction details)
+            val intent = Intent(this, EditRecurringTransaction::class.java)
+
+            val bundle = Bundle()
+            bundle.putInt("recurringTransactionID", recurringTransaction.recurringTransactionID)
+            intent.putExtras(bundle)
+
+            startActivity(intent)
+            true
+        }
+        else -> {
+            // Unknown action (not edit or delete) invoke the superclass to handle it.
+            super.onOptionsItemSelected(item)
+        }
     }
 
     /**

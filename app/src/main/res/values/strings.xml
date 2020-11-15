@@ -87,6 +87,7 @@
     <string name="transaction_validation_date">Transaction date cannot be blank</string>
     <string name="transaction_validation_payments">Account payments do not make up the transaction amount</string>
 
+    <string name="transaction_recurring_validation_name">Please enter a name</string>
     <string name="transaction_recurring_validation_unit">Frequency must be at least 1</string>
     <string name="transaction_recurring_validation_period">Please select a frequency period</string>
     <string name="transaction_recurring_validation_end_before">Recurring end date must be after the transaction date</string>
@@ -96,10 +97,15 @@
     <string name="no_recurring_transactions">You do not have any recurring transactions. Set one up by adding or modifying a transaction then toggling the "recurring transaction" slider.</string>
     <string name="manage_recurring_transaction">Manage recurring transaction</string>
     <string name="frequency">Frequency</string>
+    <string name="unit">Unit</string>
     <string name="frequency_repeats_every">Repeats every %1$s</string>
     <string name="next_due">Next due</string>
     <string name="until">Until</string>
     <string name="indefinitely">Indefinitely</string>
+    <string name="text_recurring_transaction_desc">Update the frequency settings for this recurring transaction.\n\nThe next transaction date will be based on the date of the previous transaction.</string>
+    <string name="alert_title_recurring_transaction_update_category">Update previous transactions</string>
+    <string name="alert_message_recurring_transaction_update_category">Would you like to update the category for all previous transactions? If not, this category will only apply to new transactions.</string>
+    <string name="fab_edit_recurring_transaction">Update recurring transaction</string>
 
     <string name="account_insert_success">Account saved</string>
     <string name="account_insert_fail">Could not save this account</string>
@@ -113,6 +119,8 @@
     <string name="transaction_insert_fail">Could not save this transaction</string>
     <string name="transaction_update_success">Transaction updated</string>
     <string name="transaction_update_fail">Could not update this transaction</string>
+    <string name="recurring_transaction_update_success">Recurring transaction updated</string>
+    <string name="recurring_transaction_update_fail">Could not update this recurring transaction</string>
 
     <string name="icon_colour">Colour icon</string>
     <string name="icon_account">Account icon</string>
@@ -120,7 +128,8 @@
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="yes">Yes</string>
-    <string name="no">No, cancel</string>
+    <string name="no">No</string>
+    <string name="no_cancel">No, cancel</string>
     <string name="alert_title_delete_account">Delete account</string>
     <string name="alert_message_delete_account">Are you sure that you want to delete this account
         and all associated transactions?\n\nNote: any transactions paid by multiple accounts will

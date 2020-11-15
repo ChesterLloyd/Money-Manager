@@ -16,6 +16,7 @@
         <activity android:name=".ui.PinCodeActivity" />
         <activity android:name=".ui.accounts.TransferFunds" />
         <activity android:name=".ui.dashboard.SetupApp" />
+        <activity android:name=".ui.recurring_transactions.EditRecurringTransaction" />
         <activity android:name=".ui.recurring_transactions.RecurringTransactionDetails" />
         <activity android:name=".ui.TransactionDetails" />
         <activity android:name=".ui.transactions.AddTransaction" />

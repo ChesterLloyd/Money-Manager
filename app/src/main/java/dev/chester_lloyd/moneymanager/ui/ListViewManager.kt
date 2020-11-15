@@ -12,6 +12,7 @@ import dev.chester_lloyd.moneymanager.*
 import dev.chester_lloyd.moneymanager.ui.accounts.AccountTransactions
 import dev.chester_lloyd.moneymanager.ui.accounts.TransferFunds
 import dev.chester_lloyd.moneymanager.ui.categories.CategoryTransaction
+import dev.chester_lloyd.moneymanager.ui.recurring_transactions.RecurringTransactionDetails
 import kotlinx.android.synthetic.main.account.view.*
 import kotlinx.android.synthetic.main.account.view.ivIcon
 import kotlinx.android.synthetic.main.account.view.tvName
@@ -227,26 +228,26 @@ class ListViewManager(
                 // We are adding Recurring Transactions to the list
                 val rowView = layoutInflater.inflate(R.layout.transaction, null)
                 val recurringTransaction = listObjects[position] as RecurringTransaction
-                rowView.tvName.text = recurringTransaction.transactions[0].merchant
+                rowView.tvName.text = recurringTransaction.name
                 rowView.tvDate.text = context.resources.getString(
                     R.string.transaction_recurring_every,
                     recurringTransaction.getFrequencyString()
                 )
                 rowView.tvAmount.text = MainActivity.stringBalance(
                     context,
-                    recurringTransaction.transactions[0].amount
+                    recurringTransaction.amount
                 )
 
                 // Get the recurring transaction's category icon and colour
                 val iconManager = IconManager(context)
                 rowView.ivIcon.setImageResource(
                     iconManager.getIconByID(
-                        iconManager.categoryIcons, recurringTransaction.transactions[0].category.icon
+                        iconManager.categoryIcons, recurringTransaction.category.icon
                     ).drawable
                 )
                 rowView.ivIcon.setBackgroundResource(
                     iconManager.getIconByID(
-                        iconManager.colourIcons, recurringTransaction.transactions[0].category.colour
+                        iconManager.colourIcons, recurringTransaction.category.colour
                     ).drawable
                 )
 

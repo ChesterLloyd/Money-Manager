@@ -13,6 +13,9 @@ import java.util.*
 class RecurringTransaction {
     var recurringTransactionID: Int = 0
     var transactions = arrayListOf<Transaction>()
+    var category = Category()
+    var name = ""
+    var amount: Double = 0.00
     var start: Calendar = Calendar.getInstance()
     var end: Calendar = Calendar.getInstance()
     var frequencyUnit: Int = 0
@@ -35,6 +38,9 @@ class RecurringTransaction {
     constructor(
         recurringTransactionID: Int,
         transactions: ArrayList<Transaction>,
+        category: Category,
+        name: String,
+        amount: Double,
         start: Calendar,
         end: Calendar,
         frequencyUnit: Int,
@@ -42,6 +48,9 @@ class RecurringTransaction {
     ) {
         this.recurringTransactionID = recurringTransactionID
         this.transactions = transactions
+        this.category = category
+        this.name = name
+        this.amount = amount
         this.start = start
         this.end = end
         this.frequencyUnit = frequencyUnit
@@ -118,7 +127,7 @@ class RecurringTransaction {
      * Returns the frequency as a string using the [frequencyUnit] and [frequencyPeriod] variables.
      * This takes into account stripping the 's' for non plural units.
      *
-     * e.g "1 week" or "2 weeks"
+     * e.g "week" or "2 weeks"
      *
      * @return String
      */
@@ -163,6 +172,42 @@ class RecurringTransaction {
                 // End date must be after the transaction date, show an error
                 Toast.makeText(
                     context, R.string.transaction_recurring_validation_end_before,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            else -> {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * Validates inputs when updating a recurring transaction
+     *
+     * @param context The context.
+     * @return True if no errors found.
+     */
+    fun validateUpdate(context: Context): Boolean {
+        when {
+            this.name == "" -> {
+                // Name is not valid, show an error
+                Toast.makeText(
+                    context, R.string.transaction_recurring_validation_name,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            this.frequencyUnit <= 0 -> {
+                // Frequency unit is not valid, show an error
+                Toast.makeText(
+                    context, R.string.transaction_recurring_validation_unit,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            this.frequencyPeriod == "" -> {
+                // Frequency period is not valid, show an error
+                Toast.makeText(
+                    context, R.string.transaction_recurring_validation_period,
                     Toast.LENGTH_SHORT
                 ).show()
             }
