@@ -1,11 +1,15 @@
 package dev.chester_lloyd.moneymanager.ui.recurring_transactions
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import dev.chester_lloyd.moneymanager.*
+import dev.chester_lloyd.moneymanager.DBManager
+import dev.chester_lloyd.moneymanager.MainActivity
+import dev.chester_lloyd.moneymanager.R
+import dev.chester_lloyd.moneymanager.RecurringTransaction
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.ListViewManager
 import kotlinx.android.synthetic.main.activity_recurring_transaction_details.*
@@ -114,6 +118,30 @@ class RecurringTransactionDetails : AppCompatActivity() {
             intent.putExtras(bundle)
 
             startActivity(intent)
+            true
+        }
+        R.id.menuDelete -> {
+            // Delete icon clicked, build an alert dialog to get user confirmation
+            val alertDialog = AlertDialog.Builder(this)
+
+            alertDialog.setMessage(resources.getString(R.string.alert_message_delete_recurring_transaction))
+                .setCancelable(true)
+                .setPositiveButton(resources.getString(R.string.yes)) { dialog, id ->
+                    finish()
+                    // Delete the recurring transaction
+                    val dbManager = DBManager(this)
+                    dbManager.deleteRecurringTransaction(recurringTransaction.recurringTransactionID)
+                    dbManager.sqlDB!!.close()
+                }
+                .setNegativeButton(resources.getString(R.string.no_cancel)) {
+                    // Do nothing, close box
+                        dialog, _ ->
+                    dialog.cancel()
+                }
+
+            val alert = alertDialog.create()
+            alert.setTitle(resources.getString(R.string.alert_title_delete_recurring_transaction))
+            alert.show()
             true
         }
         else -> {

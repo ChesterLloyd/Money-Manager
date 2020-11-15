@@ -139,6 +139,8 @@
         and all associated transactions?</string>
     <string name="alert_title_delete_transaction">Delete transaction</string>
     <string name="alert_message_delete_transaction">Are you sure that you want to delete this transaction?</string>
+    <string name="alert_title_delete_recurring_transaction">Delete recurring transaction</string>
+    <string name="alert_message_delete_recurring_transaction">Are you sure that you want to delete this recurring transaction and all related transactions?</string>
 
     <string name="no_categories">You do not have any categories, set one up using the button below\n\nA category is required to save transactions as these will be used to categorise them. You could choose to make one for "rent" or "food"</string>
     <string name="text_category_desc">Add a category that will classify one or more transactions.</string>

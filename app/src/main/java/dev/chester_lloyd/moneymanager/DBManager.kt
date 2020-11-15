@@ -866,6 +866,26 @@ open class DBManager(context: Context) {
     }
 
     /**
+     * Deletes a [RecurringTransaction] object and all related transactions stored in the database.
+     *
+     * @param recurringTransactionID The recurring transaction ID to delete.
+     */
+    fun deleteRecurringTransaction(recurringTransactionID: Int) {
+        val selectionArgs = arrayOf(recurringTransactionID.toString())
+        val recurringTransaction = selectRecurringTransaction(selectionArgs[0].toInt())
+
+        // Delete all related transactions
+        for (transaction in recurringTransaction.transactions.indices) {
+            deleteTransaction(
+                arrayOf(recurringTransaction.transactions[transaction].transactionID.toString())
+            )
+        }
+
+        // Delete the recurring transaction
+        sqlDB!!.delete(dbRecurringTransactionTable, "$colID = ?", arrayOf(selectionArgs[0]))
+    }
+
+    /**
      * Inserts a [Payment] object into the database.
      *
      * @param payment The [Payment] to insert.
