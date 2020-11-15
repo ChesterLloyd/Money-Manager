@@ -13,6 +13,7 @@ import java.util.*
 class RecurringTransaction {
     var recurringTransactionID: Int = 0
     var transactions = arrayListOf<Transaction>()
+    var account = Account()
     var category = Category()
     var name = ""
     var amount: Double = 0.00
@@ -26,6 +27,10 @@ class RecurringTransaction {
      *
      * @param recurringTransactionID The ID of the recurring transaction.
      * @param transactions An [ArrayList] of [Transaction]s involved in this recurring transaction.
+     * @param account The [Account] ID that future transactions should use.
+     * @param category The [Category] ID that future transactions should use.
+     * @param name The name (merchant) that future transactions should use.
+     * @param amount The amount that future transactions should use.
      * @param start The date that the transaction starts to recur (date of first transaction in the
      * set).
      * @param end The date that the transaction stops recurring (date of last transaction in the
@@ -38,6 +43,7 @@ class RecurringTransaction {
     constructor(
         recurringTransactionID: Int,
         transactions: ArrayList<Transaction>,
+        account: Account,
         category: Category,
         name: String,
         amount: Double,
@@ -48,6 +54,7 @@ class RecurringTransaction {
     ) {
         this.recurringTransactionID = recurringTransactionID
         this.transactions = transactions
+        this.account = account
         this.category = category
         this.name = name
         this.amount = amount

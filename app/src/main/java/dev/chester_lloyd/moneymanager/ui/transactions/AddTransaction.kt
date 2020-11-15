@@ -398,6 +398,18 @@ class AddTransaction : AppCompatActivity() {
         fabAddTransaction.setOnClickListener {
             transaction.merchant = etMerchant.text.toString()
             transaction.details = etDetails.text.toString()
+
+            // Get number of accounts used as we can only add recurring transactions against 1
+            var accountsUsed = 0
+            var accountUsed = Account()
+            for (account in 0 until accounts.size) {
+                val accountValue = (this.findViewById(accounts[account].accountID) as EditText)
+                    .text.toString()
+                if (accountValue != "" && accountValue != format[2]) {
+                    accountsUsed++
+                    accountUsed = accounts[account]
+                }
+            }
             if (transaction.merchant == "") {
                 // Transaction name is empty, show an error
                 Toast.makeText(
@@ -435,6 +447,12 @@ class AddTransaction : AppCompatActivity() {
                 )
             ) {
                 // Validate frequency options
+            } else if (isRecurring && accountsUsed != 1) {
+                // Can only use 1 account for recurring payments, show an error
+                Toast.makeText(
+                    this, R.string.transaction_recurring_validation_multiple_accounts,
+                    Toast.LENGTH_SHORT
+                ).show()
             } else {
                 // All data has been filled out, start saving
                 transaction.amount = amountValidator.getBalance(format[2])
@@ -504,6 +522,7 @@ class AddTransaction : AppCompatActivity() {
 
                                 // Add the recurring transaction to the database
                                 recurringTransaction.transactions = arrayListOf(transaction)
+                                recurringTransaction.account = accountUsed
                                 recurringTransaction.category = transaction.category
                                 recurringTransaction.name = transaction.merchant!!
                                 recurringTransaction.amount = transaction.amount

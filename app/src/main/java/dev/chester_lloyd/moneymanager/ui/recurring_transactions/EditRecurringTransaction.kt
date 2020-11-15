@@ -9,11 +9,7 @@ import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
 import android.view.View
 import android.widget.*
-import dev.chester_lloyd.moneymanager.Category
-import dev.chester_lloyd.moneymanager.DBManager
-import dev.chester_lloyd.moneymanager.MainActivity
-import dev.chester_lloyd.moneymanager.R
-import dev.chester_lloyd.moneymanager.RecurringTransaction
+import dev.chester_lloyd.moneymanager.*
 import dev.chester_lloyd.moneymanager.RecurringTransaction.Companion.NO_END_DATE_YEARS
 import dev.chester_lloyd.moneymanager.ui.CurrencyValidator
 import dev.chester_lloyd.moneymanager.ui.Icon
@@ -44,6 +40,7 @@ class EditRecurringTransaction : AppCompatActivity() {
     private var income = false
     private var hasEndDate = false
     private var initialCategory = Category()
+    private var account = Account()
     private var category = Category()
 
     /**
@@ -136,10 +133,54 @@ class EditRecurringTransaction : AppCompatActivity() {
             }
         }
 
-        // Setup the category icon spinner
-        val categories: ArrayList<Category> = dbManager.selectCategories()
+        // Setup the account spinner
+        val accounts: ArrayList<Account> = dbManager.selectAccounts("active", null)
 
         val iconManager = IconManager(this)
+        val accountIcons = arrayOfNulls<Icon>(accounts.size)
+        val accountBackgrounds = arrayOfNulls<Icon>(accounts.size)
+
+        for (account in 0 until accounts.size) {
+            accountIcons[account] = Icon(
+                account, iconManager.getIconByID(
+                    iconManager.accountIcons,
+                    accounts[account].icon
+                ).drawable, accounts[account].name!!,
+                null
+            )
+
+            accountBackgrounds[account] = Icon(
+                account, iconManager.getIconByID(
+                    iconManager.colourIcons,
+                    accounts[account].colour
+                ).drawable, "", null
+            )
+        }
+
+        val accountSpinner = findViewById<Spinner>(R.id.spAccount)
+        accountSpinner.adapter = IconSpinner(
+            applicationContext,
+            accountIcons.requireNoNulls(), accountBackgrounds.requireNoNulls(), null, "icon"
+        )
+
+        // Add selected account to transaction object
+        spAccount.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                account = accounts[position]
+            }
+        }
+
+        // Setup the category spinner
+        val categories: ArrayList<Category> = dbManager.selectCategories()
+
         val icons = arrayOfNulls<Icon>(categories.size)
         val backgrounds = arrayOfNulls<Icon>(categories.size)
 
@@ -214,6 +255,13 @@ class EditRecurringTransaction : AppCompatActivity() {
                 llFrequencyEnds.visibility = View.GONE
             }
 
+            for (account in 0 until accounts.size) {
+                if (accounts[account].icon == recurringTransaction.account.icon) {
+                    spAccount.setSelection(account)
+                    break
+                }
+            }
+
             for (category in 0 until categories.size) {
                 if (categories[category].icon == recurringTransaction.category.icon) {
                     spCategory.setSelection(category)
@@ -245,6 +293,7 @@ class EditRecurringTransaction : AppCompatActivity() {
             recurringTransaction.name = etName.text.toString()
             recurringTransaction.amount = amountValidator.getBalance(format[2])
             if (!income) recurringTransaction.amount *= -1
+            recurringTransaction.account = account
             recurringTransaction.category = category
             recurringTransaction.frequencyUnit = etFrequencyUnit.text.toString().toInt()
 
@@ -271,7 +320,7 @@ class EditRecurringTransaction : AppCompatActivity() {
                     this, R.string.transaction_validation_amount_zero,
                     Toast.LENGTH_SHORT
                 ).show()
-            } else if (etFrequencyEndDate.text.toString() == "") {
+            } else if (hasEndDate && etFrequencyEndDate.text.toString() == "") {
                 // Transaction date is empty, show an error
                 Toast.makeText(
                     this, R.string.transaction_validation_date,

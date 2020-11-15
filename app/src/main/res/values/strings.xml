@@ -28,6 +28,7 @@
     <string name="manage_account">Manage account</string>
     <string name="manage_category">Manage category</string>
 
+    <string name="account">Account</string>
     <string name="no_accounts">You do not have any accounts, set one up using the button below\n\nAn account is required to save transactions as these will be used as the payment method. You could choose to make one for a "current account" or "cash"</string>
     <string name="text_account_desc">Add a virtual account to represent an account you\'d like to track your expenses for.</string>
     <string name="text_edit_account_desc">Edit this account.</string>
@@ -91,6 +92,7 @@
     <string name="transaction_recurring_validation_unit">Frequency must be at least 1</string>
     <string name="transaction_recurring_validation_period">Please select a frequency period</string>
     <string name="transaction_recurring_validation_end_before">Recurring end date must be after the transaction date</string>
+    <string name="transaction_recurring_validation_multiple_accounts">Recurring transactions can only involve 1 payment account</string>
     <string name="transaction_recurring_insert_success">Transaction set to recur every %1$s</string>
     <string name="transaction_recurring_every">Every %1$s</string>
 

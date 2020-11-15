@@ -123,6 +123,7 @@ open class DBManager(context: Context) {
             db.execSQL(
                 "CREATE TABLE IF NOT EXISTS $dbRecurringTransactionTable (" +
                         "$colID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "$colAccountID INTEGER, " +
                         "$colCategoryID INTEGER, " +
                         "$colName VARCHAR(30), " +
                         "$colAmount FLOAT, " +
@@ -720,6 +721,7 @@ open class DBManager(context: Context) {
     fun insertRecurringTransaction(recurringTransaction: RecurringTransaction): Long {
         // Insert the RecurringPayment
         val values = ContentValues()
+        values.put(colAccountID, recurringTransaction.account.accountID)
         values.put(colCategoryID, recurringTransaction.category.categoryID)
         values.put(colName, recurringTransaction.name)
         values.put(colAmount, recurringTransaction.amount)
@@ -774,8 +776,9 @@ open class DBManager(context: Context) {
 
         // Get array of related transactions
         val colTransactionIDs = "colTransactionIDs"
-        var query = "SELECT RT.${colID}, RT.${colCategoryID}, RT.${colName}, RT.${colAmount}, " +
-                "RT.${colStart}, RT.${colEnd}, RT.${colFrequencyUnit}, RT.${colFrequencyPeriod}, " +
+        var query = "SELECT RT.${colID}, RT.${colAccountID}, RT.${colCategoryID}, RT.${colName}, " +
+                "RT.${colAmount}, RT.${colStart}, RT.${colEnd}, RT.${colFrequencyUnit}, " +
+                "RT.${colFrequencyPeriod}, " +
                 "GROUP_CONCAT(R.${colTransactionID}, ', ') AS $colTransactionIDs " +
                 "FROM $dbRecurringTransactionTable RT " +
                 "JOIN $dbRecursTable R ON R.${colRecurringTransactionID} = RT.${colID} " +
@@ -807,6 +810,7 @@ open class DBManager(context: Context) {
                         false
                     )
                 }
+                val accountID = cursor.getInt(cursor.getColumnIndex(colAccountID))
                 val categoryID = cursor.getInt(cursor.getColumnIndex(colCategoryID))
                 val name = cursor.getString(cursor.getColumnIndex(colName))
                 val amount = cursor.getDouble(cursor.getColumnIndex(colAmount))
@@ -825,6 +829,7 @@ open class DBManager(context: Context) {
                     RecurringTransaction(
                         recurringTransactionID,
                         transactions,
+                        selectAccount(accountID),
                         selectCategory(categoryID),
                         name,
                         amount,
@@ -854,6 +859,7 @@ open class DBManager(context: Context) {
         selectionArgs: Array<String>
     ): Int {
         val values = ContentValues()
+        values.put(colAccountID, recurringTransaction.account.accountID)
         values.put(colCategoryID, recurringTransaction.category.categoryID)
         values.put(colName, recurringTransaction.name)
         values.put(colAmount, recurringTransaction.amount)
