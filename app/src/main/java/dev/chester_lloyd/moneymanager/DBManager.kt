@@ -761,16 +761,19 @@ open class DBManager(context: Context) {
      * @return The [RecurringTransaction] object with the specified ID, else null if not found.
      */
     fun selectRecurringTransaction(recurringTransactionID: Int): RecurringTransaction {
-        return selectRecurringTransactions(recurringTransactionID)[0]
+        return selectRecurringTransactions(recurringTransactionID, null)[0]
     }
 
     /**
      * Gets an [ArrayList] of every [RecurringTransaction] object in the database ordered by the
      * related transaction's name.
      *
+     * @param recurringTransactionID Optional [RecurringTransaction] ID to filter by.
+     * @param accountID Optional [Account] ID to filter by.
+     *
      * @return An [ArrayList] of [RecurringTransaction] objects
      */
-    fun selectRecurringTransactions(recurringTransactionID: Int?): ArrayList<RecurringTransaction> {
+    fun selectRecurringTransactions(recurringTransactionID: Int?, accountID: Int?): ArrayList<RecurringTransaction> {
         val listRecurringTransactions = ArrayList<RecurringTransaction>()
         var selectionArgs = emptyArray<String>()
 
@@ -787,6 +790,9 @@ open class DBManager(context: Context) {
         if (recurringTransactionID != null) {
             selectionArgs = arrayOf(recurringTransactionID.toString())
             query += "WHERE RT.${colID} = ? "
+        } else if (accountID != null) {
+            selectionArgs = arrayOf(accountID.toString())
+            query += "WHERE RT.${colAccountID} = ? "
         }
 
         query += "GROUP BY RT.${colID} " +

@@ -20,6 +20,7 @@ import kotlinx.android.synthetic.main.activity_account_transactions.tvName
  * @author Chester Lloyd
  * @since 1.0
  */
+@Suppress("NAME_SHADOWING")
 class AccountTransactions : AppCompatActivity() {
 
     private var account = Account()
@@ -139,18 +140,40 @@ class AccountTransactions : AppCompatActivity() {
             true
         }
         R.id.menuDelete -> {
-            // Delete icon clicked, build an alert dialog to get user confirmation
+            // Delete icon clicked, determine if account involves recurring transactions
+            val dbManager = DBManager(applicationContext)
+            val recurringTransactions =
+                dbManager.selectRecurringTransactions(null, account.accountID)
+            dbManager.sqlDB!!.close()
+
+            // Build an alert dialog to get user confirmation
             val alertDialog = AlertDialog.Builder(this)
 
-            alertDialog.setMessage(resources.getString(R.string.alert_message_delete_account))
+            if (recurringTransactions.size > 0) {
+                alertDialog.setMessage(
+                    resources.getString(
+                        R.string.alert_message_delete_account_contains_recurring_transactions
+                    )
+                )
+            } else {
+                alertDialog.setMessage(resources.getString(R.string.alert_message_delete_account))
+            }
+            alertDialog
                 .setCancelable(false)
                 .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
                     finish()
+                    // Delete all recurring transactions
+                    val dbManager = DBManager(applicationContext)
+                    for (recurringTransaction in recurringTransactions) {
+                        dbManager.deleteRecurringTransaction(recurringTransaction.recurringTransactionID)
+                    }
+
                     // Delete the account
-                    DBManager(this).delete(
-                        DBManager(this).dbAccountTable,
+                    dbManager.delete(
+                        dbManager.dbAccountTable,
                         arrayOf(account.accountID.toString())
                     )
+                    dbManager.sqlDB!!.close()
                 }
                 .setNegativeButton(resources.getString(R.string.no_cancel)) {
                     // Do nothing, close box
