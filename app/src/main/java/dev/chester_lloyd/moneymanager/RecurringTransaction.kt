@@ -2,6 +2,7 @@ package dev.chester_lloyd.moneymanager
 
 import android.content.Context
 import android.widget.Toast
+import dev.chester_lloyd.moneymanager.MainActivity.Companion.getTimesToday
 import java.util.*
 
 /**
@@ -122,17 +123,7 @@ class RecurringTransaction {
      * @return The date of the next transaction.
      */
     private fun findNextDueDate(): Calendar {
-        // Get the time for the end of today
-        val endOfToday = Calendar.getInstance()
-        endOfToday.set(
-            endOfToday.get(Calendar.YEAR),
-            endOfToday.get(Calendar.MONTH),
-            endOfToday.get(Calendar.DATE),
-            23,
-            59,
-            59
-        )
-
+        val endOfToday = getTimesToday()[1]
         val nextDue = Calendar.getInstance()
         nextDue.time = next.time
         while (nextDue.timeInMillis <= endOfToday.timeInMillis) {

@@ -48,7 +48,8 @@ class MorningWorker(appContext: Context, workerParams: WorkerParameters) :
         for (recurringTransaction in recurringTransactions) {
             val timesToday = getTimesToday()
             if (recurringTransaction.next.timeInMillis >= timesToday[0].timeInMillis &&
-                recurringTransaction.next.timeInMillis <= timesToday[1].timeInMillis
+                recurringTransaction.next.timeInMillis <= timesToday[1].timeInMillis &&
+                recurringTransaction.next.timeInMillis <= recurringTransaction.end.timeInMillis
             ) {
                 // This transaction is due to recur today, add it now
                 val dbManager = DBManager(applicationContext)
@@ -71,6 +72,13 @@ class MorningWorker(appContext: Context, workerParams: WorkerParameters) :
                 dbManager.insertRecursRecord(
                     recurringTransaction.recurringTransactionID,
                     transaction.transactionID
+                )
+
+                recurringTransaction.setNextDueDate()
+                dbManager.updateRecurringTransaction(
+                    recurringTransaction,
+                    "ID=?",
+                    arrayOf(recurringTransaction.recurringTransactionID.toString())
                 )
 
                 dbManager.sqlDB!!.close()
