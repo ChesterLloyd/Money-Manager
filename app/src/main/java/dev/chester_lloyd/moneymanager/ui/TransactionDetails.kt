@@ -1,7 +1,10 @@
 package dev.chester_lloyd.moneymanager.ui
 
 import android.app.AlertDialog
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -56,6 +59,13 @@ class TransactionDetails : AppCompatActivity() {
                 iconManager.colourIcons, transaction.category.colour
             ).drawable
         )
+
+        // Cancel relevant recurring transaction notification
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.cancel(transaction.transactionID)
+        }
     }
 
 //  If we have come back (after updating) show potential updated account status

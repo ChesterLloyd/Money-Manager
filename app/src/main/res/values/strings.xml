@@ -311,4 +311,11 @@
     <string name="email_title">Send me an email</string>
     <string name="website_icon">Website button</string>
     <string name="github_icon">GitHub button</string>
+
+    <string name="notification_recurring_transactions_channel_id">recurring_transactions_channel</string>
+    <string name="notification_recurring_transactions_channel_name">Recurring transactions</string>
+    <string name="notification_recurring_transactions_channel_description">Notifies when a transaction has been added based on current recurring transactions set.</string>
+    <string name="notification_recurring_transactions_title">New transaction</string>
+    <string name="notification_recurring_transactions_text_income">You have been paid %1$s by %2$s</string>
+    <string name="notification_recurring_transactions_text_outgoing">You have paid %1$s for %2$s</string>
 </resources>
