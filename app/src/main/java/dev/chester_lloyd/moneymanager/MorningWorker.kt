@@ -3,7 +3,12 @@ package dev.chester_lloyd.moneymanager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.view.View
+import android.widget.ImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -12,6 +17,7 @@ import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.getTimesToday
+import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -135,6 +141,7 @@ class MorningWorker(appContext: Context, workerParams: WorkerParameters) :
                     )
                 )
                 .setSmallIcon(R.drawable.ic_add)
+                .setLargeIcon(createNotificationIcon(recurringTransaction))
                 .setContentTitle(applicationContext.getString(R.string.notification_recurring_transactions_title))
                 .setContentText(
                     applicationContext.resources.getString(
@@ -156,5 +163,51 @@ class MorningWorker(appContext: Context, workerParams: WorkerParameters) :
             // ID is a unique notification ID, can be used to reference it later
             notify(transaction.transactionID, builder.build())
         }
+    }
+
+
+    /**
+     * Creates the large notification icon of the transaction
+     *
+     * @param recurringTransaction The recurring transaction that has an icon and colour set.
+     * @return A [Bitmap] used in the notification.
+     */
+    private fun createNotificationIcon(recurringTransaction: RecurringTransaction): Bitmap {
+        val iconManager = IconManager(applicationContext)
+        val ivNotificationIcon = ImageView(applicationContext)
+        ivNotificationIcon.setImageResource(
+            iconManager.getIconByID(
+                iconManager.categoryIcons, recurringTransaction.category.icon
+            ).drawable
+        )
+        ivNotificationIcon.setBackgroundResource(
+            iconManager.getIconByID(
+                iconManager.colourIcons, recurringTransaction.category.colour
+            ).drawable
+        )
+
+        val scale = applicationContext.resources.displayMetrics.density
+        val dpToPixels = (30 * scale + 0.5f).toInt()
+        ivNotificationIcon.setPadding(dpToPixels, dpToPixels, dpToPixels, dpToPixels)
+
+        ivNotificationIcon.measure(
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
+        ivNotificationIcon.layout(
+            0, 0, ivNotificationIcon.measuredWidth, ivNotificationIcon.measuredHeight
+        )
+
+        val bitmap = Bitmap.createBitmap(
+            ivNotificationIcon.measuredWidth,
+            ivNotificationIcon.measuredHeight,
+            Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
+        val background: Drawable = ivNotificationIcon.getBackground()
+        background.draw(canvas)
+        ivNotificationIcon.draw(canvas)
+
+        return bitmap
     }
 }
