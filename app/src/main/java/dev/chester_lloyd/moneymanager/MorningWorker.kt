@@ -16,6 +16,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import dev.chester_lloyd.moneymanager.MainActivity.Companion.calculateMorningWorkerDate
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.getTimesToday
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.TransactionDetails
@@ -44,10 +45,7 @@ class MorningWorker(appContext: Context, workerParams: WorkerParameters) :
         // Set this task to repeat same time tomorrow
         val currentDate = Calendar.getInstance()
 
-        if (MainActivity.morningWorkerDate.before(currentDate)) {
-            MainActivity.morningWorkerDate.add(Calendar.HOUR_OF_DAY, 24)
-        }
-        val timeDiff = MainActivity.morningWorkerDate.timeInMillis - currentDate.timeInMillis
+        val timeDiff = calculateMorningWorkerDate()
         val dailyWorkRequest = OneTimeWorkRequestBuilder<MorningWorker>()
             .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
             .build()
@@ -114,15 +112,22 @@ class MorningWorker(appContext: Context, workerParams: WorkerParameters) :
         transaction: Transaction
     ) {
         // Intent to load transaction details
-        val intent = Intent(applicationContext, TransactionDetails::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
+        val intent = Intent(applicationContext, TransactionDetails::class.java)
         val bundle = Bundle()
         bundle.putInt("transactionID", transaction.transactionID)
         intent.putExtras(bundle)
 
-        val pendingIntent: PendingIntent =
-            PendingIntent.getActivity(applicationContext, transaction.transactionID, intent, 0)
+        // Intent when user clicks back button
+        val backIntent = Intent(applicationContext, MainActivity::class.java)
+        backIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        // Intents joined to on notification tap
+        val pendingIntent = PendingIntent.getActivities(
+            applicationContext,
+            transaction.transactionID,
+            arrayOf(backIntent, intent),
+            PendingIntent.FLAG_ONE_SHOT
+        )
 
         var notificationText = R.string.notification_recurring_transactions_text_income
         if (transaction.amount < 0) {

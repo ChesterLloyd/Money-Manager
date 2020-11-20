@@ -76,19 +76,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         // Start daily worker - responsible for adding recurring transactions
-        val currentDate = Calendar.getInstance()
-
-        // Set Execution around 06:00:00 AM
-        morningWorkerDate.set(Calendar.HOUR_OF_DAY, 6)
-        morningWorkerDate.set(Calendar.MINUTE, 0)
-        morningWorkerDate.set(Calendar.SECOND, 0)
-
-        if (morningWorkerDate.before(currentDate)) {
-            // Task is about to be executed, add 1 day to set it to execute tomorrow too
-            morningWorkerDate.add(Calendar.HOUR_OF_DAY, 24)
-        }
-
-        val timeDiff = morningWorkerDate.timeInMillis - currentDate.timeInMillis
+        val timeDiff = calculateMorningWorkerDate()
         val dailyWorkRequest = OneTimeWorkRequestBuilder<MorningWorker>()
             .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
             .build()
@@ -440,6 +428,29 @@ class MainActivity : AppCompatActivity() {
             times.add(todayMorning)
             times.add(todayNight)
             return times
+        }
+
+        /**
+         * Sets the [morningWorkerDate] to 06:00:00 AM every day.
+         *
+         * @return The time difference between the current time and the next morning run which is
+         * used to offset the enqueued [MorningWorker].
+         */
+        fun calculateMorningWorkerDate(): Long {
+            // Start daily worker - responsible for adding recurring transactions
+            val currentDate = Calendar.getInstance()
+
+            // Set Execution around 06:00:00 AM
+            morningWorkerDate.set(Calendar.HOUR_OF_DAY, 20)
+            morningWorkerDate.set(Calendar.MINUTE, 5)
+            morningWorkerDate.set(Calendar.SECOND, 0)
+
+            // Set to execute in the future
+            if (morningWorkerDate.before(currentDate)) {
+                morningWorkerDate.add(Calendar.HOUR_OF_DAY, 24)
+            }
+
+            return morningWorkerDate.timeInMillis - currentDate.timeInMillis
         }
     }
 }
