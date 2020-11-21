@@ -764,7 +764,7 @@ open class DBManager(context: Context) {
      * @return The [RecurringTransaction] object with the specified ID, else null if not found.
      */
     fun selectRecurringTransaction(recurringTransactionID: Int): RecurringTransaction {
-        return selectRecurringTransactions(recurringTransactionID, null)[0]
+        return selectRecurringTransactions(recurringTransactionID, null, null)[0]
     }
 
     /**
@@ -775,7 +775,11 @@ open class DBManager(context: Context) {
      * @param accountID Optional [Account] ID to filter by.
      * @return An [ArrayList] of [RecurringTransaction] objects
      */
-    fun selectRecurringTransactions(recurringTransactionID: Int?, accountID: Int?): ArrayList<RecurringTransaction> {
+    fun selectRecurringTransactions(
+        recurringTransactionID: Int?,
+        accountID: Int?,
+        categoryID: Int?
+    ): ArrayList<RecurringTransaction> {
         val listRecurringTransactions = ArrayList<RecurringTransaction>()
         var selectionArgs = emptyArray<String>()
 
@@ -789,12 +793,19 @@ open class DBManager(context: Context) {
                 "LEFT OUTER JOIN $dbRecursTable R ON R.${colRecurringTransactionID} = RT.${colID} " +
                 "LEFT OUTER JOIN $dbTransactionTable T ON T.${colID} = R.${colTransactionID} "
 
-        if (recurringTransactionID != null) {
-            selectionArgs = arrayOf(recurringTransactionID.toString())
-            query += "WHERE RT.${colID} = ? "
-        } else if (accountID != null) {
-            selectionArgs = arrayOf(accountID.toString())
-            query += "WHERE RT.${colAccountID} = ? "
+        when {
+            recurringTransactionID != null -> {
+                selectionArgs = arrayOf(recurringTransactionID.toString())
+                query += "WHERE RT.${colID} = ? "
+            }
+            accountID != null -> {
+                selectionArgs = arrayOf(accountID.toString())
+                query += "WHERE RT.${colAccountID} = ? "
+            }
+            categoryID != null -> {
+                selectionArgs = arrayOf(categoryID.toString())
+                query += "WHERE RT.${colCategoryID} = ? "
+            }
         }
 
         query += "GROUP BY RT.${colID} " +
@@ -1195,7 +1206,14 @@ open class DBManager(context: Context) {
                 cursor.close()
             }
             dbCategoryTable -> {
-                // If we are deleting a category, remove all of its transactions first
+                // If we are deleting a category, remove all of its recurring transactions first
+                val categoryRecurringTransactions =
+                    selectRecurringTransactions(null, null, selectionArgs[0].toInt())
+                for (recurringTransaction in categoryRecurringTransactions) {
+                    deleteRecurringTransaction(recurringTransaction.recurringTransactionID)
+                }
+
+                // Then remove all of its transactions
                 val result = sqlDB!!.delete(
                     dbTransactionTable, "$colCategoryID = ?",
                     selectionArgs

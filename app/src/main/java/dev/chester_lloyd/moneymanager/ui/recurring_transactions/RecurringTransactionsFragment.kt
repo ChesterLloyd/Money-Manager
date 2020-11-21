@@ -42,7 +42,7 @@ class RecurringTransactionsFragment : Fragment() {
         val dbManager = DBManager(requireContext())
 
         // Get recurring transactions as an array list from database
-        val listRecurringTransactions = dbManager.selectRecurringTransactions(null, null)
+        val listRecurringTransactions = dbManager.selectRecurringTransactions(null, null, null)
         dbManager.sqlDB!!.close()
 
         // Pass this to the list view adaptor and populate

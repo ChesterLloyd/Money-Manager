@@ -143,7 +143,7 @@ class AccountTransactions : AppCompatActivity() {
             // Delete icon clicked, determine if account involves recurring transactions
             val dbManager = DBManager(applicationContext)
             val recurringTransactions =
-                dbManager.selectRecurringTransactions(null, account.accountID)
+                dbManager.selectRecurringTransactions(null, account.accountID, null)
             dbManager.sqlDB!!.close()
 
             // Build an alert dialog to get user confirmation

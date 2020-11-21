@@ -53,7 +53,7 @@ class MorningWorker(appContext: Context, workerParams: WorkerParameters) :
             .enqueue(dailyWorkRequest)
 
         val dbManager = DBManager(applicationContext)
-        val recurringTransactions = dbManager.selectRecurringTransactions(null, null)
+        val recurringTransactions = dbManager.selectRecurringTransactions(null, null, null)
         dbManager.sqlDB!!.close()
 
         for (recurringTransaction in recurringTransactions) {
