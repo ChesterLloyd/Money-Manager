@@ -95,6 +95,34 @@ class EditRecurringTransaction : AppCompatActivity() {
             }
         }
 
+        // Create a date picker, set values for class date value
+        val sdfFreq = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+        etFrequencyNextDate!!.setText(sdfFreq.format(recurringTransaction.next.time))
+
+        val frequencyDateNextListener =
+            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                recurringTransaction.next.set(Calendar.YEAR, year)
+                recurringTransaction.next.set(Calendar.MONTH, monthOfYear)
+                recurringTransaction.next.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                etFrequencyNextDate!!.setText(sdfFreq.format(recurringTransaction.next.time))
+            }
+
+        // When the date edit text has focus (clicked), open the date picker
+        etFrequencyNextDate.onFocusChangeListener = View.OnFocusChangeListener { _, gainFocus ->
+            if (gainFocus) {
+                DatePickerDialog(
+                    this@EditRecurringTransaction,
+                    frequencyDateNextListener,
+                    // Set to point to next transaction date
+                    recurringTransaction.next.get(Calendar.YEAR),
+                    recurringTransaction.next.get(Calendar.MONTH),
+                    recurringTransaction.next.get(Calendar.DAY_OF_MONTH)
+                ).show()
+                etFrequencyNextDate.clearFocus()
+            }
+        }
+
         // Listen for when set end date switch is changed
         swFrequencySetEndDate.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -106,7 +134,6 @@ class EditRecurringTransaction : AppCompatActivity() {
         }
 
         // Create a date picker, set values for class date value
-        val sdfFreq = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
         etFrequencyEndDate!!.setText(sdfFreq.format(recurringTransaction.end.time))
 
         val frequencyDateEndListener =

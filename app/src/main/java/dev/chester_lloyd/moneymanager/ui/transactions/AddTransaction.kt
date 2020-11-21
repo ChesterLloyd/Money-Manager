@@ -447,6 +447,12 @@ class AddTransaction : AppCompatActivity() {
                 )
             ) {
                 // Validate frequency options
+            } else if (hasEndDate && !recurringTransaction.validateEndDateWithTransaction(
+                    applicationContext,
+                    transaction
+                )
+            ) {
+                // Validate end date frequency options
             } else if (isRecurring && accountsUsed != 1) {
                 // Can only use 1 account for recurring payments, show an error
                 Toast.makeText(
@@ -531,8 +537,27 @@ class AddTransaction : AppCompatActivity() {
                                     // Add 1000 years as no end date set
                                     recurringTransaction.end.add(Calendar.YEAR, NO_END_DATE_YEARS)
                                 }
-                                recurringTransaction.setNextDueDate()
-                                dbManager.insertRecurringTransaction(recurringTransaction)
+                                val recurringTransactionID =
+                                    dbManager.insertRecurringTransaction(recurringTransaction)
+                                recurringTransaction.recurringTransactionID =
+                                    recurringTransactionID.toInt()
+                                recurringTransaction.next = transaction.date
+
+                                if (transaction.date.timeInMillis > Calendar.getInstance().timeInMillis) {
+                                    // Set next date to 1 unit past the future set date
+                                    recurringTransaction.setNextDueDateFutureTransaction()
+                                } else {
+                                    // Set next date and back fill earlier transactions
+                                    recurringTransaction.setNextDueDateAndCreateTransactions(
+                                        applicationContext
+                                    )
+                                }
+                                // Update as next date has changed from calls above
+                                dbManager.updateRecurringTransaction(
+                                    recurringTransaction,
+                                    "ID=?",
+                                    arrayOf(recurringTransaction.recurringTransactionID.toString())
+                                )
                             }
 
                             Toast.makeText(this, message, Toast.LENGTH_LONG).show()

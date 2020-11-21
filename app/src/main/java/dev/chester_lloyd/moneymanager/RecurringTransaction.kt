@@ -101,10 +101,29 @@ class RecurringTransaction {
     }
 
     /**
-     * Sets the next date.
+     * Sets the next date for transactions added in the future.
      */
-    fun setNextDueDate() {
-        this.next.time = findNextDueDate().time
+    fun setNextDueDateFutureTransaction() {
+        this.next.time = incrementDate(this.next).time
+    }
+
+    /**
+     * Sets the next date.
+     *
+     * @param context The context.
+     */
+    fun setNextDueDate(context: Context) {
+        this.next.time = findNextDueDate(context, false).time
+    }
+
+    /**
+     * Sets the next date and creates a transaction per occurrence between first transaction and
+     * today.
+     *
+     * @param context The context.
+     */
+    fun setNextDueDateAndCreateTransactions(context: Context) {
+        this.next.time = findNextDueDate(context, true).time
     }
 
     /**
@@ -120,22 +139,78 @@ class RecurringTransaction {
     /**
      * Returns the date this transaction is set to recur based on the existing next date.
      *
+     * @param context The context.
+     * @param createTransactions Whether to create [Transaction]s for each occurrence between the
+     * last transaction, and the next to be added.
      * @return The date of the next transaction.
      */
-    private fun findNextDueDate(): Calendar {
+    private fun findNextDueDate(context: Context, createTransactions: Boolean): Calendar {
         val endOfToday = getTimesToday()[1]
         val nextDue = Calendar.getInstance()
         nextDue.time = next.time
         while (nextDue.timeInMillis <= endOfToday.timeInMillis) {
-            when (frequencyPeriod) {
-                "days" -> nextDue.add(Calendar.DATE, frequencyUnit)
-                "weeks" -> nextDue.add(Calendar.DATE, (7 * frequencyUnit))
-                "months" -> nextDue.add(Calendar.MONTH, frequencyUnit)
-                "years" -> nextDue.add(Calendar.YEAR, frequencyUnit)
+            nextDue.time = incrementDate(nextDue).time
+
+            // Add transactions for each occurrence
+            if (createTransactions && nextDue.timeInMillis <= endOfToday.timeInMillis) {
+                createTransaction(context, nextDue)
             }
         }
 
         return nextDue
+    }
+
+    /**
+     * Increments the given dated based on the recurring settings.
+     *
+     * @param date The date to increment.
+     * @return The date incremented by one unit.
+     */
+    private fun incrementDate(date: Calendar): Calendar {
+        when (frequencyPeriod) {
+            "days" -> date.add(Calendar.DATE, frequencyUnit)
+            "weeks" -> date.add(Calendar.DATE, (7 * frequencyUnit))
+            "months" -> date.add(Calendar.MONTH, frequencyUnit)
+            "years" -> date.add(Calendar.YEAR, frequencyUnit)
+        }
+        return date
+    }
+
+    /**
+     * Creates a transaction based on the [RecurringTransaction] information.
+     *
+     * @param context The context.
+     * @param date The date to add the transaction for.
+     * @return The [Transaction] that has been inserted.
+     */
+    fun createTransaction(context: Context, date: Calendar): Transaction {
+        val dbManager = DBManager(context)
+
+        // Insert transaction
+        val transaction = Transaction()
+        transaction.category = this.category
+        transaction.merchant = this.name
+        transaction.amount = this.amount
+        transaction.date = date
+        val transactionID = dbManager.insertTransaction(transaction)
+        transaction.transactionID = transactionID.toInt()
+
+        // Insert payment
+        val payment = Payment(
+            transaction,
+            this.account,
+            this.amount
+        )
+        dbManager.insertPayment(payment)
+
+        // Insert into recurs table
+        dbManager.insertRecursRecord(
+            this.recurringTransactionID,
+            transaction.transactionID
+        )
+
+        dbManager.sqlDB!!.close()
+        return transaction
     }
 
     /**
@@ -155,7 +230,7 @@ class RecurringTransaction {
     }
 
     /**
-     * Validates inputs when adding a transaction
+     * Validates inputs when adding a transaction.
      *
      * @param context The context.
      * @param transaction The transaction set to recur
@@ -183,6 +258,22 @@ class RecurringTransaction {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+            else -> {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * Validates end date when adding a transaction.
+     *
+     * @param context The context.
+     * @param transaction The transaction set to recur
+     * @return True if no errors found.
+     */
+    fun validateEndDateWithTransaction(context: Context, transaction: Transaction): Boolean {
+        when {
             this.end.timeInMillis < transaction.date.timeInMillis -> {
                 // End date must be after the transaction date, show an error
                 Toast.makeText(

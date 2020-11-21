@@ -441,8 +441,8 @@ class MainActivity : AppCompatActivity() {
             val currentDate = Calendar.getInstance()
 
             // Set Execution around 06:00:00 AM
-            morningWorkerDate.set(Calendar.HOUR_OF_DAY, 20)
-            morningWorkerDate.set(Calendar.MINUTE, 5)
+            morningWorkerDate.set(Calendar.HOUR_OF_DAY, 6)
+            morningWorkerDate.set(Calendar.MINUTE, 0)
             morningWorkerDate.set(Calendar.SECOND, 0)
 
             // Set to execute in the future

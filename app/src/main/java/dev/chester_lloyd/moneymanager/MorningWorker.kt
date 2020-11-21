@@ -65,27 +65,9 @@ class MorningWorker(appContext: Context, workerParams: WorkerParameters) :
                 // This transaction is due to recur today, add it now
                 val dbManager = DBManager(applicationContext)
 
-                val transaction = Transaction()
-                transaction.category = recurringTransaction.category
-                transaction.merchant = recurringTransaction.name
-                transaction.amount = recurringTransaction.amount
-                transaction.date = currentDate
-                val transactionID = dbManager.insertTransaction(transaction)
-                transaction.transactionID = transactionID.toInt()
-
-                val payment = Payment(
-                    transaction,
-                    recurringTransaction.account,
-                    recurringTransaction.amount
-                )
-                dbManager.insertPayment(payment)
-
-                dbManager.insertRecursRecord(
-                    recurringTransaction.recurringTransactionID,
-                    transaction.transactionID
-                )
-
-                recurringTransaction.setNextDueDate()
+                val transaction =
+                    recurringTransaction.createTransaction(applicationContext, currentDate)
+                recurringTransaction.setNextDueDate(applicationContext)
                 dbManager.updateRecurringTransaction(
                     recurringTransaction,
                     "ID=?",
@@ -169,7 +151,6 @@ class MorningWorker(appContext: Context, workerParams: WorkerParameters) :
             notify(transaction.transactionID, builder.build())
         }
     }
-
 
     /**
      * Creates the large notification icon of the transaction
