@@ -67,7 +67,6 @@ class RecurringTransaction {
         this.next = next
         this.frequencyUnit = frequencyUnit
         this.frequencyPeriod = frequencyPeriod
-        setEndDate()
     }
 
     /**
@@ -75,14 +74,6 @@ class RecurringTransaction {
      */
     constructor() {
         this.recurringTransactionID = 0
-        setEndDate()
-    }
-
-    /**
-     * Sets the default end date to tomorrow.
-     */
-    private fun setEndDate() {
-        this.end.add(Calendar.DATE, 1)
     }
 
     /**
@@ -104,7 +95,7 @@ class RecurringTransaction {
      * Sets the next date for transactions added in the future.
      */
     fun setNextDueDateFutureTransaction() {
-        this.next.time = incrementDate(this.next).time
+        this.next.timeInMillis = incrementDate(this.next).timeInMillis
     }
 
     /**
@@ -113,7 +104,7 @@ class RecurringTransaction {
      * @param context The context.
      */
     fun setNextDueDate(context: Context) {
-        this.next.time = findNextDueDate(context, false).time
+        this.next.timeInMillis = findNextDueDate(context, false).timeInMillis
     }
 
     /**
@@ -123,7 +114,7 @@ class RecurringTransaction {
      * @param context The context.
      */
     fun setNextDueDateAndCreateTransactions(context: Context) {
-        this.next.time = findNextDueDate(context, true).time
+        this.next.timeInMillis = findNextDueDate(context, true).timeInMillis
     }
 
     /**
@@ -147,9 +138,9 @@ class RecurringTransaction {
     private fun findNextDueDate(context: Context, createTransactions: Boolean): Calendar {
         val endOfToday = getTimesToday()[1]
         val nextDue = Calendar.getInstance()
-        nextDue.time = next.time
+        nextDue.timeInMillis = next.timeInMillis
         while (nextDue.timeInMillis <= endOfToday.timeInMillis) {
-            nextDue.time = incrementDate(nextDue).time
+            nextDue.timeInMillis = incrementDate(nextDue).timeInMillis
 
             // Add transactions for each occurrence
             if (createTransactions && nextDue.timeInMillis <= endOfToday.timeInMillis) {

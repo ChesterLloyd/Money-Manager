@@ -45,7 +45,7 @@ class MorningWorker(appContext: Context, workerParams: WorkerParameters) :
         // Set this task to repeat same time tomorrow
         val currentDate = Calendar.getInstance()
 
-        val timeDiff = calculateMorningWorkerDate()
+        val timeDiff = calculateMorningWorkerDate(applicationContext)
         val dailyWorkRequest = OneTimeWorkRequestBuilder<MorningWorker>()
             .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
             .build()
@@ -64,19 +64,25 @@ class MorningWorker(appContext: Context, workerParams: WorkerParameters) :
             ) {
                 // This transaction is due to recur today, add it now
                 val dbManager = DBManager(applicationContext)
+                val freshRecurringTransaction =
+                    dbManager.selectRecurringTransaction(recurringTransaction.recurringTransactionID)
 
-                val transaction =
-                    recurringTransaction.createTransaction(applicationContext, currentDate)
-                recurringTransaction.setNextDueDate(applicationContext)
-                dbManager.updateRecurringTransaction(
-                    recurringTransaction,
-                    "ID=?",
-                    arrayOf(recurringTransaction.recurringTransactionID.toString())
-                )
+                // Check if this one has already been handled
+                if (freshRecurringTransaction.next.timeInMillis <= timesToday[1].timeInMillis) {
+                    val transaction =
+                        freshRecurringTransaction.createTransaction(applicationContext, currentDate)
+                    freshRecurringTransaction.setNextDueDate(applicationContext)
+                    dbManager.updateRecurringTransaction(
+                        freshRecurringTransaction,
+                        "ID=?",
+                        arrayOf(freshRecurringTransaction.recurringTransactionID.toString())
+                    )
+
+                    buildNotification(freshRecurringTransaction, transaction)
+                }
 
                 dbManager.sqlDB!!.close()
 
-                buildNotification(recurringTransaction, transaction)
             }
         }
 

@@ -75,13 +75,17 @@ class MainActivity : AppCompatActivity() {
             this.resources.getString(R.string.notification_recurring_transactions_channel_description)
         )
 
-        // Start daily worker - responsible for adding recurring transactions
-        val timeDiff = calculateMorningWorkerDate()
-        val dailyWorkRequest = OneTimeWorkRequestBuilder<MorningWorker>()
-            .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
-            .build()
-        WorkManager.getInstance(this)
-            .enqueue(dailyWorkRequest)
+        // Set up the morning worker
+        if (!isCurrentMorningWorkerDateSet(applicationContext)) {
+            // Start daily worker - responsible for adding recurring transactions
+            setCurrentMorningWorkerDate(applicationContext, Calendar.getInstance())
+            val timeDiff = calculateMorningWorkerDate(applicationContext)
+            val dailyWorkRequest = OneTimeWorkRequestBuilder<MorningWorker>()
+                .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+                .build()
+            WorkManager.getInstance(this)
+                .enqueue(dailyWorkRequest)
+        }
     }
 
     /**
@@ -182,8 +186,8 @@ class MainActivity : AppCompatActivity() {
         private const val PREFS_CURRENCY_SUFFIX = "currency_suffix"
         private const val PREFS_DATE_FORMAT = "date_format"
         private const val PREFS_PIN_CODE = "pin_code"
+        private const val PREFS_MORNING_WORKER_CURRENT = "morning_worker_current"
         var authenticated = false
-        var morningWorkerDate: Calendar = Calendar.getInstance()
 
         /**
          * A method that updates a collection of shared preferences that stores the currency format.
@@ -395,6 +399,43 @@ class MainActivity : AppCompatActivity() {
         }
 
         /**
+         * Returns a [Calendar] for the next time the [MorningWorker] is next due to run.
+         *
+         * @param context Context.
+         * @return The current time the [MorningWorker] is next due to run.
+         */
+        private fun getCurrentMorningWorkerDate(context: Context): Calendar {
+            val prefs: SharedPreferences = context.getSharedPreferences(PREFS_FILENAME, 0)
+            val cal = Calendar.getInstance()
+            cal.timeInMillis = prefs.getLong(PREFS_MORNING_WORKER_CURRENT, 0)
+            return cal
+        }
+
+        /**
+         * A method that updates the clock for the [MorningWorker].
+         *
+         * @param context Context.
+         * @param date The new date to set.
+         */
+        private fun setCurrentMorningWorkerDate(context: Context, date: Calendar) {
+            val editPrefs = context.getSharedPreferences(PREFS_FILENAME, 0)
+                .edit()
+            editPrefs.putLong(PREFS_MORNING_WORKER_CURRENT, date.timeInMillis)
+                .apply()
+        }
+
+        /**
+         * Returns a [Boolean] whether the [MorningWorker] date has been set.
+         *
+         * @param context Context.
+         * @return True if the date has been set.
+         */
+        private fun isCurrentMorningWorkerDateSet(context: Context): Boolean {
+            val prefs: SharedPreferences = context.getSharedPreferences(PREFS_FILENAME, 0)
+            return prefs.getLong(PREFS_MORNING_WORKER_CURRENT, 0) > 0
+        }
+
+        /**
          * Creates two [Calendar]s where the first is the minimum value for the today and the second
          * is the maximum value.
          *
@@ -431,14 +472,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         /**
-         * Sets the [morningWorkerDate] to 06:00:00 AM every day.
+         * Sets the [MorningWorker] date to 06:00:00 AM every day.
          *
          * @return The time difference between the current time and the next morning run which is
          * used to offset the enqueued [MorningWorker].
          */
-        fun calculateMorningWorkerDate(): Long {
+        fun calculateMorningWorkerDate(context: Context): Long {
             // Start daily worker - responsible for adding recurring transactions
             val currentDate = Calendar.getInstance()
+            val morningWorkerDate = getCurrentMorningWorkerDate(context)
 
             // Set Execution around 06:00:00 AM
             morningWorkerDate.set(Calendar.HOUR_OF_DAY, 6)
@@ -449,6 +491,7 @@ class MainActivity : AppCompatActivity() {
             if (morningWorkerDate.before(currentDate)) {
                 morningWorkerDate.add(Calendar.HOUR_OF_DAY, 24)
             }
+            setCurrentMorningWorkerDate(context, morningWorkerDate)
 
             return morningWorkerDate.timeInMillis - currentDate.timeInMillis
         }
