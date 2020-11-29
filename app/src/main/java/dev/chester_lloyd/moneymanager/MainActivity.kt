@@ -27,6 +27,8 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.material.navigation.NavigationView
 import dev.chester_lloyd.moneymanager.ui.PinCodeActivity
+import dev.chester_lloyd.moneymanager.work.MorningWorker
+import dev.chester_lloyd.moneymanager.work.SetupMorningWorker
 import java.text.DateFormat
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -77,14 +79,13 @@ class MainActivity : AppCompatActivity() {
 
         // Set up the morning worker
         if (!isCurrentMorningWorkerDateSet(applicationContext)) {
-            // Start daily worker - responsible for adding recurring transactions
             setCurrentMorningWorkerDate(applicationContext, Calendar.getInstance())
             val timeDiff = calculateMorningWorkerDate(applicationContext)
-            val dailyWorkRequest = OneTimeWorkRequestBuilder<MorningWorker>()
+            val setupMorningWorkerRequest = OneTimeWorkRequestBuilder<SetupMorningWorker>()
                 .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
                 .build()
             WorkManager.getInstance(this)
-                .enqueue(dailyWorkRequest)
+                .enqueue(setupMorningWorkerRequest)
         }
     }
 

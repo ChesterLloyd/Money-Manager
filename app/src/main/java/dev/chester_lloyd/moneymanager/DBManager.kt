@@ -401,7 +401,6 @@ open class DBManager(context: Context) {
         val cursor = qb.query(sqlDB, projection, "${colDefault}=?", selectionArgs, null, null, colName)
         if (cursor.moveToFirst()) {
             val id = cursor.getInt(cursor.getColumnIndex(colID))
-            println(id)
             return selectAccount(id)
         }
         cursor.close()

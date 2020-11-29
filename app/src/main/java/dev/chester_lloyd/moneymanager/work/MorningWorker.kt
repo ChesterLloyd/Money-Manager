@@ -1,4 +1,4 @@
-package dev.chester_lloyd.moneymanager
+package dev.chester_lloyd.moneymanager.work
 
 import android.app.PendingIntent
 import android.content.Context
@@ -12,16 +12,13 @@ import android.widget.ImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import dev.chester_lloyd.moneymanager.MainActivity.Companion.calculateMorningWorkerDate
+import dev.chester_lloyd.moneymanager.*
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.getTimesToday
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 /**
  * A class to run in the background each morning. This is responsible for adding recurring
@@ -42,15 +39,8 @@ class MorningWorker(appContext: Context, workerParams: WorkerParameters) :
      * @return The outcome of the work completing successfully.
      */
     override fun doWork(): Result {
-        // Set this task to repeat same time tomorrow
+        // Use current time for potential transaction date
         val currentDate = Calendar.getInstance()
-
-        val timeDiff = calculateMorningWorkerDate(applicationContext)
-        val dailyWorkRequest = OneTimeWorkRequestBuilder<MorningWorker>()
-            .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
-            .build()
-        WorkManager.getInstance(applicationContext)
-            .enqueue(dailyWorkRequest)
 
         val dbManager = DBManager(applicationContext)
         val recurringTransactions = dbManager.selectRecurringTransactions(null, null, null)
@@ -82,7 +72,6 @@ class MorningWorker(appContext: Context, workerParams: WorkerParameters) :
                 }
 
                 dbManager.sqlDB!!.close()
-
             }
         }
 
@@ -201,5 +190,9 @@ class MorningWorker(appContext: Context, workerParams: WorkerParameters) :
         ivNotificationIcon.draw(canvas)
 
         return bitmap
+    }
+
+    companion object {
+        const val WORK_NAME = "dev.chester_lloyd.moneymanager.work.MorningWorker"
     }
 }
