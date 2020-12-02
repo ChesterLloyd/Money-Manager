@@ -122,7 +122,7 @@ class MorningWorker(appContext: Context, workerParams: WorkerParameters) :
                         R.color.colorPrimaryDark
                     )
                 )
-                .setSmallIcon(R.drawable.ic_add)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setLargeIcon(createNotificationIcon(recurringTransaction))
                 .setContentTitle(applicationContext.getString(R.string.notification_recurring_transactions_title))
                 .setContentText(
