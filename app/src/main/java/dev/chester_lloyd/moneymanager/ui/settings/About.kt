@@ -48,7 +48,7 @@ class About : AppCompatActivity() {
             startActivity(
                 Intent.createChooser(
                     emailIntent, applicationContext.resources.getText(
-                        R.string.email_title
+                        R.string.email_icon
                     )
                 )
             )

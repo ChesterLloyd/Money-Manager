@@ -72,7 +72,9 @@
                     android:id="@+id/spDateFormat"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="12dp" />
 
                 <Button
                     android:id="@+id/buUpdateDateFormat"

@@ -64,6 +64,7 @@
                 android:importantForAutofill="no"
                 android:inputType="textPersonName|textCapWords"
                 android:maxLength="20"
+                android:paddingTop="12dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
@@ -79,10 +80,11 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
                 android:ems="10"
-                android:hint="@string/details"
+                android:hint="@string/transaction_details"
                 android:importantForAutofill="no"
                 android:inputType="textMultiLine|textCapSentences"
                 android:maxLength="100"
+                android:paddingTop="12dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
@@ -94,6 +96,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="19dp"
                 android:layout_marginLeft="19dp"
+                android:paddingTop="12dp"
                 android:textSize="18sp"
                 app:layout_constraintBottom_toTopOf="@+id/swIncome"
                 app:layout_constraintStart_toStartOf="parent"
@@ -108,6 +111,7 @@
                 android:hint="@string/transaction_amount"
                 android:importantForAutofill="no"
                 android:inputType="number|numberDecimal|numberSigned"
+                android:paddingTop="12dp"
                 app:layout_constraintEnd_toStartOf="@id/tvSuffix"
                 app:layout_constraintStart_toEndOf="@+id/tvSymbol"
                 app:layout_constraintTop_toBottomOf="@+id/etDetails" />
@@ -118,6 +122,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="19dp"
                 android:layout_marginRight="19dp"
+                android:paddingTop="12dp"
                 android:textSize="18sp"
                 app:layout_constraintBottom_toTopOf="@+id/swIncome"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -129,7 +134,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="19dp"
                 android:layout_marginLeft="19dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="2dp"
+                android:paddingTop="11dp"
+                android:paddingBottom="11dp"
                 android:text="@string/income"
                 android:textOff="@string/expense"
                 android:textOn="@string/income"
@@ -143,13 +150,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="2dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
                 android:ems="10"
                 android:hint="@string/transaction_date"
                 android:importantForAutofill="no"
                 android:inputType="date"
+                android:paddingTop="12dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
@@ -162,6 +170,8 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="32dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="10dp"
                 android:text="@string/transaction_recurring_transaction"
                 android:textSize="18sp"
                 android:visibility="gone"
@@ -209,6 +219,7 @@
                         android:gravity="center"
                         android:inputType="number"
                         android:maxLength="3"
+                        android:paddingTop="32dp"
                         android:text="1" />
 
                     <Spinner
@@ -217,7 +228,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
                         android:layout_weight="1"
-                        android:paddingBottom="10dp" />
+                        android:paddingBottom="10dp"
+                        android:paddingTop="32dp" />
 
                 </LinearLayout>
 
@@ -227,7 +239,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:paddingLeft="16dp"
-                    android:paddingTop="6dp"
+                    android:paddingTop="14dp"
+                    android:paddingBottom="10dp"
                     android:paddingRight="16dp"
                     android:text="@string/transaction_frequency_set_end_date"
                     android:textSize="18sp" />
@@ -258,6 +271,7 @@
                         android:layout_marginLeft="12dp"
                         android:layout_marginEnd="16dp"
                         android:layout_marginRight="16dp"
+                        android:paddingTop="12dp"
                         android:ems="10"
                         android:hint="@string/transaction_date"
                         android:importantForAutofill="no"
@@ -323,6 +337,8 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="16dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="10dp"
                 android:text="@string/show_additional_payment_methods"
                 android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -344,16 +360,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/swMultiplePaymentMethods">
 
             </LinearLayout>
-
-            <!--            <EditText-->
-            <!--                android:id="@+id/editText"-->
-            <!--                android:layout_width="wrap_content"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:ems="10"-->
-            <!--                android:gravity="start|top"-->
-            <!--                android:inputType="textMultiLine"-->
-            <!--                tools:layout_editor_absoluteX="21dp"-->
-            <!--                tools:layout_editor_absoluteY="50dp" />-->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

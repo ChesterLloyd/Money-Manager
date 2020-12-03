@@ -307,10 +307,9 @@
     <string name="about">About</string>
     <string name="about_profile_image">Profile photo of the author</string>
     <string name="about_author">Developer from the UK doing side projects such as web and Android apps. I am a Computer Science graduate from the University of Newcastle.</string>
-    <string name="email_icon">Email button</string>
-    <string name="email_title">Send me an email</string>
-    <string name="website_icon">Website button</string>
-    <string name="github_icon">GitHub button</string>
+    <string name="email_icon">Send me an email</string>
+    <string name="website_icon">Go to my website</string>
+    <string name="github_icon">Visit my GitHub</string>
 
     <string name="notification_recurring_transactions_channel_id">recurring_transactions_channel</string>
     <string name="notification_recurring_transactions_channel_name">Recurring transactions</string>

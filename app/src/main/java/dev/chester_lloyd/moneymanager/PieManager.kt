@@ -118,7 +118,9 @@ class PieManager(private val context: Context) : DBManager(context) {
             firstTransaction.add(Calendar.MONTH, 1)
         }
 
-        if (dates[dates.lastIndex].get(Calendar.MONTH) != now.get(Calendar.MONTH)) {
+        if (dates.isEmpty()) {
+            dates.add(now)
+        } else if (dates[dates.lastIndex].get(Calendar.MONTH) != now.get(Calendar.MONTH)) {
             dates.add(now)
         }
         dates.reverse()
