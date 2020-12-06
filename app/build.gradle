@@ -8,10 +8,10 @@ android {
     compileSdkVersion 30
     defaultConfig {
         applicationId "dev.chester_lloyd.moneymanager"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 30
-        versionCode 7
-        versionName "1.5.1"
+        versionCode 8
+        versionName "1.5.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }

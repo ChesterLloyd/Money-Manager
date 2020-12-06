@@ -73,9 +73,9 @@ class EditRecurringTransaction : AppCompatActivity() {
         ArrayAdapter.createFromResource(
             applicationContext,
             R.array.transaction_frequency_periods,
-            android.R.layout.simple_spinner_item
+            R.layout.spinner_text
         ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            adapter.setDropDownViewResource(R.layout.spinner_text)
             spFrequencyPeriod.adapter = adapter
         }
         spFrequencyPeriod.setSelection(0)

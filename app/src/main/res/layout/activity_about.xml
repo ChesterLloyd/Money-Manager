@@ -58,7 +58,7 @@
 
         <ImageView
             android:id="@+id/ivEmail"
-            android:layout_width="35dp"
+            android:layout_width="48dp"
             android:layout_height="56dp"
             android:layout_weight="1"
             android:paddingBottom="12dp"
@@ -71,7 +71,7 @@
 
         <ImageView
             android:id="@+id/ivWebsite"
-            android:layout_width="35dp"
+            android:layout_width="48dp"
             android:layout_height="56dp"
             android:layout_weight="1"
             android:paddingBottom="12dp"
@@ -83,7 +83,7 @@
 
         <ImageView
             android:id="@+id/ivGithub"
-            android:layout_width="30dp"
+            android:layout_width="48dp"
             android:layout_height="56dp"
             android:layout_weight="1"
             android:paddingBottom="15dp"

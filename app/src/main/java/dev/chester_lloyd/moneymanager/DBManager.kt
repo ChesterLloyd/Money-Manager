@@ -144,8 +144,6 @@ open class DBManager(context: Context) {
                         "FOREIGN KEY(${colTransactionID}) REFERENCES ${dbTransactionTable}(${colID}) ON DELETE CASCADE, " +
                         "FOREIGN KEY(${colAccountID}) REFERENCES ${dbAccountTable}(${colID}) ON DELETE CASCADE );"
             )
-            // Show confirmation toast when database is created
-            Toast.makeText(this.context, "Database is created", Toast.LENGTH_SHORT).show()
 
             // Create default accounts
             db.execSQL(

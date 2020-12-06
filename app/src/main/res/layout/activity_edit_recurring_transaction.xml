@@ -141,7 +141,7 @@
                         android:layout_gravity="bottom"
                         android:layout_weight="1"
                         android:paddingBottom="10dp"
-                        android:paddingTop="32dp" />
+                        android:paddingTop="16dp" />
 
                 </LinearLayout>
 
