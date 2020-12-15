@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.database.sqlite.SQLiteQueryBuilder
 import android.net.Uri
-import android.os.Environment
 import android.widget.Toast
 import java.io.File
 import java.io.FileInputStream
@@ -19,6 +18,7 @@ import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+
 
 /**
  * Handles all database related tasks.
@@ -1237,11 +1237,6 @@ open class DBManager(context: Context) {
     fun exportDB(context: Context) {
         try {
             // Set up the path destination
-            val destinationDirectory =
-                File("${Environment.getExternalStorageDirectory()}/${dbName}")
-            if (!destinationDirectory.exists()) {
-                destinationDirectory.mkdir()
-            }
             var version = "-NA-"
             try {
                 val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
@@ -1249,10 +1244,14 @@ open class DBManager(context: Context) {
             } catch (e: PackageManager.NameNotFoundException) {
             }
             val sdf = SimpleDateFormat("yyyy-M-dd-k-mm-ss")
-            val destinationFile = File(
-                "$destinationDirectory",
-                "${sdf.format(Date())}-Money-Manager${version}Export.db"
-            )
+            val destinationFile =
+                File(
+                    context.getExternalFilesDir(null),
+                    "${sdf.format(Date())}-Money-Manager${version}Export.db"
+                )
+            if (!destinationFile.exists()) {
+                destinationFile.parentFile.mkdirs()
+            }
 
             val source: FileChannel = FileInputStream(File(sqlDB!!.path)).channel
             val destination: FileChannel = FileOutputStream(destinationFile).channel
@@ -1282,21 +1281,19 @@ open class DBManager(context: Context) {
      */
     fun importDB(context: Context, uri: Uri) {
         try {
-            val uriPath = (uri.path!!).split(':')
-            val importDB = File("${Environment.getExternalStorageDirectory()}/${uriPath[1]}")
-
-            if (Environment.getExternalStorageDirectory().canWrite()) {
-                val source = FileInputStream(importDB).channel
-                val destination = FileOutputStream(File(sqlDB!!.path)).channel
-                destination.transferFrom(source, 0, source.size())
-                source.close()
-                destination.close()
-                Toast.makeText(
-                    context,
-                    R.string.settings_import_database_success,
-                    Toast.LENGTH_LONG
-                )
-                    .show()
+            if (context.getExternalFilesDir(null)?.canRead() == true) {
+                val source = context.contentResolver.openInputStream(uri)
+                val destination = FileOutputStream(File(sqlDB!!.path))
+                if (source?.copyTo(destination)!! > 0) {
+                    source.close()
+                    destination.close()
+                    Toast.makeText(
+                        context,
+                        R.string.settings_import_database_success,
+                        Toast.LENGTH_LONG
+                    )
+                        .show()
+                }
             }
         } catch (e: java.lang.Exception) {
             Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show()
