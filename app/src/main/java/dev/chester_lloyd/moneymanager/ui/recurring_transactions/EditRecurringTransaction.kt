@@ -283,7 +283,7 @@ class EditRecurringTransaction : AppCompatActivity() {
             }
 
             for (account in 0 until accounts.size) {
-                if (accounts[account].icon == recurringTransaction.account.icon) {
+                if (accounts[account].accountID == recurringTransaction.account.accountID) {
                     spAccount.setSelection(account)
                     break
                 }
