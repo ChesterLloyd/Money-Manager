@@ -330,20 +330,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/spCategory" />
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/swMultiplePaymentMethods"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                android:paddingTop="14dp"
-                android:paddingBottom="12dp"
-                android:text="@string/show_additional_payment_methods"
-                android:textSize="18sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvPayments" />
-
             <LinearLayout
                 android:id="@+id/llAccounts"
                 android:layout_width="match_parent"
@@ -354,12 +340,20 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
                 android:orientation="vertical"
-                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/swMultiplePaymentMethods">
+                app:layout_constraintTop_toBottomOf="@+id/tvPayments">
 
             </LinearLayout>
+
+            <Button
+                android:id="@+id/buAddPaymentMethod"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/transaction_add_payment_method"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/llAccounts" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

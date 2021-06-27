@@ -87,6 +87,7 @@
     <string name="transaction_validation_amount_zero">Transaction amount cannot be 0</string>
     <string name="transaction_validation_date">Transaction date cannot be blank</string>
     <string name="transaction_validation_payments">Account payments do not make up the transaction amount</string>
+    <string name="transaction_validation_duplicate_payment_methods">Duplicate payment methods have been used</string>
 
     <string name="transaction_recurring_validation_name">Please enter a name</string>
     <string name="transaction_recurring_validation_unit">Frequency must be at least 1</string>
@@ -244,6 +245,7 @@
     <string name="transaction_frequency_ends_on">Ends on</string>
     <string name="transaction_category">Category</string>
     <string name="transaction_payments">Payments</string>
+    <string name="transaction_add_payment_method">Add payment method</string>
     <string name="transaction_details">Transaction details</string>
     <string name="no_transactions">No transactions to display</string>
     <string name="no_transactions_this_month">No transactions this month</string>
