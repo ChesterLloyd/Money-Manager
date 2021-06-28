@@ -35,6 +35,7 @@ class AddTransaction : AppCompatActivity() {
     private var income = false
     private var paymentMethodIds = HashMap<Int, ArrayList<Int>>()
     private lateinit var accounts: ArrayList<Account>
+    private lateinit var initialPayments: ArrayList<Payment>
 
     /**
      * An [onCreate] method that sets up the supportActionBar, category and account spinners,
@@ -247,7 +248,11 @@ class AddTransaction : AppCompatActivity() {
 
         // Set first payment method spinner to default or first account
         if (transactionID == 0) {
-            val firstPaymentMethodHash = addPaymentMethod(defaultOrFirstAccount, accountIcons.requireNoNulls(), accountBackgrounds.requireNoNulls())
+            val firstPaymentMethodHash = addPaymentMethod(
+                defaultOrFirstAccount,
+                accountIcons.requireNoNulls(),
+                accountBackgrounds.requireNoNulls()
+            )
             val firstPaymentMethodSpinnerId = paymentMethodIds[firstPaymentMethodHash]!![1]
             val firstPaymentMethodSpinner = findViewById<Spinner>(firstPaymentMethodSpinnerId)
             for (account in 0 until accounts.size) {
@@ -260,7 +265,11 @@ class AddTransaction : AppCompatActivity() {
 
         // Add payment method button
         buAddPaymentMethod.setOnClickListener {
-            addPaymentMethod(defaultOrFirstAccount, accountIcons.requireNoNulls(), accountBackgrounds.requireNoNulls())
+            addPaymentMethod(
+                defaultOrFirstAccount,
+                accountIcons.requireNoNulls(),
+                accountBackgrounds.requireNoNulls()
+            )
         }
 
         if (transactionID > 0) {
@@ -284,15 +293,19 @@ class AddTransaction : AppCompatActivity() {
             }
 
             // Create payment method spinners and autofill
-            val payments = dbManager.selectPayments(transactionID, "transaction")
-            for (payment in 0 until payments.size) {
-                if (payments[payment].amount != 0.0) {
-                    val paymentMethodHash = addPaymentMethod(payments[payment].account, accountIcons.requireNoNulls(), accountBackgrounds.requireNoNulls())
+            initialPayments = dbManager.selectPayments(transactionID, "transaction")
+            for (payment in 0 until initialPayments.size) {
+                if (initialPayments[payment].amount != 0.0) {
+                    val paymentMethodHash = addPaymentMethod(
+                        initialPayments[payment].account,
+                        accountIcons.requireNoNulls(),
+                        accountBackgrounds.requireNoNulls()
+                    )
                     val paymentMethodEditTextId = paymentMethodIds[paymentMethodHash]!![0]
                     findViewById<EditText>(paymentMethodEditTextId)
                         .setText(
                             CurrencyValidator.getEditTextAmount(
-                                payments[payment].amount,
+                                initialPayments[payment].amount,
                                 format[2]
                             )
                         )
@@ -320,17 +333,19 @@ class AddTransaction : AppCompatActivity() {
                 for (paymentMethod in paymentMethodIds.values) {
                     if ((findViewById<EditText>(paymentMethod[0])).text.toString() != "") {
                         // If more than one box filled in, give up as too complicated to adjust
-                        enteredAmountEditTextID = if (enteredAmountEditTextID == -1 || enteredAmountEditTextID != 0) {
-                            -1
-                        } else {
-                            // Else just update this one
-                            paymentMethod[0]
-                        }
+                        enteredAmountEditTextID =
+                            if (enteredAmountEditTextID == -1 || enteredAmountEditTextID != 0) {
+                                -1
+                            } else {
+                                // Else just update this one
+                                paymentMethod[0]
+                            }
                     }
                 }
                 if (enteredAmountEditTextID == 0) {
                     // Update first payment method amount
-                    val accountAmount = findViewById<EditText>(paymentMethodIds.entries.first().value[0])
+                    val accountAmount =
+                        findViewById<EditText>(paymentMethodIds.entries.first().value[0])
                     accountAmount.setText(etAmount.text.toString())
                 } else if (enteredAmountEditTextID != -1) {
                     // Update the account we just worked out
@@ -448,11 +463,12 @@ class AddTransaction : AppCompatActivity() {
                         totalPayments += accountValue2DP
                         payments.add(
                             Payment(
-                                Transaction(), dbManager.selectAccount(paymentMethod[2]), accountValue
+                                Transaction(),
+                                dbManager.selectAccount(paymentMethod[2]),
+                                accountValue
                             )
                         )
                     }
-
                 }
 
                 if (String.format("%.2f", totalPayments).toDouble() != transaction.amount) {
@@ -537,15 +553,17 @@ class AddTransaction : AppCompatActivity() {
                             selectionArgs
                         )
                         if (id > 0) {
-                            for (payment in 0 until payments.size) {
+                            val paymentsToUpdate = initialPayments
+                            paymentsToUpdate.addAll(payments)
+                            for (payment in 0 until paymentsToUpdate.size) {
                                 // For each payment method (Account) update the payments that are stored
-                                payments[payment].transaction = transaction
+                                paymentsToUpdate[payment].transaction = transaction
                                 dbManager.updatePayment(
-                                    payments[payment],
+                                    paymentsToUpdate[payment],
                                     "TransactionID=? AND AccountID=?",
                                     arrayOf(
                                         transaction.transactionID.toString(),
-                                        payments[payment].account.accountID.toString()
+                                        paymentsToUpdate[payment].account.accountID.toString()
                                     )
                                 )
                             }
@@ -588,7 +606,11 @@ class AddTransaction : AppCompatActivity() {
      * @param accountBackgrounds Account backgrounds
      * @return The key to this payment method in the [paymentMethodIds] [HashMap]
      */
-    private fun addPaymentMethod(account: Account, accountIcons: Array<Icon>, accountBackgrounds: Array<Icon>): Int {
+    private fun addPaymentMethod(
+        account: Account,
+        accountIcons: Array<Icon>,
+        accountBackgrounds: Array<Icon>
+    ): Int {
         // Create a view ID for the amount, used later when saving
         val paymentMethodSpinnerId = View.generateViewId()
         val paymentMethodEditTextId = View.generateViewId()
@@ -596,7 +618,8 @@ class AddTransaction : AppCompatActivity() {
         // Create a new payment method spinner
         val paymentMethodSpinner = Spinner(this)
         paymentMethodSpinner.id = paymentMethodSpinnerId
-        paymentMethodSpinner.adapter = IconSpinner(applicationContext, accountIcons, accountBackgrounds, null, "icon")
+        paymentMethodSpinner.adapter =
+            IconSpinner(applicationContext, accountIcons, accountBackgrounds, null, "icon")
 
         // Update payment methods hash map with new account
         paymentMethodSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -609,8 +632,11 @@ class AddTransaction : AppCompatActivity() {
                 position: Int,
                 id: Long
             ) {
-                println("PAY NOW WITH " + accounts[position].name)
-                paymentMethodIds[paymentMethodSpinner.hashCode()] = arrayListOf(paymentMethodEditTextId, paymentMethodSpinnerId, accounts[position].accountID)
+                paymentMethodIds[paymentMethodSpinner.hashCode()] = arrayListOf(
+                    paymentMethodEditTextId,
+                    paymentMethodSpinnerId,
+                    accounts[position].accountID
+                )
             }
         }
 
@@ -649,7 +675,8 @@ class AddTransaction : AppCompatActivity() {
             }
         })
 
-        paymentMethodIds[paymentMethodSpinner.hashCode()] = arrayListOf(paymentMethodEditTextId, paymentMethodSpinnerId, account.accountID)
+        paymentMethodIds[paymentMethodSpinner.hashCode()] =
+            arrayListOf(paymentMethodEditTextId, paymentMethodSpinnerId, account.accountID)
 
         // Create a new linear layout for this payment method container (Spinner - Amount)
         val llAccountContainer = LinearLayout(this)
