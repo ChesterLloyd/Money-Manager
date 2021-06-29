@@ -251,7 +251,8 @@ class AddTransaction : AppCompatActivity() {
             val firstPaymentMethodHash = addPaymentMethod(
                 defaultOrFirstAccount,
                 accountIcons.requireNoNulls(),
-                accountBackgrounds.requireNoNulls()
+                accountBackgrounds.requireNoNulls(),
+                true
             )
             val firstPaymentMethodSpinnerId = paymentMethodIds[firstPaymentMethodHash]!![1]
             val firstPaymentMethodSpinner = findViewById<Spinner>(firstPaymentMethodSpinnerId)
@@ -299,7 +300,8 @@ class AddTransaction : AppCompatActivity() {
                     val paymentMethodHash = addPaymentMethod(
                         initialPayments[payment].account,
                         accountIcons.requireNoNulls(),
-                        accountBackgrounds.requireNoNulls()
+                        accountBackgrounds.requireNoNulls(),
+                        payment == 0
                     )
                     val paymentMethodEditTextId = paymentMethodIds[paymentMethodHash]!![0]
                     findViewById<EditText>(paymentMethodEditTextId)
@@ -604,12 +606,14 @@ class AddTransaction : AppCompatActivity() {
      * @param account The [Account] this spinner should select by default
      * @param accountIcons Account icons
      * @param accountBackgrounds Account backgrounds
+     * @param firstPaymentMethod Hides remove button if this is the first payment method
      * @return The key to this payment method in the [paymentMethodIds] [HashMap]
      */
     private fun addPaymentMethod(
         account: Account,
         accountIcons: Array<Icon>,
-        accountBackgrounds: Array<Icon>
+        accountBackgrounds: Array<Icon>,
+        firstPaymentMethod: Boolean = false
     ): Int {
         // Create a view ID for the amount, used later when saving
         val paymentMethodSpinnerId = View.generateViewId()
@@ -698,14 +702,28 @@ class AddTransaction : AppCompatActivity() {
         val tvSymbol = TextView(this)
         tvSymbol.text = format[0]
         tvSymbol.textSize = 18f
+        tvSymbol.setPadding(16 , 0, 0, 0)
         val tvSuffix = TextView(this)
         tvSuffix.text = format[3]
         tvSuffix.textSize = 18f
+
+        // Create a remove button
+        val buDeletePaymentMethod = Button(this)
+        buDeletePaymentMethod.text = getString(R.string.transaction_remove_payment_method)
+        if (firstPaymentMethod) {
+            buDeletePaymentMethod.visibility = View.INVISIBLE
+        }
+        buDeletePaymentMethod.setPadding(16 , 0, 16, 0)
+        buDeletePaymentMethod.setOnClickListener {
+            etAmount.setText("0")
+            llAccountContainer.visibility = View.GONE
+        }
 
         // Add all elements to the row's view
         llAccountRow.addView(tvSymbol)
         llAccountRow.addView(etAmount)
         llAccountRow.addView(tvSuffix)
+        llAccountRow.addView(buDeletePaymentMethod)
 
         // Setup layout parameters so they match the main amount layout (above)
         tvSymbol.layoutParams = LinearLayout.LayoutParams(
@@ -727,6 +745,7 @@ class AddTransaction : AppCompatActivity() {
         // Add this row to the main linear layout containing the payment methods
         llAccountContainer.addView(paymentMethodSpinner)
         llAccountContainer.addView(llAccountRow)
+        llAccountContainer.setPadding(0 , 0, 0, 0)
         llAccounts.addView(llAccountContainer)
 
         return paymentMethodSpinner.hashCode()

@@ -246,6 +246,7 @@
     <string name="transaction_category">Category</string>
     <string name="transaction_payments">Payments</string>
     <string name="transaction_add_payment_method">Add payment method</string>
+    <string name="transaction_remove_payment_method">Remove</string>
     <string name="transaction_details">Transaction details</string>
     <string name="no_transactions">No transactions to display</string>
     <string name="no_transactions_this_month">No transactions this month</string>
