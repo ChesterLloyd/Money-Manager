@@ -555,17 +555,20 @@ class AddTransaction : AppCompatActivity() {
                             selectionArgs
                         )
                         if (id > 0) {
-                            val paymentsToUpdate = initialPayments
-                            paymentsToUpdate.addAll(payments)
-                            for (payment in 0 until paymentsToUpdate.size) {
+                            val initialPaymentsRemaining = initialPayments
+                            for (payment in 0 until payments.size) {
+                                initialPaymentsRemaining.removeAll { it.account.accountID == payments[payment].account.accountID }
+                            }
+                            payments.addAll(initialPaymentsRemaining)
+                            for (payment in 0 until payments.size) {
                                 // For each payment method (Account) update the payments that are stored
-                                paymentsToUpdate[payment].transaction = transaction
+                                payments[payment].transaction = transaction
                                 dbManager.updatePayment(
-                                    paymentsToUpdate[payment],
+                                    payments[payment],
                                     "TransactionID=? AND AccountID=?",
                                     arrayOf(
                                         transaction.transactionID.toString(),
-                                        paymentsToUpdate[payment].account.accountID.toString()
+                                        payments[payment].account.accountID.toString()
                                     )
                                 )
                             }
@@ -702,7 +705,7 @@ class AddTransaction : AppCompatActivity() {
         val tvSymbol = TextView(this)
         tvSymbol.text = format[0]
         tvSymbol.textSize = 18f
-        tvSymbol.setPadding(16 , 0, 0, 0)
+        tvSymbol.setPadding(16, 0, 0, 0)
         val tvSuffix = TextView(this)
         tvSuffix.text = format[3]
         tvSuffix.textSize = 18f
@@ -713,9 +716,16 @@ class AddTransaction : AppCompatActivity() {
         if (firstPaymentMethod) {
             buDeletePaymentMethod.visibility = View.INVISIBLE
         }
-        buDeletePaymentMethod.setPadding(16 , 0, 16, 0)
+        buDeletePaymentMethod.setPadding(16, 0, 16, 0)
         buDeletePaymentMethod.setOnClickListener {
-            etAmount.setText("0")
+            // Find the initial payment, remove it and add one with a 0 amount
+            paymentMethodIds.remove(paymentMethodSpinner.hashCode())
+            val paymentToDelete = initialPayments.find { it.account.accountID == account.accountID }
+            if (paymentToDelete != null) {
+                paymentToDelete.amount = 0.0
+                initialPayments.removeAll { it.account.accountID == account.accountID }
+                initialPayments.add(paymentToDelete)
+            }
             llAccountContainer.visibility = View.GONE
         }
 
@@ -745,7 +755,7 @@ class AddTransaction : AppCompatActivity() {
         // Add this row to the main linear layout containing the payment methods
         llAccountContainer.addView(paymentMethodSpinner)
         llAccountContainer.addView(llAccountRow)
-        llAccountContainer.setPadding(0 , 0, 0, 0)
+        llAccountContainer.setPadding(0, 0, 0, 0)
         llAccounts.addView(llAccountContainer)
 
         return paymentMethodSpinner.hashCode()
