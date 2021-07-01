@@ -290,7 +290,7 @@ class EditRecurringTransaction : AppCompatActivity() {
             }
 
             for (category in 0 until categories.size) {
-                if (categories[category].icon == recurringTransaction.category.icon) {
+                if (categories[category].categoryID == recurringTransaction.category.categoryID) {
                     spCategory.setSelection(category)
                     initialCategory = categories[category]
                     break

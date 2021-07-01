@@ -287,7 +287,7 @@ class AddTransaction : AppCompatActivity() {
             updateDateInView()
 
             for (category in 0 until categories.size) {
-                if (categories[category].icon == transaction.category.icon) {
+                if (categories[category].categoryID == transaction.category.categoryID) {
                     spCategory.setSelection(category)
                     break
                 }
