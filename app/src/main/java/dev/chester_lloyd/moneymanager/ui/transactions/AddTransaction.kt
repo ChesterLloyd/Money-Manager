@@ -556,8 +556,13 @@ class AddTransaction : AppCompatActivity() {
                         )
                         if (id > 0) {
                             val initialPaymentsRemaining = initialPayments
+                            // Remove any payment methods that aren't used
                             for (payment in 0 until payments.size) {
                                 initialPaymentsRemaining.removeAll { it.account.accountID == payments[payment].account.accountID }
+                            }
+                            // These are no longer used, so delete
+                            for (payment in 0 until initialPaymentsRemaining.size) {
+                                initialPaymentsRemaining[payment].amount = 0.0
                             }
                             payments.addAll(initialPaymentsRemaining)
                             for (payment in 0 until payments.size) {
@@ -718,14 +723,8 @@ class AddTransaction : AppCompatActivity() {
         }
         buDeletePaymentMethod.setPadding(16, 0, 16, 0)
         buDeletePaymentMethod.setOnClickListener {
-            // Find the initial payment, remove it and add one with a 0 amount
+            // Find the initial payment, remove it and hide - will be deleted on save
             paymentMethodIds.remove(paymentMethodSpinner.hashCode())
-            val paymentToDelete = initialPayments.find { it.account.accountID == account.accountID }
-            if (paymentToDelete != null) {
-                paymentToDelete.amount = 0.0
-                initialPayments.removeAll { it.account.accountID == account.accountID }
-                initialPayments.add(paymentToDelete)
-            }
             llAccountContainer.visibility = View.GONE
         }
 
