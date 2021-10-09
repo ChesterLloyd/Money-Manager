@@ -92,10 +92,23 @@ class RecurringTransaction {
     }
 
     /**
-     * Sets the next date for transactions added in the future.
+     * Gets the next potential date for transactions added in the future.
+     * This is based on the time from today and used when manually adding
+     * a recurring transaction today.
      */
-    fun setNextDueDateFutureTransaction() {
-        this.next.timeInMillis = incrementDate(this.next).timeInMillis
+    fun getFormattedPotentialNextDueDate(context: Context): String {
+        return MainActivity.getFormattedDate(context, incrementDate(Calendar.getInstance()))
+    }
+
+    /**
+     * Sets the next date for transactions added in the future.
+     *
+     * @param fromToday True if you want to count from today, not the
+     * current next date
+     */
+    fun setNextDueDateFutureTransaction(fromToday: Boolean = false) {
+        val fromDate = if (fromToday) Calendar.getInstance() else this.next
+        this.next.timeInMillis = incrementDate(fromDate).timeInMillis
     }
 
     /**
@@ -152,7 +165,7 @@ class RecurringTransaction {
     }
 
     /**
-     * Increments the given dated based on the recurring settings.
+     * Increments the given date based on the recurring settings.
      *
      * @param date The date to increment.
      * @return The date incremented by one unit.

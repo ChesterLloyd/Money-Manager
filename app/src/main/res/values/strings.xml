@@ -105,6 +105,9 @@
     <string name="next_due">Next due</string>
     <string name="until">Until</string>
     <string name="indefinitely">Indefinitely</string>
+    <string name="repeat_now">Repeat now</string>
+    <string name="alert_title_update_next_due_recurring_transaction">Update the next transaction date?</string>
+    <string name="alert_message_update_next_due_recurring_transaction">Would you like to update the next due date to %1$s, from %2$s?</string>
     <string name="text_recurring_transaction_desc">Update the frequency settings for this recurring transaction.\n\nThe next transaction date will be based on the date of the previous transaction.</string>
     <string name="alert_title_recurring_transaction_update_category">Update previous transactions</string>
     <string name="alert_message_recurring_transaction_update_category">Would you like to update the category for all previous transactions? If not, this category will only apply to new transactions.</string>

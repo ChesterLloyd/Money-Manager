@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.MainActivity
@@ -13,6 +14,7 @@ import dev.chester_lloyd.moneymanager.RecurringTransaction
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.ListViewManager
 import kotlinx.android.synthetic.main.activity_recurring_transaction_details.*
+import java.util.*
 
 /**
  * An [AppCompatActivity] subclass to show the transactions for a given category. This also displays
@@ -88,6 +90,82 @@ class RecurringTransactionDetails : AppCompatActivity() {
             this,
             "recurring transaction"
         )
+
+        // When the repeat now button is clicked, add a transaction for this series now
+        buRepeatNow.setOnClickListener {
+            val currentNext = recurringTransaction.getFormattedNextDueDate(this)
+            val potentialNext = recurringTransaction.getFormattedPotentialNextDueDate(this)
+
+            if (currentNext != potentialNext) {
+                // Build an alert dialog to discover whether to update the next due date
+                val alertDialog = AlertDialog.Builder(this)
+
+                alertDialog.setMessage(
+                    resources.getString(
+                        R.string.alert_message_update_next_due_recurring_transaction,
+                        potentialNext,
+                        currentNext
+                    )
+                )
+                    .setCancelable(true)
+                    .setPositiveButton(resources.getString(R.string.yes)) { dialog, id ->
+                        // Update next due date to today + frequency period
+                        recurringTransaction.setNextDueDateFutureTransaction(true)
+                        val dbManager = DBManager(this)
+                        dbManager.updateRecurringTransaction(
+                            recurringTransaction,
+                            "ID=?",
+                            arrayOf(recurringTransaction.recurringTransactionID.toString())
+                        )
+                        dbManager.sqlDB!!.close()
+                        onDueDatePreferenceSelected()
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton(resources.getString(R.string.no)) {
+                        // Do nothing, close box
+                            dialog, _ ->
+                        onDueDatePreferenceSelected()
+                        dialog.cancel()
+                    }
+
+                val alert = alertDialog.create()
+                alert.setTitle(resources.getString(R.string.alert_title_update_next_due_recurring_transaction))
+                alert.show()
+            } else {
+                // Due dates are the same, just add the transaction
+                onDueDatePreferenceSelected()
+            }
+        }
+    }
+
+    /**
+     * Once the user has decided whether to update the next due date,
+     * add the transaction and update the view.
+     */
+    private fun onDueDatePreferenceSelected() {
+        recurringTransaction.createTransaction(this, Calendar.getInstance())
+
+        // Read updated recurring transaction data from database
+        val dbManager = DBManager(this)
+        recurringTransaction =
+            dbManager.selectRecurringTransaction(this.recurringTransaction.recurringTransactionID)
+        dbManager.sqlDB!!.close()
+
+        // Show the updated the next due date
+        tvNextDue.text = recurringTransaction.getFormattedNextDueDate(this)
+
+        // Update the transactions list
+        this.lvTransactions.adapter = ListViewManager(
+            recurringTransaction.transactions.toTypedArray(),
+            layoutInflater,
+            this,
+            "recurring transaction"
+        )
+
+        Toast.makeText(
+            this, resources.getString(R.string.transaction_insert_success),
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     /**

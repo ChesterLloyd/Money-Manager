@@ -167,6 +167,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvUntilHeading" />
 
+    <Button
+        android:id="@+id/buRepeatNow"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/colorAppBackground"
+        android:hapticFeedbackEnabled="true"
+        android:text="@string/repeat_now"
+        android:textColor="@color/buttonLink"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvUntil" />
+
     <TextView
         android:id="@+id/tvTransactions"
         android:layout_width="wrap_content"
@@ -177,7 +191,7 @@
         android:text="@string/menu_transactions"
         android:textSize="30sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvUntil" />
+        app:layout_constraintTop_toBottomOf="@+id/buRepeatNow" />
 
     <ListView
         android:id="@+id/lvTransactions"
