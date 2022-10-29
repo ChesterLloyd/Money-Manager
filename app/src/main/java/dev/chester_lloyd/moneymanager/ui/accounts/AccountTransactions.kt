@@ -7,11 +7,9 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.*
+import dev.chester_lloyd.moneymanager.databinding.ActivityAccountTransactionsBinding
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.ListViewManager
-import kotlinx.android.synthetic.main.activity_account_transactions.*
-import kotlinx.android.synthetic.main.activity_account_transactions.ivIcon
-import kotlinx.android.synthetic.main.activity_account_transactions.tvName
 
 /**
  * An [AppCompatActivity] subclass to show the transactions for a given account. This also displays
@@ -23,6 +21,7 @@ import kotlinx.android.synthetic.main.activity_account_transactions.tvName
 @Suppress("NAME_SHADOWING")
 class AccountTransactions : AppCompatActivity() {
 
+    private lateinit var binding: ActivityAccountTransactionsBinding
     private var account = Account()
 
     /**
@@ -30,7 +29,8 @@ class AccountTransactions : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_account_transactions)
+        binding = ActivityAccountTransactionsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Setup toolbar name and show a back button
         this.supportActionBar?.title = getString(R.string.manage_account)
@@ -46,16 +46,16 @@ class AccountTransactions : AppCompatActivity() {
             intent.getBooleanExtra("default", false)
         )
 
-        tvName.text = account.name
-        tvBalance.text = MainActivity.stringBalance(this, account.balance)
+        binding.tvName.text = account.name
+        binding.tvBalance.text = MainActivity.stringBalance(this, account.balance)
 
         val iconManager = IconManager(this)
-        ivIcon.setImageResource(
+        binding.ivIcon.setImageResource(
             iconManager.getIconByID(
                 iconManager.accountIcons, account.icon
             ).drawable
         )
-        ivIcon.setBackgroundResource(
+        binding.ivIcon.setBackgroundResource(
             iconManager.getIconByID(
                 iconManager.colourIcons, account.colour
             ).drawable
@@ -76,15 +76,15 @@ class AccountTransactions : AppCompatActivity() {
         }
 
         // Update entry fields with account info
-        tvName.text = account.name
-        tvBalance.text = MainActivity.stringBalance(this, account.balance)
+        binding.tvName.text = account.name
+        binding.tvBalance.text = MainActivity.stringBalance(this, account.balance)
         val iconManager = IconManager(this)
-        ivIcon.setImageResource(
+        binding.ivIcon.setImageResource(
             iconManager.getIconByID(
                 iconManager.accountIcons, account.icon
             ).drawable
         )
-        ivIcon.setBackgroundResource(
+        binding.ivIcon.setBackgroundResource(
             iconManager.getIconByID(
                 iconManager.colourIcons, account.colour
             ).drawable
@@ -96,7 +96,7 @@ class AccountTransactions : AppCompatActivity() {
         dbManager.sqlDB!!.close()
 
         // Pass this to the list view adaptor and populate
-        this.lvTransactions.adapter = ListViewManager(
+        binding.lvTransactions.adapter = ListViewManager(
             listPayments.toTypedArray(),
             layoutInflater,
             applicationContext,

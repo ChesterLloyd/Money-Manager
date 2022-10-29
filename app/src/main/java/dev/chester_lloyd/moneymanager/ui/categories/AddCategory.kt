@@ -8,9 +8,9 @@ import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.Category
 import dev.chester_lloyd.moneymanager.MainActivity
+import dev.chester_lloyd.moneymanager.databinding.ActivityAddCategoryBinding
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.IconSpinner
-import kotlinx.android.synthetic.main.activity_add_account.*
 
 /**
  * An [AppCompatActivity] subclass to add or edit a [Category].
@@ -20,13 +20,16 @@ import kotlinx.android.synthetic.main.activity_add_account.*
  */
 class AddCategory : AppCompatActivity() {
 
+    private lateinit var binding: ActivityAddCategoryBinding
+
     /**
      * An [onCreate] method that sets up the supportActionBar, icon spinners, FAB and view.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityAddCategoryBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         MainActivity.hideInMultitasking(window, applicationContext)
-        setContentView(R.layout.activity_add_category)
 
         // Setup toolbar name and show a back button
         this.supportActionBar?.title = getString(R.string.button_add_category)
@@ -55,17 +58,17 @@ class AddCategory : AppCompatActivity() {
         // If the category ID > 0 (not a new one) then auto fill these fields with the saved values
         if (category.categoryID > 0) {
             this.supportActionBar?.title = getString(R.string.edit_category)
-            tvDesc.setText(R.string.text_edit_category_desc)
-            etName.setText(intent.getStringExtra("name"))
+            binding.tvDesc.setText(R.string.text_edit_category_desc)
+            binding.etName.setText(intent.getStringExtra("name"))
 
-            spIcon.setSelection(
+            binding.spIcon.setSelection(
                 iconManager.getIconPositionID(
                     iconManager.categoryIcons,
                     intent.getIntExtra("icon", 0)
                 )
             )
 
-            spColour.setSelection(
+            binding.spColour.setSelection(
                 iconManager.getIconPositionID(
                     iconManager.colourIcons,
                     intent.getIntExtra("colour", 0)
@@ -74,8 +77,8 @@ class AddCategory : AppCompatActivity() {
         }
 
         // Save or update the category on FAB click
-        fabAddAccount.setOnClickListener {
-            category.name = etName.text.toString()
+        binding.fabAddAccount.setOnClickListener {
+            category.name = binding.etName.text.toString()
 
             if (category.name == "") {
                 // Category name is empty, show an error
@@ -119,7 +122,7 @@ class AddCategory : AppCompatActivity() {
         }
 
         // Add selected icon to category object
-        spIcon?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spIcon.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
@@ -134,7 +137,7 @@ class AddCategory : AppCompatActivity() {
         }
 
         // Add selected colour to category object
-        spColour?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spColour.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
@@ -162,6 +165,7 @@ class AddCategory : AppCompatActivity() {
      * sent to the background.
      */
     override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
         MainActivity.authenticated = false
     }
 

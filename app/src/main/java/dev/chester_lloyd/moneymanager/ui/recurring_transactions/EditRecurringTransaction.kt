@@ -11,19 +11,11 @@ import android.view.View
 import android.widget.*
 import dev.chester_lloyd.moneymanager.*
 import dev.chester_lloyd.moneymanager.RecurringTransaction.Companion.NO_END_DATE_YEARS
+import dev.chester_lloyd.moneymanager.databinding.ActivityEditRecurringTransactionBinding
 import dev.chester_lloyd.moneymanager.ui.CurrencyValidator
 import dev.chester_lloyd.moneymanager.ui.Icon
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.IconSpinner
-import kotlinx.android.synthetic.main.activity_edit_recurring_transaction.*
-import kotlinx.android.synthetic.main.activity_edit_recurring_transaction.etAmount
-import kotlinx.android.synthetic.main.activity_edit_recurring_transaction.etFrequencyEndDate
-import kotlinx.android.synthetic.main.activity_edit_recurring_transaction.etFrequencyUnit
-import kotlinx.android.synthetic.main.activity_edit_recurring_transaction.llFrequencyEnds
-import kotlinx.android.synthetic.main.activity_edit_recurring_transaction.spCategory
-import kotlinx.android.synthetic.main.activity_edit_recurring_transaction.swFrequencySetEndDate
-import kotlinx.android.synthetic.main.activity_edit_recurring_transaction.tvSuffix as tvSuffix1
-import kotlinx.android.synthetic.main.activity_edit_recurring_transaction.tvSymbol as tvSymbol1
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -36,6 +28,7 @@ import java.util.*
 @Suppress("NAME_SHADOWING")
 class EditRecurringTransaction : AppCompatActivity() {
 
+    private lateinit var binding: ActivityEditRecurringTransactionBinding
     var recurringTransaction = RecurringTransaction()
     private var income = false
     private var hasEndDate = false
@@ -48,8 +41,9 @@ class EditRecurringTransaction : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityEditRecurringTransactionBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         MainActivity.hideInMultitasking(window, applicationContext)
-        setContentView(R.layout.activity_edit_recurring_transaction)
 
         // Setup toolbar name and show a back button
         this.supportActionBar?.title = getString(R.string.manage_recurring_transaction)
@@ -58,8 +52,8 @@ class EditRecurringTransaction : AppCompatActivity() {
 
         // Add the currency symbol and suffix to the amount row
         val format = MainActivity.getCurrencyFormat(this)
-        tvSymbol1.text = format[0]
-        tvSuffix1.text = format[3]
+        binding.tvSymbol.text = format[0]
+        binding.tvSuffix.text = format[3]
 
         // Get details for the recurring transaction
         val dbManager = DBManager(this)
@@ -97,7 +91,7 @@ class EditRecurringTransaction : AppCompatActivity() {
 
         // Create a date picker, set values for class date value
         val sdfFreq = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
-        etFrequencyNextDate!!.setText(sdfFreq.format(recurringTransaction.next.time))
+        binding.etFrequencyNextDate.setText(sdfFreq.format(recurringTransaction.next.time))
 
         val frequencyDateNextListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
@@ -105,11 +99,11 @@ class EditRecurringTransaction : AppCompatActivity() {
                 recurringTransaction.next.set(Calendar.MONTH, monthOfYear)
                 recurringTransaction.next.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
-                etFrequencyNextDate!!.setText(sdfFreq.format(recurringTransaction.next.time))
+                binding.etFrequencyNextDate.setText(sdfFreq.format(recurringTransaction.next.time))
             }
 
         // When the date edit text has focus (clicked), open the date picker
-        etFrequencyNextDate.onFocusChangeListener = View.OnFocusChangeListener { _, gainFocus ->
+        binding.etFrequencyNextDate.onFocusChangeListener = View.OnFocusChangeListener { _, gainFocus ->
             if (gainFocus) {
                 DatePickerDialog(
                     this@EditRecurringTransaction,
@@ -119,22 +113,22 @@ class EditRecurringTransaction : AppCompatActivity() {
                     recurringTransaction.next.get(Calendar.MONTH),
                     recurringTransaction.next.get(Calendar.DAY_OF_MONTH)
                 ).show()
-                etFrequencyNextDate.clearFocus()
+                binding.etFrequencyNextDate.clearFocus()
             }
         }
 
         // Listen for when set end date switch is changed
-        swFrequencySetEndDate.setOnCheckedChangeListener { _, isChecked ->
+        binding.swFrequencySetEndDate.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                llFrequencyEnds.visibility = View.VISIBLE
+                binding.llFrequencyEnds.visibility = View.VISIBLE
             } else {
-                llFrequencyEnds.visibility = View.GONE
+                binding.llFrequencyEnds.visibility = View.GONE
             }
             hasEndDate = isChecked
         }
 
         // Create a date picker, set values for class date value
-        etFrequencyEndDate!!.setText(sdfFreq.format(recurringTransaction.end.time))
+        binding.etFrequencyEndDate.setText(sdfFreq.format(recurringTransaction.end.time))
 
         val frequencyDateEndListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
@@ -142,11 +136,11 @@ class EditRecurringTransaction : AppCompatActivity() {
                 recurringTransaction.end.set(Calendar.MONTH, monthOfYear)
                 recurringTransaction.end.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
-                etFrequencyEndDate!!.setText(sdfFreq.format(recurringTransaction.end.time))
+                binding.etFrequencyEndDate.setText(sdfFreq.format(recurringTransaction.end.time))
             }
 
         // When the date edit text has focus (clicked), open the date picker
-        etFrequencyEndDate.onFocusChangeListener = View.OnFocusChangeListener { _, gainFocus ->
+        binding.etFrequencyEndDate.onFocusChangeListener = View.OnFocusChangeListener { _, gainFocus ->
             if (gainFocus) {
                 DatePickerDialog(
                     this@EditRecurringTransaction,
@@ -156,7 +150,7 @@ class EditRecurringTransaction : AppCompatActivity() {
                     recurringTransaction.end.get(Calendar.MONTH),
                     recurringTransaction.end.get(Calendar.DAY_OF_MONTH)
                 ).show()
-                etFrequencyEndDate.clearFocus()
+                binding.etFrequencyEndDate.clearFocus()
             }
         }
 
@@ -191,7 +185,7 @@ class EditRecurringTransaction : AppCompatActivity() {
         )
 
         // Add selected account to transaction object
-        spAccount.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spAccount.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
@@ -235,7 +229,7 @@ class EditRecurringTransaction : AppCompatActivity() {
         )
 
         // Add selected category to transaction object
-        spCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
@@ -253,8 +247,8 @@ class EditRecurringTransaction : AppCompatActivity() {
 
         // If the category ID > 0 (not a new one) then auto fill these fields with the saved values
         if (recurringTransactionID > 0) {
-            etName.setText(recurringTransaction.name)
-            etAmount.setText(CurrencyValidator.getEditTextAmount(
+            binding.etName.setText(recurringTransaction.name)
+            binding.etAmount.setText(CurrencyValidator.getEditTextAmount(
                 recurringTransaction.amount,
                 format[2])
             )
@@ -262,7 +256,7 @@ class EditRecurringTransaction : AppCompatActivity() {
                 income = true
             }
 
-            etFrequencyUnit.setText(recurringTransaction.frequencyUnit.toString())
+            binding.etFrequencyUnit.setText(recurringTransaction.frequencyUnit.toString())
 
             for (period in frequencyPeriods.indices) {
                 if (frequencyPeriods[period] == recurringTransaction.frequencyPeriod) {
@@ -273,25 +267,25 @@ class EditRecurringTransaction : AppCompatActivity() {
 
             // Toggle slider if end date set, else hide end date as indefinite
             if (recurringTransaction.getFormattedEndDate(this) != this.getString(R.string.indefinitely)) {
-                swFrequencySetEndDate.toggle()
+                binding.swFrequencySetEndDate.toggle()
 
                 val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
-                etFrequencyEndDate!!.setText(sdf.format(recurringTransaction.end.time))
+               binding. etFrequencyEndDate.setText(sdf.format(recurringTransaction.end.time))
             } else {
-                etFrequencyEndDate!!.setText("")
-                llFrequencyEnds.visibility = View.GONE
+                binding.etFrequencyEndDate.setText("")
+                binding.llFrequencyEnds.visibility = View.GONE
             }
 
             for (account in 0 until accounts.size) {
                 if (accounts[account].accountID == recurringTransaction.account.accountID) {
-                    spAccount.setSelection(account)
+                    binding.spAccount.setSelection(account)
                     break
                 }
             }
 
             for (category in 0 until categories.size) {
                 if (categories[category].categoryID == recurringTransaction.category.categoryID) {
-                    spCategory.setSelection(category)
+                    binding.spCategory.setSelection(category)
                     initialCategory = categories[category]
                     break
                 }
@@ -299,9 +293,9 @@ class EditRecurringTransaction : AppCompatActivity() {
         }
 
         // Validate the amount field
-        val amountValidator = CurrencyValidator(etAmount)
-        etAmount.keyListener = DigitsKeyListener.getInstance("0123456789${format[2]}")
-        etAmount.addTextChangedListener(object : TextWatcher {
+        val amountValidator = CurrencyValidator(binding.etAmount)
+        binding.etAmount.keyListener = DigitsKeyListener.getInstance("0123456789${format[2]}")
+        binding.etAmount.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
             }
 
@@ -316,26 +310,26 @@ class EditRecurringTransaction : AppCompatActivity() {
         })
 
         // Update the recurring transaction (and sub transactions) on FAB click
-        fabUpdateRecurringTransaction.setOnClickListener {
-            recurringTransaction.name = etName.text.toString()
+        binding.fabUpdateRecurringTransaction.setOnClickListener {
+            recurringTransaction.name = binding.etName.text.toString()
             recurringTransaction.amount = amountValidator.getBalance(format[2])
             if (!income) recurringTransaction.amount *= -1
             recurringTransaction.account = account
             recurringTransaction.category = category
-            recurringTransaction.frequencyUnit = etFrequencyUnit.text.toString().toInt()
+            recurringTransaction.frequencyUnit = binding.etFrequencyUnit.text.toString().toInt()
 
             if (!hasEndDate) {
                 // Add 1000 years as no end date set
                 recurringTransaction.end.add(Calendar.YEAR, NO_END_DATE_YEARS)
             }
 
-            if (etAmount.text.toString() == "") {
+            if (binding.etAmount.text.toString() == "") {
                 // Transaction amount is empty, show an error
                 Toast.makeText(
                     this, R.string.transaction_validation_amount,
                     Toast.LENGTH_SHORT
                 ).show()
-            } else if (etAmount.text.toString() == format[2]) {
+            } else if (binding.etAmount.text.toString() == format[2]) {
                 // Transaction amount is the decimal sign only, show an error
                 Toast.makeText(
                     this, R.string.transaction_validation_amount_invalid,
@@ -347,7 +341,7 @@ class EditRecurringTransaction : AppCompatActivity() {
                     this, R.string.transaction_validation_amount_zero,
                     Toast.LENGTH_SHORT
                 ).show()
-            } else if (hasEndDate && etFrequencyEndDate.text.toString() == "") {
+            } else if (hasEndDate && binding.etFrequencyEndDate.text.toString() == "") {
                 // Transaction date is empty, show an error
                 Toast.makeText(
                     this, R.string.transaction_validation_date,
@@ -429,6 +423,7 @@ class EditRecurringTransaction : AppCompatActivity() {
      * sent to the background.
      */
     override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
         MainActivity.authenticated = false
     }
 

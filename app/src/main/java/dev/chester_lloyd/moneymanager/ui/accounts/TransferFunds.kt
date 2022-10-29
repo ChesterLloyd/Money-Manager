@@ -15,17 +15,11 @@ import android.widget.Spinner
 import android.widget.Toast
 import dev.chester_lloyd.moneymanager.*
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.TRANSFER_CATEGORY_ID
+import dev.chester_lloyd.moneymanager.databinding.ActivityTransferFundsBinding
 import dev.chester_lloyd.moneymanager.ui.CurrencyValidator
 import dev.chester_lloyd.moneymanager.ui.Icon
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.IconSpinner
-import kotlinx.android.synthetic.main.activity_add_transaction.*
-import kotlinx.android.synthetic.main.activity_transfer_funds.*
-import kotlinx.android.synthetic.main.activity_transfer_funds.etAmount
-import kotlinx.android.synthetic.main.activity_transfer_funds.etDate
-import kotlinx.android.synthetic.main.activity_transfer_funds.tvDesc
-import kotlinx.android.synthetic.main.activity_transfer_funds.tvSuffix
-import kotlinx.android.synthetic.main.activity_transfer_funds.tvSymbol
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -38,6 +32,7 @@ import java.util.*
 @Suppress("NAME_SHADOWING")
 class TransferFunds : AppCompatActivity() {
 
+    private lateinit var binding: ActivityTransferFundsBinding
     private var transferDate: Calendar = Calendar.getInstance()
     private var accountSource = Account()
     private var accountDestination = Account()
@@ -46,8 +41,9 @@ class TransferFunds : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityTransferFundsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         MainActivity.hideInMultitasking(window, applicationContext)
-        setContentView(R.layout.activity_transfer_funds)
 
         // Setup toolbar name and show a back button
         this.supportActionBar?.title = getString(R.string.transfer_funds)
@@ -56,11 +52,11 @@ class TransferFunds : AppCompatActivity() {
 
         // Add the currency symbol and suffix to the amount row
         val format = MainActivity.getCurrencyFormat(this)
-        tvSymbol.text = format[0]
-        tvSuffix.text = format[3]
+        binding.tvSymbol.text = format[0]
+        binding.tvSuffix.text = format[3]
 
         // Setup the date to the current device date
-        val etDate = this.etDate
+        val etDate = binding.etDate
         updateDateInView()
 
         val dbManager = DBManager(this)
@@ -89,7 +85,7 @@ class TransferFunds : AppCompatActivity() {
             }
 
         // When the date edit text has focus (clicked), open the date picker
-        etDate.onFocusChangeListener = View.OnFocusChangeListener { _, gainFocus ->
+        binding.etDate.onFocusChangeListener = View.OnFocusChangeListener { _, gainFocus ->
             if (gainFocus) {
                 DatePickerDialog(
                     this@TransferFunds,
@@ -165,7 +161,7 @@ class TransferFunds : AppCompatActivity() {
         )
 
         // Add selected account to transaction source/destination object
-        spSource.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spSource.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
@@ -178,7 +174,7 @@ class TransferFunds : AppCompatActivity() {
                 accountSource = accounts[position]
             }
         }
-        spDestination.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spDestination.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
@@ -193,9 +189,9 @@ class TransferFunds : AppCompatActivity() {
         }
 
         // Validate the amount field
-        val amountValidator = CurrencyValidator(etAmount)
-        etAmount.keyListener = DigitsKeyListener.getInstance("0123456789${format[2]}")
-        etAmount.addTextChangedListener(object : TextWatcher {
+        val amountValidator = CurrencyValidator(binding.etAmount)
+        binding.etAmount.keyListener = DigitsKeyListener.getInstance("0123456789${format[2]}")
+        binding.etAmount.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
             }
 
@@ -211,28 +207,28 @@ class TransferFunds : AppCompatActivity() {
 
         if (transactionID > 0) {
             this.supportActionBar?.title = getString(R.string.edit_transaction)
-            tvDesc.setText(R.string.text_edit_transaction_desc)
-            etAmount.setText(CurrencyValidator.getEditTextAmount(transactionSource.amount, format[2]))
+            binding.tvDesc.setText(R.string.text_edit_transaction_desc)
+            binding.etAmount.setText(CurrencyValidator.getEditTextAmount(transactionSource.amount, format[2]))
             updateDateInView()
 
             for (account in 0 until accounts.size) {
                 if (accounts[account].accountID == accountSource.accountID) {
-                    spSource.setSelection(account)
+                    binding.spSource.setSelection(account)
                 } else if (accounts[account].accountID == accountDestination.accountID) {
-                    spDestination.setSelection(account)
+                    binding.spDestination.setSelection(account)
                 }
             }
         }
 
         // Save or update the transactions on FAB click
-        fabTransferFunds.setOnClickListener {
-            if (etAmount.text.toString() == "") {
+        binding.fabTransferFunds.setOnClickListener {
+            if (binding.etAmount.text.toString() == "") {
                 // Transaction amount is empty, show an error
                 Toast.makeText(
                     this, R.string.transaction_validation_amount,
                     Toast.LENGTH_SHORT
                 ).show()
-            } else if (etAmount.text.toString() == format[2]) {
+            } else if (binding.etAmount.text.toString() == format[2]) {
                 // Transaction amount is the decimal sign only, show an error
                 Toast.makeText(
                     this, R.string.transaction_validation_amount_invalid,
@@ -244,7 +240,7 @@ class TransferFunds : AppCompatActivity() {
                     this, R.string.transaction_validation_amount_zero,
                     Toast.LENGTH_SHORT
                 ).show()
-            } else if (etDate.text.toString() == "") {
+            } else if (binding.etDate.text.toString() == "") {
                 // Transaction date is empty, show an error
                 Toast.makeText(
                     this, R.string.transaction_validation_date,
@@ -454,7 +450,7 @@ class TransferFunds : AppCompatActivity() {
     private fun updateDateInView() {
         val myFormat = "dd/MM/yyyy"
         val sdf = SimpleDateFormat(myFormat, Locale.ENGLISH)
-        etDate!!.setText(sdf.format(transferDate.time))
+        binding.etDate.setText(sdf.format(transferDate.time))
     }
 
     /**
@@ -521,6 +517,7 @@ class TransferFunds : AppCompatActivity() {
      * sent to the background.
      */
     override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
         MainActivity.authenticated = false
     }
 

@@ -7,11 +7,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import dev.chester_lloyd.moneymanager.R
+import dev.chester_lloyd.moneymanager.databinding.FragmentMonthlySummaryBinding
 
 /**
  * A [Fragment] subclass to show a tabbed layout containing ListViews of transactions based on their
@@ -22,7 +21,8 @@ import dev.chester_lloyd.moneymanager.R
  */
 class MonthlySummaryFragment : Fragment() {
 
-    private lateinit var monthlySummaryViewModel: MonthlySummaryViewModel
+    private var _binding: FragmentMonthlySummaryBinding? = null
+    private val binding get() = _binding!!
     private var tabLayout: TabLayout? = null
     private var viewPager: ViewPager? = null
     private var selectedTab: Int = 0
@@ -39,20 +39,20 @@ class MonthlySummaryFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        monthlySummaryViewModel = ViewModelProvider(this)[MonthlySummaryViewModel::class.java]
-        val root = inflater.inflate(R.layout.fragment_monthly_summary, container, false)
-        monthlySummaryViewModel.text.observe(viewLifecycleOwner, Observer {
-        })
+    ): View {
+        super.onCreate(savedInstanceState)
+        _binding = FragmentMonthlySummaryBinding.inflate(inflater, container, false)
+
+//        monthlySummaryViewModel.text.observe(viewLifecycleOwner, Observer {
 
         // Set up tabs
-        tabLayout = root.findViewById(R.id.tabs) as TabLayout
-        viewPager = root.findViewById(R.id.viewpager) as ViewPager
+        tabLayout = binding.tabs
+        viewPager = binding.viewpager
         viewPager!!.adapter = MyTabsAdapter(childFragmentManager)
         tabLayout!!.post { tabLayout!!.setupWithViewPager(viewPager) }
         onChangeListener()
 
-        return root
+        return binding.root
     }
 
     /**
@@ -88,7 +88,12 @@ class MonthlySummaryFragment : Fragment() {
         override fun getItem(position: Int): Fragment {
             var fragment: Fragment? = null
             when (position) {
-                position -> fragment = MonthlySummaryTabFragment(position)
+                position -> {
+                    fragment = MonthlySummaryTabFragment()
+                    val args = Bundle()
+                    args.putInt("position", position);
+                    fragment.setArguments(args);
+                }
             }
             return fragment!!
         }

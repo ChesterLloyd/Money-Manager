@@ -16,7 +16,7 @@ import dev.chester_lloyd.moneymanager.MainActivity.Companion.isPinCorrect
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.isPinSet
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.updatePin
 import dev.chester_lloyd.moneymanager.R
-import kotlinx.android.synthetic.main.activity_pin_code.*
+import dev.chester_lloyd.moneymanager.databinding.ActivityPinCodeBinding
 
 /**
  * An [AppCompatActivity] subclass for the PIN code login / setup screen.
@@ -26,6 +26,7 @@ import kotlinx.android.synthetic.main.activity_pin_code.*
  */
 class PinCodeActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityPinCodeBinding
     private var mIndicatorDots: IndicatorDots? = null
     private var newPin = false
     private var journey = ""
@@ -38,13 +39,14 @@ class PinCodeActivity : AppCompatActivity() {
      * An [onCreate] method that sets up the PIN code elements.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityPinCodeBinding.inflate(layoutInflater)
+
         journey = this.intent.getStringExtra("journey")!!
         newPin = !isPinSet(applicationContext)
         new = journey == "new" || journey == "new-2"
         update = journey == "update" || journey == "update-2" || journey == "update-3"
         remove = journey == "remove"
-
-        super.onCreate(savedInstanceState)
 
         if (new || update || remove) {
             // Setup toolbar name and show a back button
@@ -69,21 +71,22 @@ class PinCodeActivity : AppCompatActivity() {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
             )
         }
-        setContentView(R.layout.activity_pin_code)
 
         when (journey) {
             "authenticate" -> {
-                tvInstructions.text = ""
+                binding.tvInstructions.text = ""
             }
             "new-2", "update-3" -> {
                 // We are confirming our new PIN - set first PIN and instructions
                 pin1 = this.intent.getStringExtra("pin1")!!
-                tvInstructions.text = getText(R.string.settings_confirm_pin)
+                binding.tvInstructions.text = getText(R.string.settings_confirm_pin)
             }
             "update", "remove" -> {
-                tvInstructions.text = getText(R.string.settings_confirm_pin)
+                binding.tvInstructions.text = getText(R.string.settings_confirm_pin)
             }
         }
+
+        setContentView(binding.root)
 
         // Setup PIN code elements
         val mPinLockView = findViewById<View>(R.id.pin_lock_view) as PinLockView
@@ -106,8 +109,8 @@ class PinCodeActivity : AppCompatActivity() {
                         setResult(RESULT_OK)
                         finish()
                     } else {
-                        tvInstructions.text = getText(R.string.settings_pin_incorrect)
-                        clPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
+                        binding.tvInstructions.text = getText(R.string.settings_pin_incorrect)
+                        binding.clPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
                     }
                 }
                 "new" -> {
@@ -129,8 +132,8 @@ class PinCodeActivity : AppCompatActivity() {
                         startActivityForResult(pinIntent, 0)
                     } else {
                         // PIN did not match - show warning
-                        tvInstructions.text = getText(R.string.settings_pin_incorrect)
-                        clPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
+                        binding.tvInstructions.text = getText(R.string.settings_pin_incorrect)
+                        binding.clPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
                     }
                 }
                 "update-2" -> {
@@ -146,7 +149,7 @@ class PinCodeActivity : AppCompatActivity() {
                     // We are confirming our new PIN - check if it matches the second PIN
                     if (pin1 == pin) {
                         // PINs match, update it and go back to settings
-                        tvInstructions.text = getText(R.string.settings_pin_set)
+                        binding.tvInstructions.text = getText(R.string.settings_pin_set)
                         updatePin(applicationContext, pin)
                         MainActivity.authenticated = true // Don't ask for PIN after this
                         Handler().postDelayed({
@@ -155,14 +158,14 @@ class PinCodeActivity : AppCompatActivity() {
                         }, 1_500)
                     } else {
                         // Second PIN did not match - show warning
-                        tvInstructions.text = getText(R.string.settings_pin_set_failed)
-                        clPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
+                        binding.tvInstructions.text = getText(R.string.settings_pin_set_failed)
+                        binding.clPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
                     }
                 }
                 "remove" -> {
                     if (isPinCorrect(applicationContext, pin)) {
                         // PIN is correct, remove it and go back to settings
-                        tvInstructions.text = getText(R.string.settings_pin_removed)
+                        binding.tvInstructions.text = getText(R.string.settings_pin_removed)
                         updatePin(applicationContext, "x")
                         Handler().postDelayed({
                             setResult(RESULT_OK)
@@ -170,8 +173,8 @@ class PinCodeActivity : AppCompatActivity() {
                         }, 1_500)
                     } else {
                         // PIN did not match - show warning
-                        tvInstructions.text = getText(R.string.settings_pin_incorrect)
-                        clPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
+                        binding.tvInstructions.text = getText(R.string.settings_pin_incorrect)
+                        binding.clPinCode.setBackgroundColor(resources.getColor(R.color.colorRedBackground))
                     }
                 }
             }
@@ -185,18 +188,18 @@ class PinCodeActivity : AppCompatActivity() {
             // PIN after a key press
             when (journey) {
                 "authenticate" -> {
-                    tvInstructions.text = ""
+                    binding.tvInstructions.text = ""
                 }
                 "update", "update-3", "remove" -> {
-                    tvInstructions.text = getText(R.string.settings_confirm_pin)
+                    binding.tvInstructions.text = getText(R.string.settings_confirm_pin)
                 }
                 "update-2" -> {
-                    tvInstructions.text = getText(R.string.settings_set_pin_button)
+                    binding.tvInstructions.text = getText(R.string.settings_set_pin_button)
                 }
             }
 
             // Reset background in case user retypes numbers
-            clPinCode.setBackgroundColor(resources.getColor(R.color.colorPrimaryDark))
+            binding.clPinCode.setBackgroundColor(resources.getColor(R.color.colorPrimaryDark))
         }
     }
 

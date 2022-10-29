@@ -6,12 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.DBManager
+import dev.chester_lloyd.moneymanager.databinding.FragmentCategoriesBinding
 import dev.chester_lloyd.moneymanager.ui.ListViewManager
-import kotlinx.android.synthetic.main.fragment_categories.*
 
 /**
  * A [Fragment] subclass to show a ListView of categories.
@@ -21,7 +20,8 @@ import kotlinx.android.synthetic.main.fragment_categories.*
  */
 class CategoriesFragment : Fragment() {
 
-    private lateinit var categoriesViewModel: CategoriesViewModel
+    private var _binding: FragmentCategoriesBinding? = null
+    private val binding get() = _binding!!
 
     /**
      * An [onCreateView] method that sets up the View and FAB
@@ -36,17 +36,18 @@ class CategoriesFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        categoriesViewModel = ViewModelProvider(this)[CategoriesViewModel::class.java]
-        val root = inflater.inflate(R.layout.fragment_categories, container, false)
+        super.onCreate(savedInstanceState)
+        _binding = FragmentCategoriesBinding.inflate(inflater, container, false)
+        val view = binding.root
 
         // Launch new category activity with FAB
-        val fab: FloatingActionButton = root.findViewById(R.id.fab1)
+        val fab: FloatingActionButton = view.findViewById(R.id.fab1)
         fab.setOnClickListener {
             val intent = Intent(context, AddCategory::class.java)
             startActivity(intent)
         }
 
-        return root
+        return view
     }
 
     /**
@@ -61,7 +62,7 @@ class CategoriesFragment : Fragment() {
         dbManager.sqlDB!!.close()
 
         // Pass this to the list view adaptor and populate
-        this.lvCategories.adapter = ListViewManager(
+        binding.lvCategories.adapter = ListViewManager(
             listCategories.toTypedArray(),
             layoutInflater,
             requireContext(),
@@ -70,9 +71,17 @@ class CategoriesFragment : Fragment() {
 
         // Show no categories text
         if (listCategories.isEmpty()) {
-            this.tvNoCategories.visibility = View.VISIBLE
+            binding.tvNoCategories.visibility = View.VISIBLE
         } else {
-            this.tvNoCategories.visibility = View.INVISIBLE
+            binding.tvNoCategories.visibility = View.INVISIBLE
         }
+    }
+
+    /**
+     * An [onDestroyView] method that cleans up references to the binding.
+     */
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

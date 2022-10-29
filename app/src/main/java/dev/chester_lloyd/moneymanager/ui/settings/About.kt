@@ -8,7 +8,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.MainActivity
 import dev.chester_lloyd.moneymanager.R
-import kotlinx.android.synthetic.main.activity_about.*
+import dev.chester_lloyd.moneymanager.databinding.ActivityAboutBinding
 
 /**
  * An [AppCompatActivity] subclass to show details about the app.
@@ -17,10 +17,14 @@ import kotlinx.android.synthetic.main.activity_about.*
  * @since 1.4
  */
 class About : AppCompatActivity() {
+
+    private lateinit var binding: ActivityAboutBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityAboutBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         MainActivity.hideInMultitasking(window, applicationContext)
-        setContentView(R.layout.activity_about)
 
         // Setup toolbar name and show a back button
         this.supportActionBar?.title = getString(R.string.about)
@@ -28,7 +32,7 @@ class About : AppCompatActivity() {
         this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         // Open email launcher
-        ivEmail.setOnClickListener {
+        binding.ivEmail.setOnClickListener {
             val emailIntent = Intent(Intent.ACTION_SEND)
 
             emailIntent.type = "plain/text"
@@ -55,7 +59,7 @@ class About : AppCompatActivity() {
         }
 
         // Open website link
-        ivWebsite.setOnClickListener {
+        binding.ivWebsite.setOnClickListener {
             val websiteIntent = Intent(Intent.ACTION_VIEW)
 
             websiteIntent.data = Uri.parse(
@@ -68,7 +72,7 @@ class About : AppCompatActivity() {
         }
 
         // Open GitHub link
-        ivGithub.setOnClickListener {
+        binding.ivGithub.setOnClickListener {
             val githubIntent = Intent(Intent.ACTION_VIEW)
 
             githubIntent.data = Uri.parse(
@@ -83,9 +87,9 @@ class About : AppCompatActivity() {
         // Set version number
         try {
             val packageInfo = applicationContext.packageManager.getPackageInfo(applicationContext.packageName, 0)
-            tvVersion.text = packageInfo.versionName
+            binding.tvVersion.text = packageInfo.versionName
         } catch (e: PackageManager.NameNotFoundException) {
-            tvVersion.visibility = View.GONE
+            binding.tvVersion.visibility = View.GONE
         }
     }
 
@@ -102,6 +106,7 @@ class About : AppCompatActivity() {
      * sent to the background.
      */
     override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
         MainActivity.authenticated = false
     }
 

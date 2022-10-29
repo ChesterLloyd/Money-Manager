@@ -5,9 +5,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.*
+import dev.chester_lloyd.moneymanager.databinding.ActivityAddTransactionCheckRequirementsBinding
 import dev.chester_lloyd.moneymanager.ui.accounts.AddAccount
 import dev.chester_lloyd.moneymanager.ui.categories.AddCategory
-import kotlinx.android.synthetic.main.activity_add_transaction_check_requirements.*
 
 /**
  * An [AppCompatActivity] subclass to redirect to add an [Account] and/or [Category] prior
@@ -18,6 +18,7 @@ import kotlinx.android.synthetic.main.activity_add_transaction_check_requirement
  */
 class AddTransactionCheckRequirements : AppCompatActivity() {
 
+    private lateinit var binding: ActivityAddTransactionCheckRequirementsBinding
     private var noAccounts = false
     private var noCategories = false
 
@@ -26,7 +27,8 @@ class AddTransactionCheckRequirements : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_transaction_check_requirements)
+        binding = ActivityAddTransactionCheckRequirementsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Setup toolbar name and show a back button
         this.supportActionBar?.title = getString(R.string.button_add_transaction)
@@ -34,19 +36,19 @@ class AddTransactionCheckRequirements : AppCompatActivity() {
         this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         // Launch new account activity with button
-        buAddAccount.setOnClickListener {
+        binding.buAddAccount.setOnClickListener {
             val intent = Intent(applicationContext, AddAccount::class.java)
             startActivity(intent)
         }
 
         // Launch new category activity with button
-        buAddCategory.setOnClickListener {
+        binding.buAddCategory.setOnClickListener {
             val intent = Intent(applicationContext, AddCategory::class.java)
             startActivity(intent)
         }
 
         // Launch new transaction activity with button
-        buAddTransaction.setOnClickListener {
+        binding.buAddTransaction.setOnClickListener {
             val intent = Intent(applicationContext, AddTransaction::class.java)
             this.startActivityForResult(intent, 0)
         }
@@ -67,20 +69,20 @@ class AddTransactionCheckRequirements : AppCompatActivity() {
         when {
             listAccounts.isEmpty() -> {
                 this.noAccounts = true
-                llNoAccounts.visibility = View.VISIBLE
-                llNoCategories.visibility = View.GONE
-                llAddTransaction.visibility = View.GONE
+                binding.llNoAccounts.visibility = View.VISIBLE
+                binding.llNoCategories.visibility = View.GONE
+                binding.llAddTransaction.visibility = View.GONE
             }
             listCategories.isEmpty() -> {
                 this.noCategories = true
-                llNoAccounts.visibility = View.GONE
-                llNoCategories.visibility = View.VISIBLE
-                llAddTransaction.visibility = View.GONE
+                binding.llNoAccounts.visibility = View.GONE
+                binding.llNoCategories.visibility = View.VISIBLE
+                binding.llAddTransaction.visibility = View.GONE
             }
             else -> {
-                llNoAccounts.visibility = View.GONE
-                llNoCategories.visibility = View.GONE
-                llAddTransaction.visibility = View.VISIBLE
+                binding.llNoAccounts.visibility = View.GONE
+                binding.llNoCategories.visibility = View.GONE
+                binding.llAddTransaction.visibility = View.VISIBLE
             }
         }
         if (!noAccounts && !noCategories) {

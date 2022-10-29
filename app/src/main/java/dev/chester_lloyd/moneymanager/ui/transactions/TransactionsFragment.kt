@@ -8,11 +8,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
-import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import dev.chester_lloyd.moneymanager.*
+import dev.chester_lloyd.moneymanager.databinding.FragmentTransactionsBinding
 import kotlin.collections.ArrayList
 
 /**
@@ -23,7 +23,8 @@ import kotlin.collections.ArrayList
  */
 class TransactionsFragment : Fragment() {
 
-    private lateinit var transactionsViewModel: TransactionsViewModel
+    private var _binding: FragmentTransactionsBinding? = null
+    private val binding get() = _binding!!
     private var tabLayout: TabLayout? = null
     private var viewPager: ViewPager? = null
     private var selectedTab: Int = 0
@@ -41,9 +42,9 @@ class TransactionsFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        transactionsViewModel = ViewModelProvider(this)[TransactionsViewModel::class.java]
-        val root = inflater.inflate(R.layout.fragment_transactions, container, false)
+    ): View {
+        super.onCreate(savedInstanceState)
+        _binding = FragmentTransactionsBinding.inflate(inflater, container, false)
 
         // Get all categories from the database (Add an all one too)
         val dbManager = DBManager(requireContext())
@@ -52,21 +53,21 @@ class TransactionsFragment : Fragment() {
         dbManager.sqlDB!!.close()
 
         // Set up tabs
-        tabLayout = root.findViewById(R.id.tabs) as TabLayout
-        viewPager = root.findViewById(R.id.viewpager) as ViewPager
+        tabLayout = binding.tabs
+        viewPager = binding.viewpager
         viewPager!!.adapter = MyTabsAdapter(childFragmentManager)
         tabLayout!!.post { tabLayout!!.setupWithViewPager(viewPager) }
         onChangeListener()
 
         // Launch new transaction activity with fab
-        val fab: FloatingActionButton = root.findViewById(R.id.fab)
+        val fab: FloatingActionButton = binding.fab
         fab.setOnClickListener {
             val intent = Intent(context, AddTransactionCheckRequirements::class.java)
             intent.putExtra("tabID", selectedTab)
             startActivity(intent)
         }
 
-        return root
+        return binding.root
     }
 
     /**

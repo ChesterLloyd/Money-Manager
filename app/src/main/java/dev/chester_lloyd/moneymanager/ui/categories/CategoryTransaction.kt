@@ -9,9 +9,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.*
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.TRANSFER_CATEGORY_ID
+import dev.chester_lloyd.moneymanager.databinding.ActivityCategoryTransactionBinding
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.ListViewManager
-import kotlinx.android.synthetic.main.activity_category_transaction.*
 
 /**
  * An [AppCompatActivity] subclass to show the transactions for a given category. This also displays
@@ -22,6 +22,7 @@ import kotlinx.android.synthetic.main.activity_category_transaction.*
  */
 class CategoryTransaction : AppCompatActivity() {
 
+    private lateinit var binding: ActivityCategoryTransactionBinding
     private var category = Category()
 
     /**
@@ -29,7 +30,8 @@ class CategoryTransaction : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_category_transaction)
+        binding = ActivityCategoryTransactionBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Setup toolbar name and show a back button
         this.supportActionBar?.title = getString(R.string.manage_category)
@@ -43,15 +45,15 @@ class CategoryTransaction : AppCompatActivity() {
             intent.getIntExtra("colour", 0)
         )
 
-        tvName.text = category.name
+        binding.tvName.text = category.name
 
         val iconManager = IconManager(this)
-        ivIcon.setImageResource(
+        binding.ivIcon.setImageResource(
             iconManager.getIconByID(
                 iconManager.categoryIcons, category.icon
             ).drawable
         )
-        ivIcon.setBackgroundResource(
+        binding.ivIcon.setBackgroundResource(
             iconManager.getIconByID(
                 iconManager.colourIcons, category.colour
             ).drawable
@@ -73,14 +75,14 @@ class CategoryTransaction : AppCompatActivity() {
         }
 
         // Update entry fields with account info
-        tvName.text = category.name
+        binding.tvName.text = category.name
         val iconManager = IconManager(this)
-        ivIcon.setImageResource(
+        binding.ivIcon.setImageResource(
             iconManager.getIconByID(
                 iconManager.categoryIcons, category.icon
             ).drawable
         )
-        ivIcon.setBackgroundResource(
+        binding.ivIcon.setBackgroundResource(
             iconManager.getIconByID(
                 iconManager.colourIcons, category.colour
             ).drawable
@@ -93,7 +95,7 @@ class CategoryTransaction : AppCompatActivity() {
         dbManager.sqlDB!!.close()
 
         // Pass this to the list view adaptor and populate
-        this.lvTransactions.adapter = ListViewManager(
+        binding.lvTransactions.adapter = ListViewManager(
             listTransactions.toTypedArray(),
             layoutInflater,
             this,

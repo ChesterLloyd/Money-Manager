@@ -14,13 +14,10 @@ import dev.chester_lloyd.moneymanager.Account
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.MainActivity
+import dev.chester_lloyd.moneymanager.databinding.ActivityAddAccountBinding
 import dev.chester_lloyd.moneymanager.ui.CurrencyValidator
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.IconSpinner
-import kotlinx.android.synthetic.main.activity_add_account.*
-import kotlinx.android.synthetic.main.activity_add_account.tvDesc
-import kotlinx.android.synthetic.main.activity_add_account.tvSuffix
-import kotlinx.android.synthetic.main.activity_add_account.tvSymbol
 
 /**
  * An [AppCompatActivity] subclass to add or edit an [Account].
@@ -30,19 +27,22 @@ import kotlinx.android.synthetic.main.activity_add_account.tvSymbol
  */
 class AddAccount : AppCompatActivity() {
 
+    private lateinit var binding: ActivityAddAccountBinding
+
     /**
      * An [onCreate] method that sets up the supportActionBar, icon spinners, balance validator,
      * FAB and view.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityAddAccountBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         MainActivity.hideInMultitasking(window, applicationContext)
-        setContentView(R.layout.activity_add_account)
 
         // Add the currency symbol and suffix to the amount row
         val format = MainActivity.getCurrencyFormat(this)
-        tvSymbol.text = format[0]
-        tvSuffix.text = format[3]
+        binding.tvSymbol.text = format[0]
+        binding.tvSuffix.text = format[3]
         val iconManager = IconManager(this)
 
         // Setup toolbar name and show a back button
@@ -65,9 +65,9 @@ class AddAccount : AppCompatActivity() {
         )
 
         // Validate the balance field
-        val balanceValidator = CurrencyValidator(etBalance)
-        etBalance.keyListener = DigitsKeyListener.getInstance("-0123456789${format[2]}")
-        etBalance.addTextChangedListener(object : TextWatcher {
+        val balanceValidator = CurrencyValidator(binding.etBalance)
+        binding.etBalance.keyListener = DigitsKeyListener.getInstance("-0123456789${format[2]}")
+        binding.etBalance.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
             }
 
@@ -89,7 +89,7 @@ class AddAccount : AppCompatActivity() {
         val defaultAccount = dbManager.getDefaultAccount()
 
         // Listen for when default account switch is changed
-        swSetDefault.setOnCheckedChangeListener { _, isChecked ->
+        binding.swSetDefault.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 if (defaultAccount != null) {
                     if (defaultAccount.accountID != 0 && defaultAccount.accountID != account.accountID) {
@@ -100,14 +100,14 @@ class AddAccount : AppCompatActivity() {
                                 "instead of ${defaultAccount.name}?")
                             .setCancelable(false)
                             .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
-                                swSetDefault.isChecked = true
+                                binding.swSetDefault.isChecked = true
                                 account.default = true
                             }
                             .setNegativeButton(resources.getString(R.string.no_cancel)) {
                                 // Do nothing, close box
                                     dialog, _ ->
                                 dialog.cancel()
-                                swSetDefault.isChecked = false
+                                binding.swSetDefault.isChecked = false
                                 account.default = false
                             }
 
@@ -117,7 +117,7 @@ class AddAccount : AppCompatActivity() {
                     }
                 } else {
                     // No account, set this as default
-                    swSetDefault.isChecked = true
+                    binding.swSetDefault.isChecked = true
                     account.default = true
                 }
             }
@@ -125,8 +125,8 @@ class AddAccount : AppCompatActivity() {
 
         // Disable toggle if this will be the only account
         if (dbManager.selectAccounts("active", null).isEmpty()) {
-            swSetDefault.isChecked = true
-            swSetDefault.isEnabled = false
+            binding.swSetDefault.isChecked = true
+            binding.swSetDefault.isEnabled = false
             account.default = true
         }
         dbManager.sqlDB!!.close()
@@ -134,9 +134,9 @@ class AddAccount : AppCompatActivity() {
         // If the account ID > 0 (not a new one) then auto fill these fields with the saved values
         if (account.accountID > 0) {
             this.supportActionBar?.title = getString(R.string.edit_account)
-            tvDesc.setText(R.string.text_edit_account_desc)
-            etName.setText(intent.getStringExtra("name"))
-            etBalance.setText(
+            binding.tvDesc.setText(R.string.text_edit_account_desc)
+            binding.etName.setText(intent.getStringExtra("name"))
+            binding.etBalance.setText(
                 CurrencyValidator.getEditTextAmountNeg(
                     intent.getDoubleExtra("balance", 0.0),
                     format[2]
@@ -145,26 +145,26 @@ class AddAccount : AppCompatActivity() {
 
             // Set default switch to on
             if (intent.getBooleanExtra("default", false)) {
-                swSetDefault.isChecked = true
+                binding.swSetDefault.isChecked = true
             }
 
             // Disable toggle if this is the only account
             val dbManager = DBManager(this)
             if (dbManager.selectAccounts("active", null).size == 1) {
-                swSetDefault.isChecked = true
-                swSetDefault.isEnabled = false
+                binding.swSetDefault.isChecked = true
+                binding.swSetDefault.isEnabled = false
                 account.default = true
             }
             dbManager.sqlDB!!.close()
 
-            spIcon.setSelection(
+            binding.spIcon.setSelection(
                 iconManager.getIconPositionID(
                     iconManager.accountIcons,
                     intent.getIntExtra("icon", 0)
                 )
             )
 
-            spColour.setSelection(
+            binding.spColour.setSelection(
                 iconManager.getIconPositionID(
                     iconManager.colourIcons,
                     intent.getIntExtra("colour", 0)
@@ -173,18 +173,18 @@ class AddAccount : AppCompatActivity() {
         }
 
         // Save or update the account on FAB click
-        fabAddAccount.setOnClickListener {
-            account.name = etName.text.toString()
+        binding.fabAddAccount.setOnClickListener {
+            account.name = binding.etName.text.toString()
 
             if (account.name == "") {
                 // Account name is empty, show an error
                 Toast.makeText(this, R.string.account_validation_name, Toast.LENGTH_SHORT).show()
-            } else if (etBalance.text.toString() == "") {
+            } else if (binding.etBalance.text.toString() == "") {
                 // Account balance is empty, show an error
                 Toast.makeText(this, R.string.account_validation_balance, Toast.LENGTH_SHORT).show()
-            } else if (etBalance.text.toString() == format[2]
-                || etBalance.text.toString() == "-"
-                || etBalance.text.toString() == "-${format[2]}"
+            } else if (binding.etBalance.text.toString() == format[2]
+                || binding.etBalance.text.toString() == "-"
+                || binding.etBalance.text.toString() == "-${format[2]}"
             ) {
                 // Account balance is only the decimal sign or minus sign, show an error
                 Toast.makeText(this, R.string.account_validation_balance_invalid, Toast.LENGTH_SHORT).show()
@@ -228,7 +228,7 @@ class AddAccount : AppCompatActivity() {
         }
 
         // Add selected icon to account object
-        spIcon?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spIcon.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
@@ -243,7 +243,7 @@ class AddAccount : AppCompatActivity() {
         }
 
         // Add selected colour to account object
-        spColour?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spColour.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
@@ -271,6 +271,7 @@ class AddAccount : AppCompatActivity() {
      * sent to the background.
      */
     override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
         MainActivity.authenticated = false
     }
 

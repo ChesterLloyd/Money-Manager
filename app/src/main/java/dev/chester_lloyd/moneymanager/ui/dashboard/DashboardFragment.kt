@@ -10,10 +10,11 @@ import android.widget.Button
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.chester_lloyd.moneymanager.*
+import dev.chester_lloyd.moneymanager.databinding.AccountBinding
+import dev.chester_lloyd.moneymanager.databinding.FragmentDashboardBinding
+import dev.chester_lloyd.moneymanager.databinding.TransactionBinding
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.TransactionDetails
 import dev.chester_lloyd.moneymanager.ui.accounts.AccountTransactions
@@ -21,14 +22,6 @@ import dev.chester_lloyd.moneymanager.ui.accounts.AccountsFragment
 import dev.chester_lloyd.moneymanager.ui.accounts.TransferFunds
 import dev.chester_lloyd.moneymanager.ui.transactions.AddTransactionCheckRequirements
 import dev.chester_lloyd.moneymanager.ui.transactions.TransactionsFragment
-import kotlinx.android.synthetic.main.account.view.*
-import kotlinx.android.synthetic.main.account.view.ivIcon
-import kotlinx.android.synthetic.main.account.view.tvName
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.app_bar_main.*
-import kotlinx.android.synthetic.main.fragment_dashboard.*
-import kotlinx.android.synthetic.main.fragment_dashboard.tvNoAccounts
-import kotlinx.android.synthetic.main.transaction.view.*
 
 /**
  * A [Fragment] subclass to show the dashboard.
@@ -38,7 +31,8 @@ import kotlinx.android.synthetic.main.transaction.view.*
  */
 class DashboardFragment : Fragment() {
 
-    private lateinit var dashboardViewModel: DashboardViewModel
+    private var _binding: FragmentDashboardBinding? = null
+    private val binding get() = _binding!!
 
     /**
      * An [onCreateView] method that sets up the FAB and view
@@ -47,19 +41,19 @@ class DashboardFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        dashboardViewModel = ViewModelProvider(this)[DashboardViewModel::class.java]
-        val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
-        dashboardViewModel.text.observe(viewLifecycleOwner, Observer {
-        })
+    ): View {
+        super.onCreate(savedInstanceState)
+        _binding = FragmentDashboardBinding.inflate(inflater, container, false)
+        val view = binding.root
 
         // Launch new transaction activity with fab
-        val fab: FloatingActionButton = root.findViewById(R.id.fab)
+        val fab: FloatingActionButton = binding.fab
         fab.setOnClickListener {
             val intent = Intent(context, AddTransactionCheckRequirements::class.java)
             startActivity(intent)
         }
-        return root
+
+        return view
     }
 
     /**
@@ -75,8 +69,8 @@ class DashboardFragment : Fragment() {
             startActivity(Intent(context, SetupApp::class.java))
         } else {
             // Update page title and set active drawer item
-            requireActivity().toolbar.title = getString(R.string.menu_dashboard)
-            requireActivity().nav_view.setCheckedItem(R.id.nav_home)
+            requireActivity().actionBar?.title = getString(R.string.menu_dashboard)
+//            requireActivity().nav_view.setCheckedItem(R.id.nav_home)
 
             // Get accounts as an array list from database and add them to the list
             val dbManager = DBManager(requireContext())
@@ -85,23 +79,32 @@ class DashboardFragment : Fragment() {
 
             // Show no accounts text
             if (listAccounts.isEmpty()) {
-                this.tvNoAccounts.visibility = View.VISIBLE
+                binding.tvNoAccounts.visibility = View.VISIBLE
             } else {
-                this.tvNoAccounts.visibility = View.GONE
+                binding.tvNoAccounts.visibility = View.GONE
             }
 
             // Get transactions as an array list from database and add them to the recent list
-            val listTransactions = dbManager.selectTransactions(0.toString(), "Categories", "3", false)
+            val listTransactions =
+                dbManager.selectTransactions(0.toString(), "Categories", "3", false)
             addTransactions(listTransactions)
             dbManager.sqlDB!!.close()
 
             // Show no transactions text
             if (listTransactions.isEmpty()) {
-                this.tvNoTransactions.visibility = View.VISIBLE
+                binding.tvNoTransactions.visibility = View.VISIBLE
             } else {
-                this.tvNoTransactions.visibility = View.GONE
+                binding.tvNoTransactions.visibility = View.GONE
             }
         }
+    }
+
+    /**
+     * An [onDestroyView] method that cleans up references to the binding.
+     */
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     /**
@@ -112,10 +115,10 @@ class DashboardFragment : Fragment() {
      */
     @SuppressLint("InflateParams")
     private fun addAccounts(accounts: ArrayList<Account>) {
-        llAccounts.removeAllViews()
+        binding.llAccounts.removeAllViews()
         for (item in 0 until accounts.size) {
             // Adds each account to a new row in a linear layout
-            val rowView = layoutInflater.inflate(R.layout.account, null)
+            val rowView = AccountBinding.inflate(layoutInflater)
             val account = accounts[item]
             rowView.tvName.text = account.name
             rowView.tvBalance.text = MainActivity.stringBalance(requireContext(), account.balance)
@@ -130,10 +133,10 @@ class DashboardFragment : Fragment() {
             )
 
             // Add the account to the layout
-            llAccounts.addView(rowView)
+            binding.llAccounts.addView(rowView.root)
 
             // When an account is clicked
-            rowView.setOnClickListener {
+            rowView.root.setOnClickListener {
                 // Setup an intent to send this across to view the account's transactions
                 val intent = Intent(context, AccountTransactions::class.java)
                 val bundle = Bundle()
@@ -167,11 +170,11 @@ class DashboardFragment : Fragment() {
                     .addToBackStack(null)
                     .commit()
                 // Update page title and set active drawer item
-                requireActivity().toolbar.title = getString(R.string.menu_accounts)
-                requireActivity().nav_view.setCheckedItem(R.id.nav_accounts)
+                requireActivity().actionBar?.title = getString(R.string.menu_accounts)
+//                requireActivity().nav_view.setCheckedItem(R.id.nav_accounts)
             }
             // Add button to the page
-            llAccounts.addView(buAccounts)
+            binding.llAccounts.addView(buAccounts)
         }
         dbManager.sqlDB!!.close()
     }
@@ -184,10 +187,10 @@ class DashboardFragment : Fragment() {
      */
     @SuppressLint("InflateParams")
     private fun addTransactions(transactions: ArrayList<Transaction>) {
-        llTransactions.removeAllViews()
+        binding.llTransactions.removeAllViews()
         for (item in 0 until transactions.size) {
             // Adds each transaction to a new row in a linear layout
-            val rowView = layoutInflater.inflate(R.layout.transaction, null)
+            val rowView = TransactionBinding.inflate(layoutInflater)
             val transaction = transactions[item]
             rowView.tvName.text = transaction.merchant
             rowView.tvDate.text = MainActivity.getFormattedDate(requireContext(), transaction.date)
@@ -213,10 +216,10 @@ class DashboardFragment : Fragment() {
             )
 
             // Add the transaction to the layout
-            llTransactions.addView(rowView)
+            binding.llTransactions.addView(rowView.root)
 
             // When a transactions is clicked
-            rowView.setOnClickListener {
+            rowView.root.setOnClickListener {
                 val clickedTransaction = transactions[item]
 
                 // Setup an intent to send this across to view this transactions details
@@ -239,7 +242,12 @@ class DashboardFragment : Fragment() {
         if (dbManager.selectTransactions(0.toString(), "Categories", null, false).size > 3) {
             val buTransactions = Button(context)
             buTransactions.text = getString(R.string.view_more)
-            buTransactions.setTextColor(ContextCompat.getColor(requireContext(), R.color.buttonLink))
+            buTransactions.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.buttonLink
+                )
+            )
             buTransactions.setBackgroundResource(0)
             buTransactions.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
@@ -253,12 +261,12 @@ class DashboardFragment : Fragment() {
                     .addToBackStack(null)
                     .commit()
                 // Update page title and set active drawer item
-                requireActivity().toolbar.title = getString(R.string.menu_transactions)
-                requireActivity().nav_view.setCheckedItem(R.id.nav_transactions)
+                requireActivity().actionBar?.title = getString(R.string.menu_transactions)
+//                requireActivity().nav_view.setCheckedItem(R.id.nav_transactions)
             }
 
             // Add button to the page
-            llTransactions.addView(buTransactions)
+            binding.llTransactions.addView(buTransactions)
         }
         dbManager.sqlDB!!.close()
     }

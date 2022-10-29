@@ -11,11 +11,11 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.*
 import dev.chester_lloyd.moneymanager.RecurringTransaction.Companion.NO_END_DATE_YEARS
+import dev.chester_lloyd.moneymanager.databinding.ActivityAddTransactionBinding
 import dev.chester_lloyd.moneymanager.ui.CurrencyValidator
 import dev.chester_lloyd.moneymanager.ui.Icon
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.IconSpinner
-import kotlinx.android.synthetic.main.activity_add_transaction.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -28,6 +28,7 @@ import kotlin.collections.ArrayList
  */
 class AddTransaction : AppCompatActivity() {
 
+    private lateinit var binding: ActivityAddTransactionBinding
     var transaction = Transaction()
     var recurringTransaction = RecurringTransaction()
     private var isRecurring = false
@@ -43,8 +44,9 @@ class AddTransaction : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityAddTransactionBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         MainActivity.hideInMultitasking(window, applicationContext)
-        setContentView(R.layout.activity_add_transaction)
 
         // Setup toolbar name and show a back button
         this.supportActionBar?.title = getString(R.string.button_add_transaction)
@@ -53,19 +55,19 @@ class AddTransaction : AppCompatActivity() {
 
         // Add the currency symbol and suffix to the amount row
         val format = MainActivity.getCurrencyFormat(this)
-        tvSymbol.text = format[0]
-        tvSuffix.text = format[3]
+        binding.tvSymbol.text = format[0]
+        binding.tvSuffix.text = format[3]
 
         // Get transaction from database, if ID given (to edit)
         val transactionID = intent.getIntExtra("transactionID", 0)
 
         // Listen for when income switch is changed
-        swIncome.setOnCheckedChangeListener { _, isChecked ->
+        binding.swIncome.setOnCheckedChangeListener { _, isChecked ->
             income = isChecked
         }
 
         // Setup the date to the current device date
-        val etDate = this.etDate
+        val etDate = binding.etDate
         updateDateInView()
 
         // Create a date picker, set values for class date value
@@ -78,7 +80,7 @@ class AddTransaction : AppCompatActivity() {
             }
 
         // When the date edit text has focus (clicked), open the date picker
-        etDate.onFocusChangeListener = View.OnFocusChangeListener { _, gainFocus ->
+        binding.etDate.onFocusChangeListener = View.OnFocusChangeListener { _, gainFocus ->
             if (gainFocus) {
                 DatePickerDialog(
                     this@AddTransaction,
@@ -94,14 +96,14 @@ class AddTransaction : AppCompatActivity() {
 
         if (transactionID == 0) {
             // Only show recurring settings for new transactions
-            swRecurringPayment.visibility = View.VISIBLE
+            binding.swRecurringPayment.visibility = View.VISIBLE
 
             // Listen for when recurring transactions switch is changed
-            swRecurringPayment.setOnCheckedChangeListener { _, isChecked ->
+            binding.swRecurringPayment.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    llFrequency.visibility = View.VISIBLE
+                    binding.llFrequency.visibility = View.VISIBLE
                 } else {
-                    llFrequency.visibility = View.GONE
+                    binding.llFrequency.visibility = View.GONE
                 }
                 isRecurring = isChecked
             }
@@ -136,18 +138,18 @@ class AddTransaction : AppCompatActivity() {
             }
 
             // Listen for when set end date switch is changed
-            swFrequencySetEndDate.setOnCheckedChangeListener { _, isChecked ->
+            binding.swFrequencySetEndDate.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    llFrequencyEnds.visibility = View.VISIBLE
+                    binding.llFrequencyEnds.visibility = View.VISIBLE
                 } else {
-                    llFrequencyEnds.visibility = View.GONE
+                    binding.llFrequencyEnds.visibility = View.GONE
                 }
                 hasEndDate = isChecked
             }
 
             // Create a date picker, set values for class date value
             val sdfFreq = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
-            etFrequencyEndDate!!.setText(sdfFreq.format(recurringTransaction.end.time))
+            binding.etFrequencyEndDate.setText(sdfFreq.format(recurringTransaction.end.time))
 
             val frequencyDateEndListener =
                 DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
@@ -155,11 +157,11 @@ class AddTransaction : AppCompatActivity() {
                     recurringTransaction.end.set(Calendar.MONTH, monthOfYear)
                     recurringTransaction.end.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
-                    etFrequencyEndDate!!.setText(sdfFreq.format(recurringTransaction.end.time))
+                    binding.etFrequencyEndDate.setText(sdfFreq.format(recurringTransaction.end.time))
                 }
 
             // When the date edit text has focus (clicked), open the date picker
-            etFrequencyEndDate.onFocusChangeListener = View.OnFocusChangeListener { _, gainFocus ->
+            binding.etFrequencyEndDate.onFocusChangeListener = View.OnFocusChangeListener { _, gainFocus ->
                 if (gainFocus) {
                     DatePickerDialog(
                         this@AddTransaction,
@@ -169,7 +171,7 @@ class AddTransaction : AppCompatActivity() {
                         recurringTransaction.end.get(Calendar.MONTH),
                         recurringTransaction.end.get(Calendar.DAY_OF_MONTH)
                     ).show()
-                    etFrequencyEndDate.clearFocus()
+                    binding.etFrequencyEndDate.clearFocus()
                 }
             }
         }
@@ -207,7 +209,7 @@ class AddTransaction : AppCompatActivity() {
         )
 
         // Add selected category to transaction object
-        spCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
@@ -265,7 +267,7 @@ class AddTransaction : AppCompatActivity() {
         }
 
         // Add payment method button
-        buAddPaymentMethod.setOnClickListener {
+        binding.buAddPaymentMethod.setOnClickListener {
             addPaymentMethod(
                 defaultOrFirstAccount,
                 accountIcons.requireNoNulls(),
@@ -275,20 +277,20 @@ class AddTransaction : AppCompatActivity() {
 
         if (transactionID > 0) {
             this.supportActionBar?.title = getString(R.string.edit_transaction)
-            tvDesc.setText(R.string.text_edit_transaction_desc)
+            binding.tvDesc.setText(R.string.text_edit_transaction_desc)
             transaction = dbManager.selectTransaction(transactionID)
-            etMerchant.setText(transaction.merchant)
-            etDetails.setText(transaction.details)
-            etAmount.setText(CurrencyValidator.getEditTextAmount(transaction.amount, format[2]))
+            binding.etMerchant.setText(transaction.merchant)
+            binding.etDetails.setText(transaction.details)
+            binding.etAmount.setText(CurrencyValidator.getEditTextAmount(transaction.amount, format[2]))
             if (transaction.amount > 0) {
-                swIncome.toggle()
+                binding.swIncome.toggle()
                 income = true
             }
             updateDateInView()
 
             for (category in 0 until categories.size) {
                 if (categories[category].categoryID == transaction.category.categoryID) {
-                    spCategory.setSelection(category)
+                    binding.spCategory.setSelection(category)
                     break
                 }
             }
@@ -316,9 +318,9 @@ class AddTransaction : AppCompatActivity() {
         }
 
         // Validate the amount field
-        val amountValidator = CurrencyValidator(etAmount)
-        etAmount.keyListener = DigitsKeyListener.getInstance("0123456789${format[2]}")
-        etAmount.addTextChangedListener(object : TextWatcher {
+        val amountValidator = CurrencyValidator(binding.etAmount)
+        binding.etAmount.keyListener = DigitsKeyListener.getInstance("0123456789${format[2]}")
+        binding.etAmount.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
             }
 
@@ -348,20 +350,20 @@ class AddTransaction : AppCompatActivity() {
                     // Update first payment method amount
                     val accountAmount =
                         findViewById<EditText>(paymentMethodIds.entries.first().value[0])
-                    accountAmount.setText(etAmount.text.toString())
+                    accountAmount.setText(binding.etAmount.text.toString())
                 } else if (enteredAmountEditTextID != -1) {
                     // Update the account we just worked out
                     val accountAmount = findViewById<EditText>(enteredAmountEditTextID)
-                    accountAmount.setText(etAmount.text.toString())
+                    accountAmount.setText(binding.etAmount.text.toString())
                 }
             }
         })
 
         // Save or update the transaction on FAB click
-        fabAddTransaction.setOnClickListener {
+        binding.fabAddTransaction.setOnClickListener {
             val dbManager = DBManager(this)
-            transaction.merchant = etMerchant.text.toString()
-            transaction.details = etDetails.text.toString()
+            transaction.merchant = binding.etMerchant.text.toString()
+            transaction.details = binding.etDetails.text.toString()
 
             // Get number of accounts used as we can only add recurring transactions against 1
             var accountsUsed = 0
@@ -386,13 +388,13 @@ class AddTransaction : AppCompatActivity() {
                     this, R.string.transaction_validation_name,
                     Toast.LENGTH_SHORT
                 ).show()
-            } else if (etAmount.text.toString() == "") {
+            } else if (binding.etAmount.text.toString() == "") {
                 // Transaction amount is empty, show an error
                 Toast.makeText(
                     this, R.string.transaction_validation_amount,
                     Toast.LENGTH_SHORT
                 ).show()
-            } else if (etAmount.text.toString() == format[2]) {
+            } else if (binding.etAmount.text.toString() == format[2]) {
                 // Transaction amount is the decimal sign only, show an error
                 Toast.makeText(
                     this, R.string.transaction_validation_amount_invalid,
@@ -413,7 +415,7 @@ class AddTransaction : AppCompatActivity() {
             } else if (isRecurring && !recurringTransaction.validateWithTransaction(
                     applicationContext,
                     transaction,
-                    etFrequencyUnit.text.toString().toInt()
+                    binding.etFrequencyUnit.text.toString().toInt()
                 )
             ) {
                 // Validate frequency options
@@ -605,7 +607,7 @@ class AddTransaction : AppCompatActivity() {
     private fun updateDateInView() {
         val myFormat = "dd/MM/yyyy"
         val sdf = SimpleDateFormat(myFormat, Locale.ENGLISH)
-        etDate!!.setText(sdf.format(transaction.date.time))
+        binding.etDate.setText(sdf.format(transaction.date.time))
     }
 
     /**
@@ -755,7 +757,7 @@ class AddTransaction : AppCompatActivity() {
         llAccountContainer.addView(paymentMethodSpinner)
         llAccountContainer.addView(llAccountRow)
         llAccountContainer.setPadding(0, 0, 0, 0)
-        llAccounts.addView(llAccountContainer)
+        binding.llAccounts.addView(llAccountContainer)
 
         return paymentMethodSpinner.hashCode()
     }
@@ -773,6 +775,7 @@ class AddTransaction : AppCompatActivity() {
      * sent to the background.
      */
     override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
         MainActivity.authenticated = false
     }
 

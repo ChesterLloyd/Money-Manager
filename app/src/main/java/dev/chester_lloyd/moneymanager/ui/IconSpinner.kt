@@ -6,9 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.ImageView
-import android.widget.TextView
-import dev.chester_lloyd.moneymanager.R
+import dev.chester_lloyd.moneymanager.databinding.AccountBinding
+import dev.chester_lloyd.moneymanager.databinding.SpinnerColourBinding
+import dev.chester_lloyd.moneymanager.databinding.SpinnerIconBinding
 
 /**
  * A [BaseAdapter] subclass that creates a spinner that contains an icon and a label.
@@ -81,40 +81,36 @@ class IconSpinner (
         when (spinnerType) {
             "icon" -> {
                 // If we are adding icons to the spinner
-                view = inflter.inflate(R.layout.spinner_icon, null)
-                val icon = view.findViewById(R.id.ivAccountIcon) as ImageView
-                val names = view.findViewById(R.id.tvIconName) as TextView
+                val spinnerView = SpinnerIconBinding.inflate(inflter)
+                view = spinnerView.root
 
-                icon.setImageResource(icons!![position].drawable)
+                spinnerView.ivAccountIcon.setImageResource(icons!![position].drawable)
                 if (backgrounds != null) {
-                    icon.setBackgroundResource(backgrounds!![position].drawable)
+                    spinnerView.ivAccountIcon.setBackgroundResource(backgrounds!![position].drawable)
                 }
-                names.text = icons!![position].text
+                spinnerView.tvIconName.text = icons!![position].text
             }
             "colour" -> {
                 // If we are adding anything else, i.e. colours
-                view = inflter.inflate(R.layout.spinner_colour, null)
-                val colour = view.findViewById(R.id.ivAccountColour) as ImageView
-                val names = view.findViewById(R.id.tvColourName) as TextView
-                //colour.setBackgroundColor(Color.rgb(200,83,81))
-                colour.setBackgroundResource(backgrounds!![position].drawable)
+                val spinnerView = SpinnerColourBinding.inflate(inflter)
+                view = spinnerView.root
 
-                names.text = backgrounds!![position].text
+                //colour.setBackgroundColor(Color.rgb(200,83,81))
+                spinnerView.ivAccountColour.setBackgroundResource(backgrounds!![position].drawable)
+                spinnerView.tvColourName.text = backgrounds!![position].text
             }
             "account" -> {
                 // If we are adding accounts (with the balance)
-                view = inflter.inflate(R.layout.account, null)
-                val icon = view.findViewById(R.id.ivIcon) as ImageView
-                val names = view.findViewById(R.id.tvName) as TextView
-                val balance = view.findViewById(R.id.tvBalance) as TextView
+                val accountView = AccountBinding.inflate(inflter)
+                view = accountView.root
 
-                icon.setImageResource(icons!![position].drawable)
-                icon.setBackgroundResource(backgrounds!![position].drawable)
-                names.text = icons!![position].text
-                balance.text = balances!![position]
+                accountView.ivIcon .setImageResource(icons!![position].drawable)
+                accountView.ivIcon.setBackgroundResource(backgrounds!![position].drawable)
+                accountView.tvName.text = icons!![position].text
+                accountView.tvBalance.text = balances!![position]
             }
             else -> {
-                view = inflter.inflate(R.layout.spinner_colour, null)
+                view = SpinnerColourBinding.inflate(inflter).root
             }
         }
         return view

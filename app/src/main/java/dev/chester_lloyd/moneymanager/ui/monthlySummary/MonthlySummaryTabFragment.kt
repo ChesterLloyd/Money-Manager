@@ -13,7 +13,7 @@ import dev.chester_lloyd.moneymanager.MainActivity.Companion.stringBalance
 import dev.chester_lloyd.moneymanager.PieManager
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.TableManager
-import kotlinx.android.synthetic.main.fragment_monthly_summary_tab.*
+import dev.chester_lloyd.moneymanager.databinding.FragmentMonthlySummaryTabBinding
 import lecho.lib.hellocharts.model.PieChartData
 import lecho.lib.hellocharts.view.PieChartView
 import java.text.SimpleDateFormat
@@ -25,7 +25,10 @@ import java.util.*
  * @author Chester Lloyd
  * @since 1.0
  */
-class MonthlySummaryTabFragment(private val tab: Int) : Fragment() {
+class MonthlySummaryTabFragment : Fragment() {
+
+    private var _binding: FragmentMonthlySummaryTabBinding? = null
+    private val binding get() = _binding!!
 
     /**
      * An [onCreateView] method that sets up the View
@@ -38,8 +41,10 @@ class MonthlySummaryTabFragment(private val tab: Int) : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_monthly_summary_tab, container, false)
+    ): View {
+        super.onCreate(savedInstanceState)
+        _binding = FragmentMonthlySummaryTabBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     /**
@@ -49,6 +54,7 @@ class MonthlySummaryTabFragment(private val tab: Int) : Fragment() {
     @SuppressLint("SimpleDateFormat", "SetTextI18n")
     override fun onResume() {
         super.onResume()
+        val tab = super.getArguments()?.getInt("position")
 
         // Get direction based on tab ID
         var direction = "in"
@@ -57,7 +63,7 @@ class MonthlySummaryTabFragment(private val tab: Int) : Fragment() {
         }
 
         // Clear views when coming back to a tab
-        llCharts.removeAllViews()
+        binding.llCharts.removeAllViews()
 
         val pieManager = PieManager(requireContext())
         val dates = pieManager.getAllMonths()
@@ -85,7 +91,7 @@ class MonthlySummaryTabFragment(private val tab: Int) : Fragment() {
                     top = 0
                 }
                 tvDate.setPadding(0, top, 0, (15 * density + 0.5f).toInt())
-                llCharts.addView(tvDate)
+                binding.llCharts.addView(tvDate)
 
                 val categoryMonthData = pieManager.categoryMonth(month, direction)
 
@@ -95,7 +101,7 @@ class MonthlySummaryTabFragment(private val tab: Int) : Fragment() {
                     tvNoTransactions.text = getString(R.string.no_transactions_this_month)
                     tvNoTransactions.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18F)
                     tvNoTransactions.setPadding(0, 0, 0, (15 * density + 0.5f).toInt())
-                    llCharts.addView(tvNoTransactions)
+                    _binding!!.llCharts.addView(tvNoTransactions)
                 } else {
                     // Set up the pie chart
                     val pieChart = PieChartView(context)
@@ -112,7 +118,7 @@ class MonthlySummaryTabFragment(private val tab: Int) : Fragment() {
                     val dp = width * 160 / xdpi
                     val margin = width - (width / dp * 16 * 2).toInt()
                     pieChart.layoutParams = ViewGroup.LayoutParams(margin, margin)
-                    llCharts.addView(pieChart)
+                    binding.llCharts.addView(pieChart)
                 }
             }
             pieManager.sqlDB!!.close()
@@ -122,7 +128,7 @@ class MonthlySummaryTabFragment(private val tab: Int) : Fragment() {
             tvNoTransactions.text = resources.getText(R.string.no_transactions)
 
             if (dates.isEmpty()) {
-                llCharts.addView(tvNoTransactions)
+                binding.llCharts.addView(tvNoTransactions)
             }
         } else {
             // Make the summary table
@@ -156,7 +162,15 @@ class MonthlySummaryTabFragment(private val tab: Int) : Fragment() {
                 ), false, requireActivity())
             }
 
-            llCharts.addView(summaryTable)
+            binding.llCharts.addView(summaryTable)
         }
+    }
+
+    /**
+     * An [onDestroyView] method that cleans up references to the binding.
+     */
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

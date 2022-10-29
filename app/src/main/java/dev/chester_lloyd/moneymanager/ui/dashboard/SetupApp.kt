@@ -9,7 +9,7 @@ import android.text.TextWatcher
 import android.widget.Toast
 import dev.chester_lloyd.moneymanager.MainActivity
 import dev.chester_lloyd.moneymanager.R
-import kotlinx.android.synthetic.main.activity_setup_app.*
+import dev.chester_lloyd.moneymanager.databinding.ActivitySetupAppBinding
 import java.text.NumberFormat
 
 /**
@@ -23,6 +23,7 @@ import java.text.NumberFormat
 @Suppress("DEPRECATION")
 class SetupApp : AppCompatActivity() {
 
+    private lateinit var binding: ActivitySetupAppBinding
     private var symbol = NumberFormat.getCurrencyInstance().currency.symbol
     private var group = ","
     private var decimal = "."
@@ -36,7 +37,8 @@ class SetupApp : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_setup_app)
+        binding = ActivitySetupAppBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Setup toolbar name
         this.supportActionBar?.title = getString(R.string.settings_currency)
@@ -56,15 +58,15 @@ class SetupApp : AppCompatActivity() {
         }
 
         updatePreview()
-        etCurrencySymbol.setText(symbol)
-        etCurrencyGroup.setText(group)
-        etCurrencyDecimal.setText(decimal)
-        etCurrencySuffix.setText(suffix)
+        binding.etCurrencySymbol.setText(symbol)
+        binding.etCurrencyGroup.setText(group)
+        binding.etCurrencyDecimal.setText(decimal)
+        binding.etCurrencySuffix.setText(suffix)
 
         /* Update the view when the currency symbol, decimal symbol, digit grouping separator or the
          * suffix has been changed by the user.
          */
-        etCurrencySymbol.addTextChangedListener(object : TextWatcher {
+        binding.etCurrencySymbol.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
             }
 
@@ -76,7 +78,7 @@ class SetupApp : AppCompatActivity() {
                 updatePreview()
             }
         })
-        etCurrencyGroup.addTextChangedListener(object : TextWatcher {
+        binding.etCurrencyGroup.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
             }
 
@@ -88,7 +90,7 @@ class SetupApp : AppCompatActivity() {
                 updatePreview()
             }
         })
-        etCurrencyDecimal.addTextChangedListener(object : TextWatcher {
+        binding.etCurrencyDecimal.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
             }
 
@@ -100,7 +102,7 @@ class SetupApp : AppCompatActivity() {
                 updatePreview()
             }
         })
-        etCurrencySuffix.addTextChangedListener(object : TextWatcher {
+        binding.etCurrencySuffix.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
             }
 
@@ -114,7 +116,7 @@ class SetupApp : AppCompatActivity() {
         })
 
         // Save these preferences with FAB
-        fabSetupCurrency.setOnClickListener {
+        binding.fabSetupCurrency.setOnClickListener {
             if ((symbol.replace("\\s".toRegex(), "") == "") &&
                 (suffix.replace("\\s".toRegex(), "") == "")
             ) {
@@ -144,7 +146,7 @@ class SetupApp : AppCompatActivity() {
         val colourStr = resources.getString(R.color.colorPrimary)
         val colour = "#${colourStr.subSequence(3, colourStr.length)}"
 
-        tvCurrencyPreview.text = Html.fromHtml(
+        binding.tvCurrencyPreview.text = Html.fromHtml(
             "<font color='$colour'>${symbol}</font>3" +
                     "<font color='$colour'>${group}</font>000" +
                     "<font color='$colour'>${decimal}</font>50" +

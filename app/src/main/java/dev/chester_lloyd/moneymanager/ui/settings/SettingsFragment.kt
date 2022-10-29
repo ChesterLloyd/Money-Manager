@@ -14,7 +14,6 @@ import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.MainActivity
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.FILE_SELECT_CODE
@@ -23,9 +22,9 @@ import dev.chester_lloyd.moneymanager.MainActivity.Companion.getDateFormat
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.isPinSet
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.updateDateFormat
 import dev.chester_lloyd.moneymanager.R
+import dev.chester_lloyd.moneymanager.databinding.FragmentSettingsBinding
 import dev.chester_lloyd.moneymanager.ui.PinCodeActivity
 import dev.chester_lloyd.moneymanager.ui.dashboard.SetupApp
-import kotlinx.android.synthetic.main.fragment_settings.*
 
 /**
  * A [Fragment] subclass to show the settings screen.
@@ -35,7 +34,8 @@ import kotlinx.android.synthetic.main.fragment_settings.*
  */
 class SettingsFragment : Fragment() {
 
-    private lateinit var settingsViewModel: SettingsViewModel
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding get() = _binding!!
     private var dateFormat: String = ""
 
     /**
@@ -50,19 +50,19 @@ class SettingsFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         setHasOptionsMenu(true)
+        super.onCreate(savedInstanceState)
+        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        val view = binding.root
 
-        settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
-        val root = inflater.inflate(R.layout.fragment_settings, container, false)
-
-        val buCurrencyFormat: Button = root.findViewById(R.id.buCurrencyFormat)
+        val buCurrencyFormat: Button = binding.buCurrencyFormat
         buCurrencyFormat.setOnClickListener {
             startActivity(Intent(context, SetupApp::class.java))
         }
 
         // Set up the date format spinner
-        val spDateFormat: Spinner = root.findViewById(R.id.spDateFormat)
+        val spDateFormat: Spinner = binding.spDateFormat
         ArrayAdapter.createFromResource(
             requireContext(),
             R.array.settings_date_formats,
@@ -72,13 +72,13 @@ class SettingsFragment : Fragment() {
             spDateFormat.adapter = adapter
         }
 
-        val buUpdateDateFormat: Button = root.findViewById(R.id.buUpdateDateFormat)
+        val buUpdateDateFormat: Button = binding.buUpdateDateFormat
         buUpdateDateFormat.setOnClickListener {
             updateDateFormat(requireContext(), dateFormat)
             buUpdateDateFormat.visibility = View.GONE
         }
 
-        val buRemovePin: Button = root.findViewById(R.id.buRemovePin)
+        val buRemovePin: Button = binding.buRemovePin
         buRemovePin.setOnClickListener {
             val pinIntent = Intent(context, PinCodeActivity::class.java)
             val pinBundle = Bundle()
@@ -87,16 +87,16 @@ class SettingsFragment : Fragment() {
             startActivity(pinIntent)
         }
 
-        val buExportDatabase: Button = root.findViewById(R.id.buExportDatabase)
+        val buExportDatabase: Button = binding.buExportDatabase
         buExportDatabase.setOnClickListener {
             setupPermissions("export")
         }
-        val buImportDatabase: Button = root.findViewById(R.id.buImportDatabase)
+        val buImportDatabase: Button = binding.buImportDatabase
         buImportDatabase.setOnClickListener {
             setupPermissions("import")
         }
 
-        return root
+        return view
     }
 
     /**
@@ -110,7 +110,7 @@ class SettingsFragment : Fragment() {
         val format = MainActivity.getCurrencyFormat(requireContext())
         val colourStr = resources.getString(R.color.colorPrimary)
         val colour = "#${colourStr.subSequence(3, colourStr.length)}"
-        tvCurrencyFormat.text = Html.fromHtml(
+        binding.tvCurrencyFormat.text = Html.fromHtml(
             "<font color='$colour'>${format[0]}</font>3" +
                     "<font color='$colour'>${format[1]}</font>000" +
                     "<font color='$colour'>${format[2]}</font>50" +
@@ -121,13 +121,13 @@ class SettingsFragment : Fragment() {
         val dateFormats = requireContext().resources.getStringArray(R.array.settings_date_formats)
         for (df in dateFormats.indices) {
             if (dateFormats[df] == getDateFormat(requireContext())) {
-                spDateFormat.setSelection(df)
+                binding.spDateFormat.setSelection(df)
                 break
             }
         }
 
         // Adds the date to the class variable for potential saving
-        spDateFormat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spDateFormat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
 
@@ -139,36 +139,36 @@ class SettingsFragment : Fragment() {
             ) {
                 dateFormat = dateFormats[position]
                 if (dateFormat != getDateFormat(requireContext())) {
-                    buUpdateDateFormat.visibility = View.VISIBLE
+                    binding.buUpdateDateFormat.visibility = View.VISIBLE
                 } else {
-                    buUpdateDateFormat.visibility = View.GONE
+                    binding.buUpdateDateFormat.visibility = View.GONE
                 }
             }
         }
 
         // Update PIN status
         if (isPinSet(requireContext())) {
-            tvPinStatus.text = this.resources.getText(R.string.settings_pin_set)
-            buUpdatePin.text = this.resources.getText(R.string.settings_update_pin_button)
-            buUpdatePin.setOnClickListener {
+            binding.tvPinStatus.text = this.resources.getText(R.string.settings_pin_set)
+            binding.buUpdatePin.text = this.resources.getText(R.string.settings_update_pin_button)
+            binding.buUpdatePin.setOnClickListener {
                 val pinIntent = Intent(context, PinCodeActivity::class.java)
                 val pinBundle = Bundle()
                 pinBundle.putString("journey", "update")
                 pinIntent.putExtras(pinBundle)
                 startActivity(pinIntent)
             }
-            buRemovePin.visibility = View.VISIBLE
+            binding.buRemovePin.visibility = View.VISIBLE
         } else {
-            tvPinStatus.text = this.resources.getText(R.string.settings_pin_unset)
-            buUpdatePin.text = this.resources.getText(R.string.settings_set_pin_button)
-            buUpdatePin.setOnClickListener {
+            binding.tvPinStatus.text = this.resources.getText(R.string.settings_pin_unset)
+            binding.buUpdatePin.text = this.resources.getText(R.string.settings_set_pin_button)
+            binding.buUpdatePin.setOnClickListener {
                 val pinIntent = Intent(context, PinCodeActivity::class.java)
                 val pinBundle = Bundle()
                 pinBundle.putString("journey", "new")
                 pinIntent.putExtras(pinBundle)
                 startActivity(pinIntent)
             }
-            buRemovePin.visibility = View.GONE
+            binding.buRemovePin.visibility = View.GONE
         }
     }
 
@@ -291,5 +291,13 @@ class SettingsFragment : Fragment() {
             alert.setTitle(resources.getString(R.string.settings_import_database_button))
             alert.show()
         }
+    }
+
+    /**
+     * An [onDestroyView] method that cleans up references to the binding.
+     */
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

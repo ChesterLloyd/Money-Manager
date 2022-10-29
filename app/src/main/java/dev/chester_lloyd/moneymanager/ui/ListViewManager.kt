@@ -9,14 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import dev.chester_lloyd.moneymanager.*
+import dev.chester_lloyd.moneymanager.databinding.AccountBinding
+import dev.chester_lloyd.moneymanager.databinding.CategoryBinding
+import dev.chester_lloyd.moneymanager.databinding.TransactionBinding
 import dev.chester_lloyd.moneymanager.ui.accounts.AccountTransactions
 import dev.chester_lloyd.moneymanager.ui.accounts.TransferFunds
 import dev.chester_lloyd.moneymanager.ui.categories.CategoryTransaction
 import dev.chester_lloyd.moneymanager.ui.recurring_transactions.RecurringTransactionDetails
-import kotlinx.android.synthetic.main.account.view.*
-import kotlinx.android.synthetic.main.account.view.ivIcon
-import kotlinx.android.synthetic.main.account.view.tvName
-import kotlinx.android.synthetic.main.transaction.view.*
 
 /**
  * A [BaseAdapter] subclass to manage all actions involved in setting up a generic ListView.
@@ -28,6 +27,7 @@ import kotlinx.android.synthetic.main.transaction.view.*
  * @author Chester Lloyd
  * @since 1.2
  */
+@Suppress("NAME_SHADOWING")
 class ListViewManager(
     private val listObjects: Array<Any>,
     private val layoutInflater: LayoutInflater,
@@ -50,7 +50,7 @@ class ListViewManager(
         when (listObjects[position]) {
             is Account -> {
                 // We are adding Accounts to the list
-                val rowView = layoutInflater.inflate(R.layout.account, null)
+                val rowView = AccountBinding.inflate(layoutInflater)
                 val account = listObjects[position] as Account
                 rowView.tvName.text = account.name
                 rowView.tvBalance.text = MainActivity.stringBalance(context, account.balance)
@@ -65,7 +65,7 @@ class ListViewManager(
                 )
 
                 // When an account is clicked
-                rowView.setOnClickListener {
+                rowView.root.setOnClickListener {
                     // Setup an intent to send this across to view the account's transactions
                     val intent = Intent(context, AccountTransactions::class.java)
                     val bundle = Bundle()
@@ -78,12 +78,12 @@ class ListViewManager(
                     intent.putExtras(bundle)
                     context.startActivity(intent)
                 }
-                return rowView
+                return rowView.root
             }
 
             is Category -> {
                 // We are adding Categories to the list
-                val rowView = layoutInflater.inflate(R.layout.category, null)
+                val rowView = CategoryBinding.inflate(layoutInflater)
                 val category = listObjects[position] as Category
                 rowView.tvName.text = category.name
 
@@ -97,7 +97,7 @@ class ListViewManager(
                 )
 
                 // When an account is clicked
-                rowView.setOnClickListener {
+                rowView.root.setOnClickListener {
                     // Setup an intent to send this across to view the account's transactions
                     val intent = Intent(context, CategoryTransaction::class.java)
                     val bundle = Bundle()
@@ -108,19 +108,21 @@ class ListViewManager(
                     intent.putExtras(bundle)
                     context.startActivity(intent)
                 }
-                return rowView
+                return rowView.root
             }
 
             is Payment -> {
                 // We are showing transactions (Icon, name, date and amount)
-                var rowView = layoutInflater.inflate(R.layout.transaction, null)
+                var view: View?
+                val rowView = TransactionBinding.inflate(layoutInflater)
                 val payment = listObjects[position] as Payment
+                val iconManager = IconManager(context)
+
                 rowView.tvName.text = payment.transaction.merchant
                 rowView.tvDate.text = MainActivity.getFormattedDate(context, payment.transaction.date)
                 rowView.tvAmount.text = MainActivity.stringBalance(context, payment.amount)
 
                 // Use IconManager to load the icons
-                val iconManager = IconManager(context)
                 rowView.ivIcon.setImageResource(
                     iconManager.getIconByID(
                         iconManager.categoryIcons, payment.transaction.category.icon
@@ -131,13 +133,15 @@ class ListViewManager(
                         iconManager.colourIcons, payment.transaction.category.colour
                     ).drawable
                 )
+                view = rowView.root
 
                 if (page == "transaction details") {
                     // We are showing payments (icon, name and amount)
-                    rowView = layoutInflater.inflate(R.layout.account, null)
+                    val rowView = AccountBinding.inflate(layoutInflater)
                     rowView.tvName.text = payment.account.name
                     rowView.tvBalance.text = MainActivity.stringBalance(context, payment.amount)
 
+                    // Use IconManager to load the icons
                     rowView.ivIcon.setImageResource(
                         iconManager.getIconByID(
                             iconManager.accountIcons, payment.account.icon
@@ -148,10 +152,11 @@ class ListViewManager(
                             iconManager.colourIcons, payment.account.colour
                         ).drawable
                     )
+                    view = rowView.root
                 }
 
                 // When a a payment is clicked
-                rowView.setOnClickListener {
+                view.setOnClickListener {
                     var intent = Intent(context, CategoryTransaction::class.java)
                     val bundle = Bundle()
                     when (page) {
@@ -176,12 +181,12 @@ class ListViewManager(
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     context.startActivity(intent)
                 }
-                return rowView
+                return rowView.root
             }
 
             is Transaction -> {
                 // We are adding Transactions to the list
-                val rowView = layoutInflater.inflate(R.layout.transaction, null)
+                val rowView = TransactionBinding.inflate(layoutInflater)
                 val transaction = listObjects[position] as Transaction
                 rowView.tvName.text = transaction.merchant
                 rowView.tvDate.text = MainActivity.getFormattedDate(context, transaction.date)
@@ -207,7 +212,7 @@ class ListViewManager(
                 )
 
                 // When a transactions is clicked
-                rowView.setOnClickListener {
+                rowView.root.setOnClickListener {
                     // Setup an intent to send this across to view this transaction's details
                     var intent = Intent(context, TransactionDetails::class.java)
                     val bundle = Bundle()
@@ -221,12 +226,12 @@ class ListViewManager(
                     intent.putExtras(bundle)
                     context.startActivity(intent)
                 }
-                return rowView
+                return rowView.root
             }
 
             is RecurringTransaction -> {
                 // We are adding Recurring Transactions to the list
-                val rowView = layoutInflater.inflate(R.layout.transaction, null)
+                val rowView = TransactionBinding.inflate(layoutInflater)
                 val recurringTransaction = listObjects[position] as RecurringTransaction
                 rowView.tvName.text = recurringTransaction.name
                 rowView.tvDate.text = context.resources.getString(
@@ -252,7 +257,7 @@ class ListViewManager(
                 )
 
                 // When a recurring transaction is clicked
-                rowView.setOnClickListener {
+                rowView.root.setOnClickListener {
                     // Setup an intent to send this across to view this transaction's details
                     val intent = Intent(context, RecurringTransactionDetails::class.java)
                     val bundle = Bundle()
@@ -260,7 +265,7 @@ class ListViewManager(
                     intent.putExtras(bundle)
                     context.startActivity(intent)
                 }
-                return rowView
+                return rowView.root
             }
 
             else -> return null

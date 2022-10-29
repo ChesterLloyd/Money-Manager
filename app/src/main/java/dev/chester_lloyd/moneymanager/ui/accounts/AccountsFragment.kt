@@ -5,13 +5,12 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.chester_lloyd.moneymanager.Account
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.DBManager
+import dev.chester_lloyd.moneymanager.databinding.FragmentAccountsBinding
 import dev.chester_lloyd.moneymanager.ui.ListViewManager
-import kotlinx.android.synthetic.main.fragment_accounts.*
 import java.util.ArrayList
 
 /**
@@ -22,7 +21,8 @@ import java.util.ArrayList
  */
 class AccountsFragment : Fragment() {
 
-    private lateinit var accountsViewModel: AccountsViewModel
+    private var _binding: FragmentAccountsBinding? = null
+    private val binding get() = _binding!!
     private var listAccounts = ArrayList<Account>()
 
     /**
@@ -37,20 +37,20 @@ class AccountsFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         setHasOptionsMenu(true)
-
-        accountsViewModel = ViewModelProvider(this)[AccountsViewModel::class.java]
-        val root = inflater.inflate(R.layout.fragment_accounts, container, false)
+        super.onCreate(savedInstanceState)
+        _binding = FragmentAccountsBinding.inflate(inflater, container, false)
+        val view = binding.root
 
         // Launch new account activity with FAB
-        val fab: FloatingActionButton = root.findViewById(R.id.fab1)
+        val fab: FloatingActionButton = view.findViewById(R.id.fab1)
         fab.setOnClickListener {
             val intent = Intent(context, AddAccount::class.java)
             startActivity(intent)
         }
 
-        return root
+        return view
     }
 
     /**
@@ -65,7 +65,7 @@ class AccountsFragment : Fragment() {
         dbManager.sqlDB!!.close()
 
         // Pass this to the list view adaptor and populate
-        this.lvAccounts.adapter = ListViewManager(
+        binding.lvAccounts.adapter = ListViewManager(
             listAccounts.toTypedArray(),
             layoutInflater,
             requireContext(),
@@ -74,9 +74,9 @@ class AccountsFragment : Fragment() {
 
         // Show no accounts text
         if (listAccounts.isEmpty()) {
-            this.tvNoAccounts.visibility = View.VISIBLE
+            binding.tvNoAccounts.visibility = View.VISIBLE
         } else {
-            this.tvNoAccounts.visibility = View.INVISIBLE
+            binding.tvNoAccounts.visibility = View.INVISIBLE
         }
     }
 

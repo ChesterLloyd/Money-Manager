@@ -102,6 +102,7 @@ class MainActivity : AppCompatActivity() {
      * sent to the background.
      */
     override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
         authenticated = false
     }
 

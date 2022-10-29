@@ -11,9 +11,9 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.*
+import dev.chester_lloyd.moneymanager.databinding.ActivityTransationDetailsBinding
 import dev.chester_lloyd.moneymanager.ui.accounts.TransferFunds
 import dev.chester_lloyd.moneymanager.ui.transactions.AddTransaction
-import kotlinx.android.synthetic.main.activity_transation_details.*
 
 /**
  * An [AppCompatActivity] subclass to show the payments for a transaction. This also displays
@@ -24,6 +24,7 @@ import kotlinx.android.synthetic.main.activity_transation_details.*
  */
 class TransactionDetails : AppCompatActivity() {
 
+    private lateinit var binding: ActivityTransationDetailsBinding
     private var transaction = Transaction()
 
     /**
@@ -31,7 +32,8 @@ class TransactionDetails : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_transation_details)
+        binding = ActivityTransationDetailsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Setup toolbar name and show a back button
         this.supportActionBar?.title = getString(R.string.transaction_details)
@@ -45,16 +47,16 @@ class TransactionDetails : AppCompatActivity() {
         )
         dbManager.sqlDB!!.close()
 
-        tvName.text = transaction.merchant
-        tvAmount.text = MainActivity.stringBalance(this, transaction.amount)
+        binding.tvName.text = transaction.merchant
+        binding.tvAmount.text = MainActivity.stringBalance(this, transaction.amount)
 
         val iconManager = IconManager(this)
-        ivIcon.setImageResource(
+        binding.ivIcon.setImageResource(
             iconManager.getIconByID(
                 iconManager.categoryIcons, transaction.category.icon
             ).drawable
         )
-        ivIcon.setBackgroundResource(
+        binding.ivIcon.setBackgroundResource(
             iconManager.getIconByID(
                 iconManager.colourIcons, transaction.category.colour
             ).drawable
@@ -86,15 +88,15 @@ class TransactionDetails : AppCompatActivity() {
         }
 
         // Update entry fields with account info
-        tvName.text = transaction.merchant
-        tvAmount.text = MainActivity.stringBalance(this, transaction.amount)
+        binding.tvName.text = transaction.merchant
+        binding.tvAmount.text = MainActivity.stringBalance(this, transaction.amount)
         val iconManager = IconManager(this)
-        ivIcon.setImageResource(
+        binding.ivIcon.setImageResource(
             iconManager.getIconByID(
                 iconManager.categoryIcons, transaction.category.icon
             ).drawable
         )
-        ivIcon.setBackgroundResource(
+        binding.ivIcon.setBackgroundResource(
             iconManager.getIconByID(
                 iconManager.colourIcons, transaction.category.colour
             ).drawable
@@ -102,8 +104,8 @@ class TransactionDetails : AppCompatActivity() {
 
         // Show details text if user has written it
         if (transaction.details != null) {
-            tvDetails.text = transaction.details
-            tvDetails.visibility = View.VISIBLE
+            binding.tvDetails.text = transaction.details
+            binding.tvDetails.visibility = View.VISIBLE
         }
 
         // Get payments as an array list from database
@@ -111,7 +113,7 @@ class TransactionDetails : AppCompatActivity() {
             .selectPayments(transaction.transactionID, "transaction")
 
         // Pass this to the list view adaptor and populate
-        this.lvPayments.adapter = ListViewManager(
+        binding.lvPayments.adapter = ListViewManager(
             listPayments.toTypedArray(),
             layoutInflater,
             applicationContext,

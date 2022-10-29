@@ -10,9 +10,9 @@ import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.MainActivity
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.RecurringTransaction
+import dev.chester_lloyd.moneymanager.databinding.ActivityRecurringTransactionDetailsBinding
 import dev.chester_lloyd.moneymanager.ui.IconManager
 import dev.chester_lloyd.moneymanager.ui.ListViewManager
-import kotlinx.android.synthetic.main.activity_recurring_transaction_details.*
 
 /**
  * An [AppCompatActivity] subclass to show the transactions for a given category. This also displays
@@ -23,6 +23,7 @@ import kotlinx.android.synthetic.main.activity_recurring_transaction_details.*
  */
 class RecurringTransactionDetails : AppCompatActivity() {
 
+    private lateinit var binding: ActivityRecurringTransactionDetailsBinding
     private var recurringTransaction = RecurringTransaction()
 
     /**
@@ -30,7 +31,8 @@ class RecurringTransactionDetails : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_recurring_transaction_details)
+        binding = ActivityRecurringTransactionDetailsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Setup toolbar name and show a back button
         this.supportActionBar?.title = getString(R.string.menu_recurring_transactions)
@@ -57,32 +59,32 @@ class RecurringTransactionDetails : AppCompatActivity() {
         }
 
         // Update top transaction with info
-        tvName.text = recurringTransaction.name
-        tvAmount.text =
+        binding.tvName.text = recurringTransaction.name
+        binding.tvAmount.text =
             MainActivity.stringBalance(this, recurringTransaction.amount)
 
         val iconManager = IconManager(this)
-        ivIcon.setImageResource(
+        binding.ivIcon.setImageResource(
             iconManager.getIconByID(
                 iconManager.categoryIcons, recurringTransaction.category.icon
             ).drawable
         )
-        ivIcon.setBackgroundResource(
+        binding.ivIcon.setBackgroundResource(
             iconManager.getIconByID(
                 iconManager.colourIcons, recurringTransaction.category.colour
             ).drawable
         )
 
         // Update details with info
-        tvFrequency.text = this.getString(
+        binding.tvFrequency.text = this.getString(
             R.string.frequency_repeats_every,
             recurringTransaction.getFrequencyString()
         )
-        tvNextDue.text = recurringTransaction.getFormattedNextDueDate(this)
-        tvUntil.text = recurringTransaction.getFormattedEndDate(this)
+        binding.tvNextDue.text = recurringTransaction.getFormattedNextDueDate(this)
+        binding.tvUntil.text = recurringTransaction.getFormattedEndDate(this)
 
         // Pass this to the list view adaptor and populate
-        this.lvTransactions.adapter = ListViewManager(
+        binding.lvTransactions.adapter = ListViewManager(
             recurringTransaction.transactions.toTypedArray(),
             layoutInflater,
             this,

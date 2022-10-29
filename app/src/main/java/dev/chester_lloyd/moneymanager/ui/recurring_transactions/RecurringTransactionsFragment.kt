@@ -5,10 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.DBManager
+import dev.chester_lloyd.moneymanager.databinding.FragmentRecurringTransactionsBinding
 import dev.chester_lloyd.moneymanager.ui.ListViewManager
-import kotlinx.android.synthetic.main.fragment_recurring_transactions.*
 
 /**
  * A [Fragment] subclass to show a ListView of recurring transactions.
@@ -17,6 +16,9 @@ import kotlinx.android.synthetic.main.fragment_recurring_transactions.*
  * @since 1.5
  */
 class RecurringTransactionsFragment : Fragment() {
+
+    private var _binding: FragmentRecurringTransactionsBinding? = null
+    private val binding get() = _binding!!
 
     /**
      * An [onCreateView] method that sets up the View and FAB
@@ -30,8 +32,10 @@ class RecurringTransactionsFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_recurring_transactions, container, false)
+    ): View {
+        super.onCreate(savedInstanceState)
+        _binding = FragmentRecurringTransactionsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     /**
@@ -46,7 +50,7 @@ class RecurringTransactionsFragment : Fragment() {
         dbManager.sqlDB!!.close()
 
         // Pass this to the list view adaptor and populate
-        this.lvRecurringTransactions.adapter = ListViewManager(
+        binding.lvRecurringTransactions.adapter = ListViewManager(
             listRecurringTransactions.toTypedArray(),
             layoutInflater,
             requireContext(),
@@ -55,9 +59,17 @@ class RecurringTransactionsFragment : Fragment() {
 
         // Show no recurring transactions text
         if (listRecurringTransactions.isEmpty()) {
-            this.tvNoRecurringTransactions.visibility = View.VISIBLE
+            binding.tvNoRecurringTransactions.visibility = View.VISIBLE
         } else {
-            this.tvNoRecurringTransactions.visibility = View.INVISIBLE
+            binding.tvNoRecurringTransactions.visibility = View.INVISIBLE
         }
+    }
+
+    /**
+     * An [onDestroyView] method that cleans up references to the binding.
+     */
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
