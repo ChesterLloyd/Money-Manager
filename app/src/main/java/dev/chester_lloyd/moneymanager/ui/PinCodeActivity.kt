@@ -3,14 +3,12 @@ package dev.chester_lloyd.moneymanager.ui
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.andrognito.pinlockview.IndicatorDots
 import com.andrognito.pinlockview.PinLockListener
-import com.andrognito.pinlockview.PinLockView
 import dev.chester_lloyd.moneymanager.MainActivity
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.isPinCorrect
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.isPinSet
@@ -89,8 +87,8 @@ class PinCodeActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // Setup PIN code elements
-        val mPinLockView = findViewById<View>(R.id.pin_lock_view) as PinLockView
-        mIndicatorDots = findViewById<View>(R.id.indicator_dots) as IndicatorDots
+        val mPinLockView = binding.pinLockView
+        mIndicatorDots = binding.indicatorDots
         mPinLockView.attachIndicatorDots(mIndicatorDots)
         mPinLockView.setPinLockListener(mPinLockListener)
         // mPinLockView.enableLayoutShuffling();

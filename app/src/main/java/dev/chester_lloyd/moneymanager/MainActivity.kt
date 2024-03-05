@@ -14,7 +14,6 @@ import android.view.Menu
 import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -26,6 +25,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.material.navigation.NavigationView
+import dev.chester_lloyd.moneymanager.databinding.ActivityMainBinding
 import dev.chester_lloyd.moneymanager.ui.PinCodeActivity
 import dev.chester_lloyd.moneymanager.work.MorningWorker
 import dev.chester_lloyd.moneymanager.work.SetupMorningWorker
@@ -35,15 +35,10 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-/**
- * An [AppCompatActivity] subclass for the main activity.
- *
- * @author Chester Lloyd
- * @since 1.0
- */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var binding: ActivityMainBinding
 
     /**
      * An [onCreate] method that sets up the toolbar and navigation drawer.
@@ -51,12 +46,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hideInMultitasking(window, applicationContext)
-        setContentView(R.layout.activity_main)
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.appBarMain.toolbar)
 
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
-        val navView: NavigationView = findViewById(R.id.nav_view)
+        val drawerLayout: DrawerLayout = binding.drawerLayout
+        val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -109,6 +104,7 @@ class MainActivity : AppCompatActivity() {
     /**
      * An [onActivityResult] method that will prevent asking for the PIN code twice.
      */
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(
         requestCode: Int,
         resultCode: Int,

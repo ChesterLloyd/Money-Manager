@@ -36,5 +36,4 @@
             android:icon="@drawable/ic_menu_settings"
             android:title="@string/menu_settings" />
     </group>
-
 </menu>

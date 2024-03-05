@@ -28,6 +28,7 @@ class PieManager(private val context: Context) : DBManager(context) {
      * @param direction Can be In for income or Out for expenses.
      * @return [SliceValue] data that can be used to construct a pie chart.
      */
+    @SuppressLint("Range")
     fun categoryMonth(month: String, direction: String): ArrayList<SliceValue> {
         val pieData = ArrayList<SliceValue>()
         var selectionArgs = arrayOfNulls<String>(0)
@@ -84,7 +85,7 @@ class PieManager(private val context: Context) : DBManager(context) {
      *
      * @return [Calendar] for each month that is found.
      */
-    @SuppressLint("SimpleDateFormat")
+    @SuppressLint("SimpleDateFormat", "Range")
     fun getAllMonths(): ArrayList<Calendar> {
         val dates = ArrayList<Calendar>()
 
@@ -97,7 +98,7 @@ class PieManager(private val context: Context) : DBManager(context) {
         if (cursor.moveToFirst()) {
             val date = cursor.getString(cursor.getColumnIndex(colDate))
             val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
-            firstTransaction.time = sdf.parse(date)
+            firstTransaction.time = sdf.parse(date)!!
         }
         cursor.close()
 

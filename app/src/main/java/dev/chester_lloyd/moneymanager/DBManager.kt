@@ -27,6 +27,7 @@ import kotlin.collections.ArrayList
  * @author Chester Lloyd
  * @since 1.0
  */
+@Suppress("NAME_SHADOWING")
 open class DBManager(context: Context) {
 
     val dbName = "MoneyManager"
@@ -260,6 +261,7 @@ open class DBManager(context: Context) {
      * @param accountID The ID of the [Account] to read.
      * @return The [Account] object with the specified ID.
      */
+    @SuppressLint("Range")
     fun selectAccount(accountID: Int): Account {
         val qb = SQLiteQueryBuilder()
         qb.tables = dbAccountTable
@@ -288,6 +290,7 @@ open class DBManager(context: Context) {
      * @param limit Limit the number of accounts returned by an optional limit.
      * @return An [ArrayList] of [Account] objects
      */
+    @SuppressLint("Range")
     fun selectAccounts(type: String, limit: String?): ArrayList<Account> {
         val qb = SQLiteQueryBuilder()
         qb.tables = dbAccountTable
@@ -368,6 +371,7 @@ open class DBManager(context: Context) {
      *
      * @return One [Account] linked to the transaction.
      */
+    @SuppressLint("Range")
     fun getAccountByTransaction(transaction: Transaction): Account? {
         val selectionArgs = arrayOf(transaction.transactionID.toString())
 
@@ -391,6 +395,7 @@ open class DBManager(context: Context) {
      *
      * @return The default [Account].
      */
+    @SuppressLint("Range")
     fun getDefaultAccount(): Account? {
         val qb = SQLiteQueryBuilder()
         qb.tables = dbAccountTable
@@ -438,6 +443,7 @@ open class DBManager(context: Context) {
      * @param categoryID The ID of the [Category] to read.
      * @return The [Category] object with the specified ID.
      */
+    @SuppressLint("Range")
     fun selectCategory(categoryID: Int): Category {
         val qb = SQLiteQueryBuilder()
         qb.tables = dbCategoryTable
@@ -461,6 +467,7 @@ open class DBManager(context: Context) {
      *
      * @return An [ArrayList] of [Category] objects
      */
+    @SuppressLint("Range")
     fun selectCategories(): ArrayList<Category> {
         val qb = SQLiteQueryBuilder()
         qb.tables = dbCategoryTable
@@ -524,6 +531,7 @@ open class DBManager(context: Context) {
      * @param transactionID The ID of the [Transaction] to read.
      * @return The [Transaction] object with the specified ID.
      */
+    @SuppressLint("Range")
     fun selectTransaction(transactionID: Int): Transaction {
         val qb = SQLiteQueryBuilder()
         qb.tables = dbTransactionTable
@@ -568,6 +576,7 @@ open class DBManager(context: Context) {
      * @param limit Limit the number of accounts returned by an optional limit.
      * @return An [ArrayList] of [Transaction] objects
      */
+    @SuppressLint("Range")
     fun selectTransactions(
         ids: String,
         type: String,
@@ -772,6 +781,7 @@ open class DBManager(context: Context) {
      * @param accountID Optional [Account] ID to filter by.
      * @return An [ArrayList] of [RecurringTransaction] objects
      */
+    @SuppressLint("Range")
     fun selectRecurringTransactions(
         recurringTransactionID: Int?,
         accountID: Int?,
@@ -936,6 +946,7 @@ open class DBManager(context: Context) {
      * @param accountID The account ID of the [Payment] to read.
      * @return The [Payment] object with the specified ID, else null if a payment is not found.
      */
+    @SuppressLint("Range")
     private fun selectPayment(transactionID: Int, accountID: Int): Payment? {
         val selectionArgs = arrayOf(transactionID.toString(), accountID.toString())
 
@@ -967,6 +978,7 @@ open class DBManager(context: Context) {
      * @param type Get [Payment] objects based on transaction or account.
      * @return An [ArrayList] of [Payment] objects
      */
+    @SuppressLint("Range")
     fun selectPayments(id: Int, type: String): ArrayList<Payment> {
         val selectionArgs = arrayOf(id.toString())
         val listPayments = ArrayList<Payment>()
@@ -1117,6 +1129,7 @@ open class DBManager(context: Context) {
      * @param table The table to delete a record from.
      * @param selectionArgs The selection arguments.
      */
+    @SuppressLint("Range")
     fun delete(table: String, selectionArgs: Array<String>) {
         when (table) {
             dbAccountTable -> {
@@ -1250,7 +1263,7 @@ open class DBManager(context: Context) {
                     "${sdf.format(Date())}-Money-Manager${version}Export.db"
                 )
             if (!destinationFile.exists()) {
-                destinationFile.parentFile.mkdirs()
+                destinationFile.parentFile?.mkdirs()
             }
 
             val source: FileChannel = FileInputStream(File(sqlDB!!.path)).channel
