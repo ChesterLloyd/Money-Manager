@@ -4,7 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dev.chester_lloyd.moneymanager.Account
 import dev.chester_lloyd.moneymanager.R
@@ -38,7 +41,40 @@ class AccountsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        setHasOptionsMenu(true)
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                // Add menu items here
+                menuInflater.inflate(R.menu.accounts, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                // Handle the menu selection
+                return when (menuItem.itemId) {
+                    R.id.menuTransfer -> {
+                        // Transfer icon clicked
+                        if (listAccounts.size >= 2) {
+                            // Go to transfer funds page
+                            val intent = Intent(context, TransferFunds::class.java)
+                            startActivity(intent)
+                        } else {
+                            // Not enough accounts to make a transfer
+                            Toast.makeText(
+                                context,
+                                getString(R.string.transfer_min_accounts),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        true
+                    }
+                    else -> {
+                        // Unknown action (not transfer funds) invoke the superclass to handle it.
+                        false
+                    }
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
         super.onCreate(savedInstanceState)
         _binding = FragmentAccountsBinding.inflate(inflater, container, false)
         val view = binding.root
@@ -77,47 +113,6 @@ class AccountsFragment : Fragment() {
             binding.tvNoAccounts.visibility = View.VISIBLE
         } else {
             binding.tvNoAccounts.visibility = View.INVISIBLE
-        }
-    }
-
-    /**
-     * An [onCreateOptionsMenu] method that adds the accounts menu to the toolbar. This includes a
-     * transfer funds button.
-     *
-     * @param menu The options menu to place items.
-     * @param inflater The [MenuInflater].
-     */
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.accounts, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    /**
-     * An [onOptionsItemSelected] method that adds functionality when the menu buttons are clicked.
-     *
-     * @param item The menu item that was selected.
-     * @return Return false to allow normal menu processing to proceed, true to consume it here.
-     */
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.menuTransfer -> {
-            // Transfer icon clicked
-            if (listAccounts.size >= 2) {
-                // Go to transfer funds page
-                val intent = Intent(context, TransferFunds::class.java)
-                startActivity(intent)
-            } else {
-                // Not enough accounts to make a transfer
-                Toast.makeText(
-                    this.context,
-                    getString(R.string.transfer_min_accounts),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            true
-        }
-        else -> {
-            // Unknown action (not transfer funds) invoke the superclass to handle it.
-            super.onOptionsItemSelected(item)
         }
     }
 }

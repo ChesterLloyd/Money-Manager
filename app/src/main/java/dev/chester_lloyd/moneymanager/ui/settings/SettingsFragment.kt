@@ -13,7 +13,10 @@ import android.view.*
 import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import dev.chester_lloyd.moneymanager.DBManager
 import dev.chester_lloyd.moneymanager.MainActivity
 import dev.chester_lloyd.moneymanager.MainActivity.Companion.FILE_SELECT_CODE
@@ -51,7 +54,30 @@ class SettingsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        setHasOptionsMenu(true)
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                // Add menu items here
+                menuInflater.inflate(R.menu.settings, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                // Handle the menu selection
+                return when (menuItem.itemId) {
+                    R.id.menuAbout -> {
+                        // About icon clicked
+                        val intent = Intent(context, About::class.java)
+                        startActivity(intent)
+                        true
+                    }
+                    else -> {
+                        // Unknown action (not about page) invoke the superclass to handle it.
+                        false
+                    }
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
         super.onCreate(savedInstanceState)
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val view = binding.root
@@ -169,37 +195,6 @@ class SettingsFragment : Fragment() {
                 startActivity(pinIntent)
             }
             binding.buRemovePin.visibility = View.GONE
-        }
-    }
-
-    /**
-     * An [onCreateOptionsMenu] method that adds the settings menu to the toolbar. This includes a
-     * button to load the about page.
-     *
-     * @param menu The options menu to place items.
-     * @param inflater The [MenuInflater].
-     */
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.settings, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    /**
-     * An [onOptionsItemSelected] method that adds functionality when the menu buttons are clicked.
-     *
-     * @param item The menu item that was selected.
-     * @return Return false to allow normal menu processing to proceed, true to consume it here.
-     */
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.menuAbout -> {
-            // About icon clicked
-            val intent = Intent(context, About::class.java)
-            startActivity(intent)
-            true
-        }
-        else -> {
-            // Unknown action (not about page) invoke the superclass to handle it.
-            super.onOptionsItemSelected(item)
         }
     }
 
