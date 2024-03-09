@@ -177,7 +177,7 @@ class AddCategory : AppCompatActivity() {
      * otherwise.
      */
     override fun onSupportNavigateUp(): Boolean {
-        this.finish()
+        finish()
         return true
     }
 }

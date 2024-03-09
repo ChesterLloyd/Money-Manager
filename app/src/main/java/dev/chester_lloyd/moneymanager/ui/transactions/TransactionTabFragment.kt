@@ -16,7 +16,7 @@ import dev.chester_lloyd.moneymanager.ui.ListViewManager
  * @author Chester Lloyd
  * @since 1.0
  */
-class TransactionTabFragment(private val tab: Int) : Fragment() {
+class TransactionTabFragment(private val tab: Int = 0) : Fragment() {
 
     private var _binding: FragmentTransactionTabBinding? = null
     private val binding get() = _binding!!
@@ -32,7 +32,7 @@ class TransactionTabFragment(private val tab: Int) : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         super.onCreate(savedInstanceState)
         _binding = FragmentTransactionTabBinding.inflate(inflater, container, false)
         return binding.root

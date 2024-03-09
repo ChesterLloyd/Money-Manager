@@ -792,7 +792,7 @@ class AddTransaction : AppCompatActivity() {
      * otherwise.
      */
     override fun onSupportNavigateUp(): Boolean {
-        this.finish()
+        onBackPressedDispatcher.onBackPressed()
         return true
     }
 

@@ -167,7 +167,7 @@ class SetupApp : AppCompatActivity() {
      * otherwise.
      */
     override fun onSupportNavigateUp(): Boolean {
-        backPressed()
+        onBackPressedDispatcher.onBackPressed()
         return true
     }
 
