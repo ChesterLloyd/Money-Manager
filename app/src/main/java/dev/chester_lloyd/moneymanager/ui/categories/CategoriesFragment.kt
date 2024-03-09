@@ -22,6 +22,7 @@ class CategoriesFragment : Fragment() {
 
     private var _binding: FragmentCategoriesBinding? = null
     private val binding get() = _binding!!
+    private var listViewPosition = 0
 
     /**
      * An [onCreateView] method that sets up the View and FAB
@@ -68,6 +69,7 @@ class CategoriesFragment : Fragment() {
             requireContext(),
             "categories"
         )
+        binding.lvCategories.setSelection(listViewPosition)
 
         // Show no categories text
         if (listCategories.isEmpty()) {
@@ -75,6 +77,14 @@ class CategoriesFragment : Fragment() {
         } else {
             binding.tvNoCategories.visibility = View.INVISIBLE
         }
+    }
+
+    /**
+     * An [onPause] method that stores the position of the ListView.
+     */
+    override fun onPause() {
+        super.onPause()
+        listViewPosition = binding.lvCategories.firstVisiblePosition
     }
 
     /**

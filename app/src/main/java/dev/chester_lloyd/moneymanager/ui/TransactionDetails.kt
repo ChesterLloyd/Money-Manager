@@ -25,6 +25,7 @@ import dev.chester_lloyd.moneymanager.ui.transactions.AddTransaction
 class TransactionDetails : AppCompatActivity() {
 
     private lateinit var binding: ActivityTransationDetailsBinding
+    private var listViewPosition = 0
     private var transaction = Transaction()
 
     /**
@@ -119,8 +120,17 @@ class TransactionDetails : AppCompatActivity() {
             applicationContext,
             "transaction details"
         )
+        binding.lvPayments.setSelection(listViewPosition)
 
         dbManager.sqlDB!!.close()
+    }
+
+    /**
+     * An [onPause] method that stores the position of the ListView.
+     */
+    override fun onPause() {
+        super.onPause()
+        listViewPosition = binding.lvPayments.firstVisiblePosition
     }
 
     /**

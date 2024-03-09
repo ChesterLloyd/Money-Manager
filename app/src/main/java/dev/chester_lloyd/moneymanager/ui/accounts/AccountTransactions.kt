@@ -22,6 +22,7 @@ import dev.chester_lloyd.moneymanager.ui.ListViewManager
 class AccountTransactions : AppCompatActivity() {
 
     private lateinit var binding: ActivityAccountTransactionsBinding
+    private var listViewPosition = 0
     private var account = Account()
 
     /**
@@ -102,6 +103,15 @@ class AccountTransactions : AppCompatActivity() {
             applicationContext,
             "account transactions"
         )
+        binding.lvTransactions.setSelection(listViewPosition)
+    }
+
+    /**
+     * An [onPause] method that stores the position of the ListView.
+     */
+    override fun onPause() {
+        super.onPause()
+        listViewPosition = binding.lvTransactions.firstVisiblePosition
     }
 
     /**

@@ -20,6 +20,7 @@ class TransactionTabFragment(private val tab: Int = 0) : Fragment() {
 
     private var _binding: FragmentTransactionTabBinding? = null
     private val binding get() = _binding!!
+    private var listViewPosition = 0
 
     /**
      * An [onCreateView] method that sets up the View
@@ -63,7 +64,16 @@ class TransactionTabFragment(private val tab: Int = 0) : Fragment() {
                 requireContext(),
                 "transactions"
             )
+            binding.lvTransactions.setSelection(listViewPosition)
         }
+    }
+
+    /**
+     * An [onPause] method that stores the position of the ListView.
+     */
+    override fun onPause() {
+        super.onPause()
+        listViewPosition = binding.lvTransactions.firstVisiblePosition
     }
 
     /**

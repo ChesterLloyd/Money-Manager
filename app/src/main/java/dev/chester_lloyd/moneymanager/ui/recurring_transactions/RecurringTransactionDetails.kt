@@ -24,6 +24,7 @@ import dev.chester_lloyd.moneymanager.ui.ListViewManager
 class RecurringTransactionDetails : AppCompatActivity() {
 
     private lateinit var binding: ActivityRecurringTransactionDetailsBinding
+    private var listViewPosition = 0
     private var recurringTransaction = RecurringTransaction()
 
     /**
@@ -90,6 +91,15 @@ class RecurringTransactionDetails : AppCompatActivity() {
             this,
             "recurring transaction"
         )
+        binding.lvTransactions.setSelection(listViewPosition)
+    }
+
+    /**
+     * An [onPause] method that stores the position of the ListView.
+     */
+    override fun onPause() {
+        super.onPause()
+        listViewPosition = binding.lvTransactions.firstVisiblePosition
     }
 
     /**

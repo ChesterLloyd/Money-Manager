@@ -26,6 +26,7 @@ class AccountsFragment : Fragment() {
 
     private var _binding: FragmentAccountsBinding? = null
     private val binding get() = _binding!!
+    private var listViewPosition = 0
     private var listAccounts = ArrayList<Account>()
 
     /**
@@ -107,6 +108,7 @@ class AccountsFragment : Fragment() {
             requireContext(),
             "categories"
         )
+        binding.lvAccounts.setSelection(listViewPosition)
 
         // Show no accounts text
         if (listAccounts.isEmpty()) {
@@ -114,5 +116,13 @@ class AccountsFragment : Fragment() {
         } else {
             binding.tvNoAccounts.visibility = View.INVISIBLE
         }
+    }
+
+    /**
+     * An [onPause] method that stores the position of the ListView.
+     */
+    override fun onPause() {
+        super.onPause()
+        listViewPosition = binding.lvAccounts.firstVisiblePosition
     }
 }

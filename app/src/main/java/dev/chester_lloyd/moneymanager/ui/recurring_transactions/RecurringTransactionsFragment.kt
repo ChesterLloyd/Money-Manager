@@ -19,6 +19,7 @@ class RecurringTransactionsFragment : Fragment() {
 
     private var _binding: FragmentRecurringTransactionsBinding? = null
     private val binding get() = _binding!!
+    private var listViewPosition = 0
 
     /**
      * An [onCreateView] method that sets up the View and FAB
@@ -56,6 +57,7 @@ class RecurringTransactionsFragment : Fragment() {
             requireContext(),
             "recurring transactions"
         )
+        binding.lvRecurringTransactions.setSelection(listViewPosition)
 
         // Show no recurring transactions text
         if (listRecurringTransactions.isEmpty()) {
@@ -63,6 +65,14 @@ class RecurringTransactionsFragment : Fragment() {
         } else {
             binding.tvNoRecurringTransactions.visibility = View.INVISIBLE
         }
+    }
+
+    /**
+     * An [onPause] method that stores the position of the ListView.
+     */
+    override fun onPause() {
+        super.onPause()
+        listViewPosition = binding.lvRecurringTransactions.firstVisiblePosition
     }
 
     /**

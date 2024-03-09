@@ -23,6 +23,7 @@ import dev.chester_lloyd.moneymanager.ui.ListViewManager
 class CategoryTransaction : AppCompatActivity() {
 
     private lateinit var binding: ActivityCategoryTransactionBinding
+    private var listViewPosition = 0
     private var category = Category()
 
     /**
@@ -101,6 +102,15 @@ class CategoryTransaction : AppCompatActivity() {
             this,
             "category transactions"
         )
+        binding.lvTransactions.setSelection(listViewPosition)
+    }
+
+    /**
+     * An [onPause] method that stores the position of the ListView.
+     */
+    override fun onPause() {
+        super.onPause()
+        listViewPosition = binding.lvTransactions.firstVisiblePosition
     }
 
     /**
