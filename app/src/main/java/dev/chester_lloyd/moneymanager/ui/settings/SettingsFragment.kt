@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.Html
+import android.text.Spannable
 import android.view.*
 import android.widget.*
 import androidx.core.app.ActivityCompat
@@ -140,7 +141,8 @@ class SettingsFragment : Fragment() {
             "<font color='$colour'>${format[0]}</font>3" +
                     "<font color='$colour'>${format[1]}</font>000" +
                     "<font color='$colour'>${format[2]}</font>50" +
-                    "<font color='$colour'>${format[3]}</font>"
+                    "<font color='$colour'>${format[3]}</font>",
+            Html.FROM_HTML_MODE_COMPACT
         )
 
         // Update spinner to saved date format

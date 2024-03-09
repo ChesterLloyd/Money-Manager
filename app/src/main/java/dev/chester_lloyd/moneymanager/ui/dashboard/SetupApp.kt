@@ -7,6 +7,7 @@ import android.text.Editable
 import android.text.Html
 import android.text.TextWatcher
 import android.widget.Toast
+import androidx.activity.addCallback
 import dev.chester_lloyd.moneymanager.MainActivity
 import dev.chester_lloyd.moneymanager.R
 import dev.chester_lloyd.moneymanager.databinding.ActivitySetupAppBinding
@@ -20,7 +21,6 @@ import java.text.NumberFormat
  * @author Chester Lloyd
  * @since 1.0
  */
-@Suppress("DEPRECATION")
 class SetupApp : AppCompatActivity() {
 
     private lateinit var binding: ActivitySetupAppBinding
@@ -36,6 +36,10 @@ class SetupApp : AppCompatActivity() {
      * @param savedInstanceState Fragment is being re-constructed from a previous saved state.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
+        this.onBackPressedDispatcher.addCallback(this) {
+            backPressed()
+        }
+
         super.onCreate(savedInstanceState)
         binding = ActivitySetupAppBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -150,7 +154,8 @@ class SetupApp : AppCompatActivity() {
             "<font color='$colour'>${symbol}</font>3" +
                     "<font color='$colour'>${group}</font>000" +
                     "<font color='$colour'>${decimal}</font>50" +
-                    "<font color='$colour'>${suffix}</font>"
+                    "<font color='$colour'>${suffix}</font>",
+            Html.FROM_HTML_MODE_COMPACT
         )
     }
 
@@ -162,7 +167,7 @@ class SetupApp : AppCompatActivity() {
      * otherwise.
      */
     override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
+        backPressed()
         return true
     }
 
@@ -170,9 +175,9 @@ class SetupApp : AppCompatActivity() {
      * An [onBackPressed] method that prevents closing this activity once navbar back button is
      * pressed.
      */
-    override fun onBackPressed() {
+    private fun backPressed() {
         if (!setup) {
-            super.onBackPressed()
+            finish()
         } else {
             // Not calling super so the back button has been disabled, show a warning
             Toast.makeText(this, R.string.app_setup_back, Toast.LENGTH_LONG).show()

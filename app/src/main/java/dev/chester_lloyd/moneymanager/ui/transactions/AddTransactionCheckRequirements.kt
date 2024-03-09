@@ -114,7 +114,7 @@ class AddTransactionCheckRequirements : AppCompatActivity() {
      * otherwise.
      */
     override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
+        this.finish()
         return true
     }
 }

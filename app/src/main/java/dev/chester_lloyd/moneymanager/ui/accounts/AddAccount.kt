@@ -283,7 +283,7 @@ class AddAccount : AppCompatActivity() {
      * otherwise.
      */
     override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
+        this.finish()
         return true
     }
 }

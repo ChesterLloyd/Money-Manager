@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.Window
 import android.view.WindowManager
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.andrognito.pinlockview.IndicatorDots
@@ -37,6 +38,10 @@ class PinCodeActivity : AppCompatActivity() {
      * An [onCreate] method that sets up the PIN code elements.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
+        this.onBackPressedDispatcher.addCallback(this) {
+            backPressed()
+        }
+
         super.onCreate(savedInstanceState)
         binding = ActivityPinCodeBinding.inflate(layoutInflater)
 
@@ -225,7 +230,7 @@ class PinCodeActivity : AppCompatActivity() {
      * otherwise.
      */
     override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
+        backPressed()
         return true
     }
 
@@ -233,10 +238,10 @@ class PinCodeActivity : AppCompatActivity() {
      * An [onBackPressed] method that informs the calling activity that we have closed this activity
      * by toolbar or device back button. This is only allowed when not in the authentication journey.
      */
-    override fun onBackPressed() {
+    private fun backPressed() {
         if (journey != "authenticate") {
             setResult(RESULT_OK)
-            super.onBackPressed()
+            finish()
         }
     }
 }

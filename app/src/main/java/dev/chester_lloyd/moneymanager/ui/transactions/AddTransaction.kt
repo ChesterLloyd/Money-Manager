@@ -8,6 +8,7 @@ import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
 import android.view.View
 import android.widget.*
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import dev.chester_lloyd.moneymanager.*
 import dev.chester_lloyd.moneymanager.RecurringTransaction.Companion.NO_END_DATE_YEARS
@@ -43,6 +44,10 @@ class AddTransaction : AppCompatActivity() {
      * amount validator, date picker, FAB and view.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
+        this.onBackPressedDispatcher.addCallback(this) {
+            backPressed()
+        }
+
         super.onCreate(savedInstanceState)
         binding = ActivityAddTransactionBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -787,7 +792,7 @@ class AddTransaction : AppCompatActivity() {
      * otherwise.
      */
     override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
+        this.finish()
         return true
     }
 
@@ -795,8 +800,8 @@ class AddTransaction : AppCompatActivity() {
      * An [onBackPressed] method that informs the calling activity that we have closed this activity
      * (by toolbar or device back button.
      */
-    override fun onBackPressed() {
+    private fun backPressed() {
         setResult(RESULT_OK)
-        super.onBackPressed()
+        finish()
     }
 }
